@@ -1,0 +1,1973 @@
+{
+  "home": {
+    "nav": {
+      "chat": "Chat",
+      "project": "Projects",
+      "showcase": "Shelf Labels",
+      "quote": "Quote Returns",
+      "files": "File Resources",
+      "permission": "Permissions",
+      "settings": "Settings"
+    },
+    "defaults": {
+      "conversation_title": "New Chat",
+      "project_label": "New Project",
+      "assistant_text": "Try asking for 10 Alpine Rain Shell units and I will summarize stock, price, and availability.",
+      "highlights": [
+        "10 Alpine Rain Shell units (stock check)",
+        "Price ranges and availability insights",
+        "Suggested alternatives based on brand",
+        "Follow-up ideas to refine the selection"
+      ],
+      "next_steps": [
+        "Ask for a shortlist based on budget.",
+        "Compare 3 similar products side-by-side.",
+        "Generate a quote list for the selection."
+      ],
+      "user_prompt": "Please find 10 Alpine Rain Shell units and summarize stock and price.",
+      "schedule": "2025/08/04 09:30 AM",
+      "project_fallback": "Client project"
+    },
+    "output_types": {
+      "placeholder": "Output type",
+      "quote_list": "Quote List",
+      "guide_list": "Guide List",
+      "text_message": "Text Message",
+      "store_recommendation": "Store Recommendation",
+      "search_results": "Search Results",
+      "reports": "Reports",
+      "free_chat": "Free Chat"
+    },
+    "tabs": {
+      "gallery": "Gallery",
+      "slides": "Slides",
+      "social": "Social"
+    },
+    "errors": {
+      "load_conversation": "Unable to load conversation.",
+      "load_history": "Unable to load chat history.",
+      "login_required": "Please log in again to continue the conversation.",
+      "chat_busy": "The system is busy. Please try again later.",
+      "chat_failed": "Chat request failed.",
+      "rename_project_required": "Please enter a project name.",
+      "rename_missing": "No conversation selected.",
+      "rename_failed": "Rename failed.",
+      "visibility_missing": "No conversation selected.",
+      "visibility_failed": "Failed to update visibility.",
+      "delete_missing": "No conversation selected.",
+      "delete_failed": "Delete failed.",
+      "load_folders": "Unable to load folders."
+    },
+    "labels": {
+      "project_name": "Project name",
+      "unnamed_project": "Untitled project",
+      "this_conversation": "this conversation",
+      "you": "You",
+      "ai": "AI"
+    },
+    "placeholders": {
+      "chat": "Describe your request...",
+      "search": "Search conversations...",
+      "share_email": "Enter an email to notify the recipient",
+      "rename_project": "Enter a new project name",
+      "chat_outdoor": "Ask about hiking gear, fishing tackle inventory, quotes, files, or team workflows..."
+    },
+    "aria": {
+      "main_nav": "Main navigation",
+      "toggle_menu": "Toggle main menu",
+      "open_account_menu": "Open account menu",
+      "open_search": "Open search",
+      "edit_input": "Edit prompt",
+      "open_actions": "Open actions menu",
+      "upload_file": "Upload file",
+      "send_message": "Send message",
+      "copy_response": "Copy response",
+      "share_response": "Share response",
+      "close_snackbar": "Dismiss notification",
+      "close_share": "Close share dialog",
+      "close_modal": "Close dialog",
+      "close_search": "Close search"
+    },
+    "menu": {
+      "pin": "Pin to top",
+      "unpin": "Unpin",
+      "visibility": "Visibility",
+      "rename": "Rename",
+      "delete": "Delete",
+      "select_folder": "Select Folder",
+      "new_conversation": "New Conversation"
+    },
+    "visibility": {
+      "public": "Public",
+      "private": "Private",
+      "public_label": "Public (same role)",
+      "public_description": "Members with the same role can view this project.",
+      "private_label": "Private (only you)",
+      "private_description": "Only you and the system can view this conversation."
+    },
+    "status": {
+      "summary": "Summary"
+    },
+    "history": {
+      "empty_summary": "No summary yet"
+    },
+    "loading": {
+      "history": "Loading history...",
+      "conversation": "Loading conversation...",
+      "ai_thinking": "AI is thinking..."
+    },
+    "empty": {
+      "no_projects": "No conversations yet",
+      "no_pinned": "No pinned conversations",
+      "no_history": "No history yet",
+      "no_inbox": "No drafts yet"
+    },
+    "actions": {
+      "show_references": "Show references",
+      "new_conversation": "New chat",
+      "cancel": "Cancel"
+    },
+    "customer": {
+      "label": "Customer",
+      "link_cta": "Link customer",
+      "aria_link": "Link customer to conversation"
+    },
+    "search": {
+      "recent_conversations": "Recent conversations",
+      "results": "Search results",
+      "loading": "Searching conversations...",
+      "empty": "No matching conversations",
+      "empty_results": "No matching conversations found for this search.",
+      "error": "Unable to search conversations right now."
+    },
+    "hero": {
+      "title": "Ask __SYSTEM_NAME__ about trail gear, tackle stock, and outdoor operations.",
+      "eyebrow": "Outdoor intelligent system Command Center",
+      "copy": "Search hiking equipment, fishing tackle, quote drafts, resource files, and team handoffs from one AI workspace."
+    },
+    "sections": {
+      "pinned": "Pinned",
+      "history": "History",
+      "inbox": "Drafts"
+    },
+    "snackbar": {
+      "copied": "Copied to clipboard"
+    },
+    "share": {
+      "title": "Share conversation",
+      "submit": "Send",
+      "note": "Private conversations are only visible to the recipient you share with.",
+      "default_title": "__SYSTEM_NAME__ response"
+    },
+    "modals": {
+      "delete_project": {
+        "title": "Delete project",
+        "body": "After deletion this project will be archived and only super admins can restore it. Are you sure you want to remove this project?",
+        "confirm": "Delete"
+      },
+      "delete_conversation": {
+        "title": "Delete conversation",
+        "body": "After deletion this conversation will be archived and only super admins can restore it. Are you sure you want to delete it?",
+        "confirm": "Delete"
+      },
+      "rename": {
+        "title": "Rename",
+        "confirm": "Save"
+      },
+      "visibility": {
+        "title": "Visibility",
+        "confirm": "Apply",
+        "hint": "Set viewing permissions for {target}"
+      },
+      "permission_denied": {
+        "title": "Access denied",
+        "body": "Your role cannot view Permission members. Please contact an admin to request access.",
+        "confirm": "Got it"
+      },
+      "select_folder": {
+        "title": "Select Folder",
+        "subtitle": "Choose a folder to move this conversation into.",
+        "search_label": "Search Folders",
+        "search_placeholder": "Filter folders by keyword",
+        "loading": "Loading folders...",
+        "empty": "No available folders",
+        "required": "Please select a folder first",
+        "submit_failed": "Failed to move conversation",
+        "confirm": "Move",
+        "submitting": "Processing..."
+      }
+    },
+    "highlights": {
+      "section_title": "Highlights",
+      "keyword_prefix": "Keywords: "
+    },
+    "next_steps": {
+      "variant_prefix": "Follow-up: ",
+      "filter_prefix": "Refine by: "
+    },
+    "references": {
+      "reference_label": "Reference #{index}",
+      "more_references": "...more",
+      "less_references": "show less",
+      "badges": {
+        "internal_approved": "Internal Approved",
+        "internal_official": "Internal Official",
+        "external_authoritative": "External Authoritative",
+        "external_other": "External Other",
+        "internal": "Internal"
+      }
+    },
+    "rag": {
+      "summary_title": "RAG summary",
+      "status_label": "RAG references",
+      "external_search_title": "External Search",
+      "external_search_status": "External Search"
+    },
+    "cerp": {
+      "notice_history": "I found this product in intelligent system. Summary (from previously exported data):",
+      "notice_direct": "I found this product in intelligent system. Summary:"
+    },
+    "cerp_results": {
+      "title": "Product Inventory results ({count})",
+      "subtitle": "These results stay in chat for review and do not automatically create a quote list.",
+      "truncated_summary": "{total} item(s) matched; showing {displayed}.",
+      "source": "intelligent system",
+      "empty_value": "-",
+      "proof_label": "Proof {count}",
+      "timestamp_label": "Smart system timestamp: {timestamp}",
+      "source_trace_label": "Source trace: {trace}",
+      "business_fields_label": "Business fields: {fields}",
+      "field_separator": ", ",
+      "business_fields": {
+        "cost": "Cost",
+        "margin": "Margin",
+        "margin_rate": "Margin rate",
+        "supplier_terms": "Supplier terms",
+        "sales_velocity": "Sales velocity",
+        "depletion": "Depletion",
+        "allocation": "Allocation",
+        "order_history": "Order history",
+        "review_score": "Review score"
+      },
+      "columns": {
+        "code": "Code",
+        "producer": "Brand",
+        "name": "Product",
+        "vintage": "Model Year",
+        "stock": "Stock",
+        "price": "Price",
+        "status": "Status",
+        "category": "Category",
+        "reason": "Reason"
+      }
+    },
+    "transparency": {
+      "title": "Source Transparency",
+      "answer_mode": "Answer mode",
+      "source_mix": "Evidence source mix",
+      "rejected_evidence": "Rejected evidence",
+      "citation_validation": "Citation validation",
+      "citation_metric": "{citations} citations / {unmapped} unmapped",
+      "cerp_proof": "Smart system proof",
+      "cerp_proof_metric": "{count} proof(s)",
+      "hard_flags": "Hard flags",
+      "disclaimer": "Notice",
+      "general_answer_disclaimer": "General reference answer; not verified against __SYSTEM_NAME__ internal sources.",
+      "filtered_out": "Filtered Out",
+      "answer_modes": {
+        "generated": "Generated",
+        "grounded_gap": "Grounded Gap",
+        "ranking_shortlist": "Ranking Shortlist",
+        "fail_closed": "Fail Closed",
+        "verified_answer": "Verified Answer",
+        "assisted_general_answer": "General Reference",
+        "data_or_permission_needed": "Data or Permission Needed"
+      },
+      "source_mix_labels": {
+        "internal_approved": "Internal Approved",
+        "internal_official": "Internal Official",
+        "internal_other": "Internal Other",
+        "external_authoritative": "External Authoritative",
+        "external_other": "External Other"
+      }
+    },
+    "product_card": {
+      "labels": {
+        "number": "No.",
+        "vintage": "Model Year",
+        "producer": "Brand",
+        "product": "Product",
+        "color": "Color",
+        "rating": "Rating",
+        "stock": "Stock",
+        "list_price": "List",
+        "vip_quote": "Quote (VIP)",
+        "promo": "Promo"
+      },
+      "bundle_1_1": "Bundle 1+1",
+      "bundle_label": "1+1",
+      "default_title": "Smart system quote",
+      "non_vintage": "NV",
+      "photo_placeholder": "Bottle photo coming soon"
+    },
+    "user": {
+      "default_name": "User",
+      "default_seed": "Chat"
+    },
+    "quote_ui": {
+      "default_query": "this quote request",
+      "status_ready": "Ready",
+      "status_warning": "Partial match",
+      "status_empty": "No result",
+      "success_title": "I prepared {count} quote suggestions for {query}",
+      "success_intro": "In response to {query}, I prepared a quote-ready recommendation set that includes:",
+      "success_bullet_count": "{count} products ready for direct comparison",
+      "bullet_quote_info": "item code, product name, stock, and quote information for each product",
+      "bullet_wine_details": "color, rating, model year, and brand details for faster review",
+      "bullet_compare": "a structure that makes it easier to compare products side by side",
+      "success_closing": "This list is organized in a structured way so you can quickly confirm which products should be prioritized for the quote.",
+      "closing_bullet_filter": "narrow further by category, brand, or model year",
+      "closing_bullet_save": "keep the current result and refine it later",
+      "closing_bullet_more": "ask for more similar products to expand the shortlist",
+      "shortage_title": "I prepared {count}/{requested} quote suggestions for {query}",
+      "shortage_intro": "You asked for {requested} in-stock products matching {query}. I found {count} options that are immediately available:",
+      "shortage_bullet_count": "{count} products currently match and are available now",
+      "shortage_bullet_alternatives": "{count} similar in-stock alternatives are also ready for review",
+      "shortage_closing": "If you want, I can include these similar in-stock alternatives in the next version of the quote shortlist.",
+      "empty_title": "No quote result is currently available for {query}",
+      "empty_intro": "I couldn't find a product to place directly into the quote list yet, but I can rebuild it once you narrow the request.",
+      "empty_bullet_request": "confirm the brand, category, model year, or preferred style",
+      "empty_bullet_inventory": "retry with in-stock only or a wider inventory scope",
+      "empty_bullet_refine": "refine by use case, fit, or price range",
+      "empty_closing": "If you want, I can immediately reshape this into another quote direction that is closer to your target.",
+      "empty_closing_bullet_alternative": "switch to same-brand or same-style alternatives",
+      "empty_closing_bullet_region": "rerun with category or country as the main filter",
+      "empty_closing_bullet_style": "rerun with taste, rating, or price band as the main filter",
+      "near_match_title": "Close quote candidates found for {query}",
+      "near_match_intro": "I did not find an exact sellable match, but nearby quote-ready candidates are available.",
+      "near_match_bullet_count": "{count} close smart system candidates are available",
+      "near_match_bullet_review": "Review price, stock, or similar sellable items before sending a quote",
+      "near_match_bullet_action": "Use the follow-up action to open the closest quote candidates",
+      "near_match_closing": "Closest candidates currently found:",
+      "near_match_closing_bullet_count": "{count} close smart system candidates found",
+      "near_match_closing_bullet_review": "Review same-category or same-style alternatives first",
+      "near_match_closing_bullet_continue": "Continue in quote chat to compare sellable options"
+    },
+    "permission": {
+      "search_failed": "Unable to search invite candidates.",
+      "load_failed": "Unable to load permission list.",
+      "remove_failed": "Unable to remove member.",
+      "select_candidate": "Select an account to invite first.",
+      "invite_failed": "Invite failed.",
+      "owner": "Owner",
+      "accepted": "Authorized",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "revoked": "Removed",
+      "invite_members": "Invite members",
+      "current_members": "Members with access",
+      "lookup_placeholder": "Search username / email",
+      "lookup_loading": "Searching...",
+      "lookup_empty": "No eligible member found",
+      "invite": "Invite",
+      "remove": "Remove",
+      "empty_members": "No members have access yet.",
+      "public_copy": "Public conversations can be viewed by authorized members without extra invitations.",
+      "saving": "Saving...",
+      "confirm": "Confirm",
+      "visibility_setting": "Visibility"
+    },
+    "quote_followup": {
+      "summary_fill": "Next step: add {remaining} similar items to bring this shortlist to {target}.",
+      "summary_include": "Next step: include similar in-stock items in the shortlist.",
+      "summary_relax": "Next step: relax one layer of constraints and rebuild the shortlist.",
+      "summary_show": "Next step: expand the closest recommendations for direct review.",
+      "summary_continue": "Next step: continue with the current shortlist context.",
+      "fill": "Bring it to {target}",
+      "fill_prompt": "Bring it to {target}",
+      "include": "Include in-stock similars",
+      "include_prompt": "Include similar in-stock items",
+      "relax": "Relax constraints",
+      "relax_prompt": "Relax constraints and rebuild the shortlist",
+      "show": "Show close recommendations",
+      "show_prompt": "Show the closest recommendations",
+      "continue_label": "Keep this shortlist",
+      "continue_prompt": "Keep only the current shortlist",
+      "pivot_label": "Go to Quote",
+      "pivot_prompt": "Continue this product in quote chat"
+    }
+  },
+  "app": {
+    "sidebar": {
+      "aria": "Main navigation",
+      "logo_alt": "__SYSTEM_NAME__ logo"
+    },
+    "topbar": {
+      "menu_aria": "Toggle sidebar",
+      "avatar_aria": "Open account menu",
+      "logo_alt": "__SYSTEM_NAME__ logo",
+      "logout": "Log out",
+      "avatar_fallback": "Account",
+      "default_name": "__SYSTEM_NAME__ user",
+      "no_email": "No email set",
+      "menu": {
+        "change_password": "Change password"
+      },
+      "password_modal": {
+        "eyebrow": "Account security",
+        "title": "Change password",
+        "copy": "Enter your current password and a new sign-in password. You will be signed out after saving.",
+        "fields": {
+          "current_password": "Current password",
+          "new_password": "New password",
+          "confirm_password": "Confirm new password"
+        },
+        "toast_title": "Password updated",
+        "toast_message": "Please sign in again with your new password.",
+        "errors": {
+          "current_required": "Enter your current password.",
+          "new_required": "Enter a new password.",
+          "new_length": "Your new password must contain at least {count} characters.",
+          "confirm_required": "Confirm your new password.",
+          "confirm_mismatch": "The passwords do not match."
+        }
+      }
+    },
+    "locale": {
+      "label": "Language",
+      "zh": "繁",
+      "en": "EN",
+      "ja": "日",
+      "zh_long": "Traditional Chinese",
+      "en_long": "English",
+      "ja_long": "Japanese"
+    },
+    "command": {
+      "open": "Open command center",
+      "close": "Close command center",
+      "title": "Command center",
+      "subtitle": "Search, jump to conversations, and start outdoor intelligent system work.",
+      "search": "Search workspace",
+      "quick_actions": "Quick actions",
+      "recent": "Recent conversations",
+      "pinned": "Pinned conversations",
+      "empty": "No items yet",
+      "new_conversation": "New conversation",
+      "account": "Account"
+    }
+  },
+  "common": {
+    "actions": {
+      "add": "Add",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "hide": "Hide",
+      "show": "Show",
+      "processing": "Processing...",
+      "saving": "Saving...",
+      "sending": "Sending...",
+      "setting": "Setting...",
+      "updating": "Updating...",
+      "delete": "Delete"
+    }
+  },
+  "customer": {
+    "modal": {
+      "title": "Link customer",
+      "close": "Close"
+    },
+    "search": {
+      "placeholder": "Search by name or email",
+      "action": "Search",
+      "loading": "Searching...",
+      "empty": "No customers found"
+    },
+    "actions": {
+      "link": "Link"
+    },
+    "labels": {
+      "no_email": "No email"
+    },
+    "errors": {
+      "search_failed": "Unable to load customers.",
+      "link_failed": "Failed to link customer.",
+      "no_conversation": "No active conversation."
+    },
+    "create": {
+      "title": "Create customer",
+      "name_label": "Name",
+      "email_label": "Email",
+      "phone_label": "Phone",
+      "action": "Create & link",
+      "creating": "Creating...",
+      "required": "Name is required."
+    }
+  },
+  "chat_composer": {
+    "aria": {
+      "remove_attachment": "Remove attachment",
+      "send": "Send message",
+      "upload": "Upload file"
+    },
+    "output_placeholder": "Select output",
+    "preview_image": "Image preview",
+    "actions": {
+      "add_file": "Add file",
+      "add_url": "Add URL"
+    },
+    "url": {
+      "title": "Add URLs",
+      "hint": "Separate multiple URLs with commas or new lines.",
+      "placeholder": "Paste one or more URLs",
+      "submit": "Add URLs",
+      "cancel": "Cancel"
+    }
+  },
+  "login": {
+    "hero": {
+      "logo_alt": "__SYSTEM_NAME__ logo",
+      "title": "Welcome back",
+      "copy": "Sign in to manage quotes, conversations, and team access."
+    },
+    "panel": {
+      "eyebrow": "Sign in",
+      "title": "Access your workspace"
+    },
+    "banner": {
+      "title": "Login failed.",
+      "copy": "Please check your account and password."
+    },
+    "form": {
+      "account_label": "Email or username",
+      "account_placeholder": "name{'@'}ys.local",
+      "password_label": "Password",
+      "password_placeholder": "Enter your password",
+      "toggle_password": "Show or hide password",
+      "forgot_password": "Forgot password?",
+      "submit": "Sign in"
+    },
+    "errors": {
+      "account_required": "Account is required.",
+      "account_invalid": "Enter a valid email or authorized username.",
+      "password_required": "Password is required.",
+      "token_missing": "Login succeeded but no token was returned.",
+      "login_failed": "Login failed. Please try again."
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "description": "Enter the email address for your account.",
+      "sent_title": "Reset password",
+      "sent_description": "Check your email to continue the password reset flow.",
+      "field_label": "Email",
+      "field_placeholder": "sample{'@'}email.com",
+      "success_title": "Password reset email sent",
+      "success_copy": "Check {email} for the reset link and follow the instructions in the email.",
+      "errors": {
+        "required": "Enter your account email.",
+        "invalid": "Enter a valid email address.",
+        "submit_failed": "Unable to send the reset password request right now. Please try again later."
+      }
+    },
+    "outdoor": {
+      "brand": "Outdoor intelligent system",
+      "kicker": "Premium Outdoor Operations",
+      "title": "Trail gear and fishing tackle intelligence.",
+      "copy": "Demo workspace for hiking equipment, tackle inventory, quote flows, files, and team permissions.",
+      "trail": "Trail gear",
+      "tackle": "Tackle stock",
+      "flow": "Smart workflow",
+      "panel_brand": "__SYSTEM_NAME__",
+      "panel_eyebrow": "Secure equipment workspace"
+    }
+  },
+  "account": {
+    "nav": {
+      "chat": "Chat",
+      "project": "Projects",
+      "showcase": "Shelf Labels",
+      "quote": "Quote Returns",
+      "files": "File Resources",
+      "permission": "Permissions & People",
+      "settings": "Settings"
+    },
+    "sections": {
+      "roles": "Permission management",
+      "users": "Member management",
+      "settings": "Settings"
+    },
+    "crumbs": {
+      "permission": "Permissions & People",
+      "management": "Member management"
+    },
+    "hero": {
+      "title": "Permission members",
+      "subtitle": "Manage team access and roles."
+    },
+    "search": {
+      "chat_placeholder": "Search chats...",
+      "roles_placeholder": "Search roles",
+      "members_placeholder": "Search members..."
+    },
+    "table": {
+      "status": "Status",
+      "account": "Account",
+      "role": "Role",
+      "updated_at": "Updated",
+      "actions": "Actions",
+      "roles": {
+        "name": "Role name",
+        "conversation_visibility": "Conversation access",
+        "member_count": "Members",
+        "updated_at": "Last updated"
+      },
+      "users": {
+        "name": "Member name",
+        "role": "Role",
+        "account": "Account",
+        "updated_at": "Updated"
+      }
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "visibility": {
+      "private": "Private",
+      "public": "Public"
+    },
+    "actions": {
+      "add_role": "Add role",
+      "add_member": "Add member",
+      "edit": "Edit",
+      "delete": "Delete",
+      "add": "Add",
+      "cancel": "Cancel",
+      "confirm": "Save"
+    },
+    "pagination": {
+      "per_page": "Per page",
+      "empty": "No members yet."
+    },
+    "aria": {
+      "main_nav": "Main navigation",
+      "toggle_menu": "Toggle sidebar",
+      "toggle_profile": "Open account menu",
+      "search_chat": "Search chats",
+      "search_member": "Search members",
+      "prev_page": "Previous page",
+      "next_page": "Next page",
+      "change_page_size": "Change page size",
+      "close_modal": "Close dialog"
+    },
+    "errors": {
+      "load_roles": "Unable to load roles.",
+      "load_members": "Unable to load members.",
+      "save_role": "Failed to save role.",
+      "delete_role": "Failed to delete role.",
+      "update_role_status": "Failed to update role status.",
+      "save_member": "Failed to save member.",
+      "update_member_status": "Failed to update member status.",
+      "delete_member": "Failed to delete member."
+    },
+    "loading": {
+      "roles": "Loading roles...",
+      "members": "Loading members..."
+    },
+    "empty": {
+      "roles": "No matching roles found.",
+      "members": "No members found."
+    },
+    "permissions": {
+      "chat": "Chat",
+      "projects": "Projects",
+      "labels": "Shelf Labels",
+      "files": "File Resources",
+      "account": "Permissions & People",
+      "roles": "Permission management",
+      "users": "Member management",
+      "settings": "Settings"
+    },
+    "headings": {
+      "basic_settings": "Basic settings",
+      "default_conversation_access": "Default conversation access",
+      "permission_settings": "Permission settings",
+      "menu_name": "Menu name"
+    },
+    "form": {
+      "role_name_label": "Role name",
+      "input_placeholder": "Enter",
+      "member_name_label": "Member name",
+      "member_name_placeholder": "Enter member name",
+      "account_label": "Account",
+      "account_placeholder": "Email or username",
+      "email_label": "Email",
+      "email_placeholder": "brand{'@'}ys.local",
+      "password_label": "Password",
+      "password_placeholder": "At least 6 characters",
+      "new_password_label": "New password",
+      "new_password_placeholder": "Leave blank to keep current password",
+      "role_label": "Role",
+      "select_placeholder": "Select a role",
+      "send_setup_email": "Send setup password email",
+      "setup_email_success": "The setup password email has been sent.",
+      "setup_email_failed": "Failed to send the setup password email."
+    },
+    "settings_stage": {
+      "title": "AI Training",
+      "summary": "{count} projects",
+      "create_project": "Create project",
+      "unnamed_project": "Untitled project",
+      "search_placeholder": "Search topics",
+      "loading": "Loading projects...",
+      "page_size": "Per page",
+      "tabs": {
+        "pending": "Pending",
+        "processed": "Processed"
+      },
+      "columns": {
+        "topic": "Topic",
+        "time": "Time"
+      },
+      "empty": {
+        "filtered": "No matching topics were found.",
+        "default": "No projects to display."
+      },
+      "errors": {
+        "load": "Unable to load the settings list."
+      },
+      "modal": {
+        "title": "Create project",
+        "name_label": "Customer name",
+        "name_placeholder": "Example: Alex Wang / Bistro 12",
+        "visibility_label": "Visibility",
+        "customer_type_label": "Type",
+        "type_unset": "Not set",
+        "trade_count_label": "Trade count",
+        "last_trade_at_label": "Last trade time",
+        "avg_unit_price_label": "Average unit price",
+        "region_label": "Category",
+        "region_placeholder": "Hiking Gear",
+        "has_wine_cabinet_label": "Has storage locker",
+        "description_label": "Description",
+        "description_placeholder": "Customer preferences, frequent categorys, preferred price range...",
+        "errors": {
+          "name_required": "Enter a project name.",
+          "create": "Failed to create the project."
+        }
+      }
+    },
+    "modals": {
+      "role_create": {
+        "title": "Add role"
+      },
+      "role_edit": {
+        "title": "Edit role"
+      },
+      "role_delete": {
+        "title": "Delete role",
+        "body": "You are about to delete this role. This action cannot be undone. Do you want to continue?"
+      },
+      "member_create": {
+        "title": "Add member"
+      },
+      "member_edit": {
+        "title": "Edit member"
+      },
+      "member_delete": {
+        "title": "Delete member",
+        "body": "Are you sure you want to remove this account? This action cannot be undone."
+      }
+    },
+    "knowledge": {
+      "tabs": {
+        "rag_tables": "RAG Tables",
+        "company_profile": "Company Profile",
+        "external_sites": "External Sites"
+      },
+      "common": {
+        "loading": "Loading...",
+        "chunks": "chunks",
+        "language": "Language"
+      },
+      "rag": {
+        "table_name": "Table name",
+        "table_name_placeholder": "Product FAQ / Service policy",
+        "source_name": "Source name",
+        "source_name_placeholder": "Internal knowledge table",
+        "tags": "Tags",
+        "tags_placeholder": "equipment, warranty, service",
+        "file": "CSV / XLSX file",
+        "import": "Import table",
+        "empty": "No RAG tables imported yet.",
+        "import_success": "Imported {rows} rows into {chunks} chunks."
+      },
+      "profile": {
+        "company_name": "Company / brand name",
+        "industry": "Industry",
+        "product_categories": "Product categories",
+        "tone": "Reply tone",
+        "service_scope": "Service scope",
+        "contact_info": "Contact info",
+        "faq": "FAQ",
+        "policies": "Important policies",
+        "save": "Save profile",
+        "save_success": "Company profile saved into {chunks} RAG chunks."
+      },
+      "sites": {
+        "url": "URL",
+        "name": "Site name",
+        "category": "Category",
+        "trust_level": "Trust level",
+        "enabled": "Enabled",
+        "add": "Add site",
+        "ingest": "Ingest",
+        "save_success": "External site saved.",
+        "ingest_success": "External site ingested into {chunks} chunks.",
+        "trust": {
+          "approved": "Approved",
+          "reference": "Reference",
+          "experimental": "Experimental"
+        }
+      },
+      "errors": {
+        "load": "Unable to load knowledge tables.",
+        "load_profile": "Unable to load company profile.",
+        "load_sites": "Unable to load external sites.",
+        "file_required": "Select a CSV or XLSX file.",
+        "import": "Unable to import this table.",
+        "delete": "Unable to delete this table.",
+        "save_profile": "Unable to save company profile.",
+        "save_site": "Unable to save external site.",
+        "ingest_site": "Unable to ingest external site."
+      }
+    }
+  },
+  "password_flow": {
+    "common": {
+      "back_to_login": "Back to sign in",
+      "no_email": "No email provided",
+      "expired_headline": "This link has expired",
+      "invalid_headline": "This link cannot be used",
+      "fields": {
+        "new_password": "New password",
+        "confirm_password": "Confirm new password"
+      },
+      "errors": {
+        "new_required": "Enter a new password.",
+        "new_length": "Your new password must contain at least {count} characters.",
+        "confirm_required": "Confirm your new password.",
+        "confirm_mismatch": "The passwords do not match."
+      }
+    },
+    "reset": {
+      "title": "Reset password from email",
+      "description": "Set a new sign-in password, then return to the login page.",
+      "loading": "Validating your reset link...",
+      "complete_title": "Password reset complete",
+      "complete_description": "Return to the sign-in page and use your new password.",
+      "success_headline": "Your password has been updated",
+      "success_message": "Password reset complete.",
+      "expired_title": "Reset link expired",
+      "invalid_title": "Reset link invalid",
+      "invalid_description": "This link may have expired, already been used, or been entered incorrectly.",
+      "invalid_hint": "Go back to sign in, click “Forgot password”, and request a new reset email.",
+      "account_label": "Account",
+      "submit": "Confirm change",
+      "errors": {
+        "validate": "Unable to validate the reset password link right now.",
+        "submit": "Unable to reset the password right now. Please try again later."
+      }
+    },
+    "setup": {
+      "title": "Set up your password",
+      "description": "Finish your first password setup before signing in to __SYSTEM_NAME__.",
+      "loading": "Validating your setup link...",
+      "complete_title": "Account activated",
+      "complete_description": "Your password is ready. Return to sign in and start using __SYSTEM_NAME__.",
+      "success_headline": "Welcome to __SYSTEM_NAME__",
+      "success_message": "Password setup complete.",
+      "expired_title": "Setup link expired",
+      "invalid_title": "Setup link invalid",
+      "invalid_description": "This link may have expired or already been used.",
+      "invalid_hint": "Contact an administrator and request a new setup password email.",
+      "account_label": "Account to activate",
+      "submit": "Complete setup",
+      "errors": {
+        "validate": "Unable to validate the setup password link right now.",
+        "submit": "Unable to set the password right now. Please try again later."
+      }
+    }
+  },
+  "api_errors": {
+    "request_failed": "Request failed.",
+    "auth": {
+      "identifier_required": "Enter your username or email.",
+      "credentials_invalid": "Invalid username or password.",
+      "missing_token": "Your session has expired. Please sign in again.",
+      "invalid_token": "Your session is no longer valid. Please sign in again.",
+      "session_expired": "Your session has expired. Please sign in again.",
+      "user_disabled": "This account has been disabled. Contact an administrator.",
+      "role_disabled": "This role has been disabled. Contact an administrator.",
+      "password_confirmation_mismatch": "The passwords do not match.",
+      "password_too_short": "Your password must contain at least 8 characters.",
+      "password_too_long": "Your password is too long.",
+      "current_password_incorrect": "The current password is incorrect.",
+      "email_required": "Enter a valid email address.",
+      "email_missing": "This account does not have an email address.",
+      "email_delivery_disabled": "Email delivery is not enabled in this DEV environment.",
+      "email_delivery_incomplete": "Email delivery is not fully configured yet.",
+      "email_delivery_failed": "Email delivery failed. Please try again later.",
+      "password_link_invalid": "This password link is invalid.",
+      "password_link_used": "This password link has already been used.",
+      "password_link_expired": "This password link has expired.",
+      "change_password_failed": "Unable to change the password right now. Please try again later.",
+      "refresh_failed": "Unable to refresh the session right now."
+    },
+    "admin": {
+      "user_not_found": "User not found.",
+      "role_not_found": "Role not found.",
+      "role_missing": "Select a role.",
+      "role_exists": "This role name already exists.",
+      "role_delete_conflict": "This role cannot be deleted right now.",
+      "role_disabled": "The selected role has been disabled.",
+      "username_exists": "This username is already registered.",
+      "email_exists": "This email is already registered.",
+      "setup_email_failed": "Unable to send the setup password email right now.",
+      "permission_exists": "This permission code already exists.",
+      "permission_not_found": "Permission not found."
+    }
+  },
+  "quote": {
+    "nav": {
+      "chat": "Chat",
+      "project": "Projects",
+      "showcase": "Shelf Labels",
+      "quote": "Quote Returns",
+      "files": "File Resources",
+      "permission": "Permissions",
+      "settings": "Settings"
+    },
+    "aria": {
+      "main_nav": "Main navigation",
+      "toggle_menu": "Toggle sidebar",
+      "toggle_profile": "Open account menu",
+      "search_chat": "Search chats",
+      "send_message": "Send message",
+      "open_card_menu": "Open card actions",
+      "open_actions": "Open actions menu",
+      "copy": "Copy",
+      "share": "Share",
+      "favorite": "Favorite"
+    },
+    "advice": {
+      "title": "Quote overview"
+    },
+    "output_types": {
+      "quote_list": "Quote list"
+    },
+    "table": {
+      "columns": {
+        "no": "No.",
+        "vintage": "Model Year",
+        "producer": "Brand",
+        "product": "Product",
+        "color": "Color",
+        "rating": "Rating",
+        "stock": "Stock",
+        "price": "Price",
+        "vip": "VIP Price",
+        "bundle": "Bundle",
+        "spec": "Spec / Model"
+      },
+      "actions": "Actions",
+      "loading": "Loading conversation...",
+      "select_all": "Select all",
+      "select_row": "Select row"
+    },
+    "labels": {
+      "ai": "AI",
+      "you": "You",
+      "vip": "VIP"
+    },
+    "chat": {
+      "title": "Quote chat"
+    },
+    "loading": {
+      "conversation": "Loading conversation..."
+    },
+    "placeholders": {
+      "compose": "Describe your request...",
+      "search_chat": "Search conversations..."
+    },
+    "actions": {
+      "show_generated": "Show generated results",
+      "swap_recommendation": "Swap recommendation",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "export": "Export",
+      "reset_filters": "Reset filters",
+      "send": "Send",
+      "clear_selection": "Clear selection",
+      "create_edm": "Create EDM ({count})"
+    },
+    "followup": {
+      "summary": {
+        "fill_to_target": "Next step: add {remaining} similar products to bring this shortlist to {target}.",
+        "include_similar": "Next step: include similar in-stock products in the shortlist.",
+        "relax": "Next step: relax one layer of constraints and rebuild the shortlist.",
+        "show_recommended": "Next step: expand the closest recommendations for direct review.",
+        "continue": "Next step: continue with the current shortlist context."
+      },
+      "actions": {
+        "fill_to_target": "Bring it to {target}",
+        "fill_to_target_prompt": "Bring it to {target}",
+        "include_similar": "Include in-stock similars",
+        "include_similar_prompt": "Include similar in-stock products",
+        "relax": "Relax constraints",
+        "relax_prompt": "Relax the constraints and rebuild the shortlist",
+        "show_recommended": "Show close recommendations",
+        "show_recommended_prompt": "Show the closest recommendations",
+        "continue": "Keep this shortlist",
+        "continue_prompt": "Keep only the current shortlist"
+      }
+    },
+    "selection": {
+      "count": "{count} selected"
+    },
+    "filters": {
+      "output_type": "Output type",
+      "price_type": {
+        "label": "Price type",
+        "placeholder": "Select price types",
+        "selected": "{count} selected"
+      },
+      "price_range": "Price range",
+      "color": "Color",
+      "rating": "Rating",
+      "vintage": "Model Year",
+      "producer": "Brand",
+      "inventory": "Inventory",
+      "all": "All"
+    },
+    "price_types": {
+      "vip": "VIP Price",
+      "restaurant": "Restaurant",
+      "dealer": "Dealer",
+      "promo": "Promo",
+      "price": "Price"
+    },
+    "colors": {
+      "red": "Red",
+      "white": "White",
+      "rose": "Rose"
+    },
+    "inventory": {
+      "all": "All",
+      "boutique": "Store stock",
+      "overall": "Overall stock"
+    },
+    "tabs": {
+      "report": "Quote List",
+      "gallery": "Description List",
+      "slides": "Text Message",
+      "social": "Store Recommendation"
+    },
+    "defaults": {
+      "bundle_label": "Bundle",
+      "bundle_short": "Bundle",
+      "color": "Color",
+      "color_unknown": "Unknown",
+      "conversation_title": "New quote",
+      "non_vintage": "NV",
+      "none": "None",
+      "price_estimate": "Estimated {price}",
+      "price_pending": "Price pending",
+      "producer": "Brand",
+      "product": "Product",
+      "rating": "Rating",
+      "stock_bottles": "{count} items",
+      "stock_pending": "Stock pending",
+      "supplier": "intelligent system",
+      "unnamed": "Untitled"
+    },
+    "gallery": {
+      "default_title": "Recommended selection",
+      "default_link": "View details",
+      "photo_placeholder": "Bottle photo coming soon",
+      "more_info": "More info",
+      "cases": "{count} cases"
+    },
+    "slides": {
+      "count": "{count} slides",
+      "meta": {
+        "price": "Price",
+        "vintage": "Model Year",
+        "sku": "SKU",
+        "link": "Link",
+        "area": "Area: {value}"
+      }
+    },
+    "slide": {
+      "notes": {
+        "color": "Color: {value}",
+        "rating": "Rating: {value}"
+      }
+    },
+    "share": {
+      "title": "Share quote",
+      "lead": "Send this quote to a recipient.",
+      "body": "We will notify them with a secure link.",
+      "email_placeholder": "Recipient email",
+      "email_aria": "Share email",
+      "hint": "Only the recipient can view this quote."
+    },
+    "modals": {
+      "delete": {
+        "title": "Delete quote",
+        "body": "Are you sure you want to delete this quote?"
+      }
+    },
+    "snackbar": {
+      "copied_title": "Copied",
+      "copied_body": "Quote copied to clipboard.",
+      "select_items_title": "Select items",
+      "select_items_body": "Please select items first."
+    },
+    "pagination": {
+      "prev": "Prev",
+      "next": "Next",
+      "page": "Page {current} / {total}"
+    },
+    "sort": {
+      "add_rule": "Add rule",
+      "reset_rules": "Reset rules",
+      "remove_rule": "Remove rule",
+      "group_by_producer": "Group by brand",
+      "show_bundle_column": "Show bundle column",
+      "placeholder": "Sort",
+      "count": "{count} rules",
+      "single": "{field} - {direction}",
+      "directions": {
+        "a_z": "A-Z",
+        "z_a": "Z-A",
+        "old_new": "Old-New",
+        "new_old": "New-Old",
+        "high_low": "High-Low",
+        "low_high": "Low-High",
+        "many_few": "Many-Few",
+        "few_many": "Few-Many"
+      },
+      "fields": {
+        "product": "Product",
+        "vintage": "Model Year",
+        "color": "Color",
+        "rating": "Rating",
+        "stock": "Stock",
+        "price": "Price",
+        "bundle": "Bundle",
+        "spec": "Spec / Model"
+      }
+    },
+    "errors": {
+      "auth_required": "Please sign in to continue.",
+      "load_conversation": "Unable to load conversation.",
+      "submit_failed": "Failed to send quote request.",
+      "cerp_failed": "Failed to fetch product inventory products."
+    },
+    "producer_description": {
+      "line1": "{brand} {version} {product} ({color}, {rating}).",
+      "line2": "Availability: {stock}. Pricing: {price}.",
+      "line3": "Ask for use-case ideas or categoryal alternatives.",
+      "line4": "Use filters to refine color, model year, and rating.",
+      "filler": " Additional notes available."
+    },
+    "rating": {
+      "steps": [
+        80,
+        85,
+        90,
+        95,
+        100
+      ]
+    },
+    "sample_messages": [
+      {
+        "role": "assistant",
+        "text": "Here is a preview of your quote highlights."
+      }
+    ]
+  },
+  "edm": {
+    "preview": {
+      "title": "Quote Preview",
+      "shared_title": "Quote Preview"
+    },
+    "actions": {
+      "clear": "Clear",
+      "confirm": "Confirm",
+      "export_excel": "Export Excel",
+      "share_link": "Share Link",
+      "close": "Close",
+      "back_to_quote": "Back to Quote"
+    },
+    "banner": {
+      "logo_alt": "__SYSTEM_NAME__ logo",
+      "meta": {
+        "sales": "Sales",
+        "quote_no": "Quote ID",
+        "quote_date": "Quote Date"
+      }
+    },
+    "hero": {
+      "title": "Outdoor Gear Selection",
+      "product_fallback": "featured selection",
+      "recommendation": "If you like {product}, you may also love these {count} curated items"
+    },
+    "table": {
+      "note": "Please confirm quantities before submitting.",
+      "color_icon": "Color: {color}",
+      "columns": {
+        "no": "No.",
+        "vintage": "Model Year",
+        "producer": "Brand",
+        "product": "Product",
+        "color": "Color",
+        "rating": "Rating",
+        "list_price": "List",
+        "quote_price": "Quote",
+        "bundle": "Bundle",
+        "quote_action": "Quote tier",
+        "quantity": "Qty"
+      }
+    },
+    "quote_tiers": {
+      "wholesale": "Wholesale",
+      "vip": "VIP",
+      "fb": "F&B"
+    },
+    "bundle": {
+      "enabled_11_plus_1": "Applied",
+      "disabled_11_plus_1": "Removed",
+      "toggle_aria": "Toggle bundle discount for {product}. Current state: {state}",
+      "payable_hint": "{quantity} items, charge {payable}"
+    },
+    "feedback": {
+      "sent": "EDM sent successfully.",
+      "failed": "EDM send failed."
+    },
+    "errors": {
+      "no_items": "Select at least one item.",
+      "no_customer": "Link a customer before sending.",
+      "no_conversation": "Missing conversation context."
+    },
+    "confirm": {
+      "title": "Quote Details",
+      "back_aria": "Back",
+      "list": {
+        "product": "Product",
+        "unit_price": "Unit price",
+        "quantity": "Qty",
+        "subtotal": "Subtotal"
+      },
+      "summary": {
+        "title": "Summary",
+        "count": "{count} items",
+        "taxable": "Total, tax included",
+        "tax": "Tax",
+        "total": "Total"
+      },
+      "submit": "Submit quote",
+      "note": "All pricing is valid for 7 days after sending."
+    },
+    "complete": {
+      "title": "Thank you, your quote has been sent.",
+      "subtitle": "We have received your quote request and will process it shortly.",
+      "note": "Below is the confirmed quote information. Please keep a record.",
+      "download": "Download quote (PDF)",
+      "info": {
+        "order_no": "Order ID",
+        "order_date": "Order date",
+        "order_amount": "Order total",
+        "total_qty": "Total qty",
+        "sales_rep": "Sales rep",
+        "contact_phone": "Contact phone"
+      },
+      "table": {
+        "sku": "SKU",
+        "product": "Product",
+        "color": "Color",
+        "quantity": "Qty",
+        "subtotal": "Subtotal"
+      }
+    },
+    "units": {
+      "bottle": "{count} items"
+    },
+    "share": {
+      "title": "Share Link",
+      "email_placeholder": "Enter customer email",
+      "send": "Send",
+      "sending": "Sending...",
+      "link_section_title": "Or copy the link to share",
+      "copy": "Copy",
+      "remove_recipient": "Remove {email}",
+      "errors": {
+        "invalid_email": "Invalid email: {email}",
+        "recipients_required": "Add at least one email recipient.",
+        "copy_failed": "Unable to copy the share link.",
+        "send_failed": "Unable to send the share link."
+      }
+    },
+    "snackbar": {
+      "share_sent": "Share link sent to the selected email",
+      "exported": "Excel file exported successfully"
+    },
+    "state": {
+      "loading": "Loading...",
+      "error_title": "Unable to load EDM preview",
+      "load_failed": "Failed to load the EDM preview.",
+      "invalid_link": "This share link is invalid.",
+      "empty_title": "No EDM preview available",
+      "empty_body": "Return to Quote and select at least one row before exporting."
+    },
+    "export": {
+      "sheet_name": "EDM Preview"
+    }
+  },
+  "returns": {
+    "page_title": "Quote Returns",
+    "search": {
+      "placeholder": "Search by customer name or quote number",
+      "aria": "Search by customer name or quote number"
+    },
+    "table": {
+      "quote_no": "Quote ID",
+      "customer_name": "Customer Name",
+      "sales_rep": "Sales",
+      "quote_date": "Quote Date",
+      "reply_date": "Reply Date"
+    },
+    "actions": {
+      "export_excel": "Export Excel",
+      "delete": "Delete",
+      "cancel": "Cancel"
+    },
+    "states": {
+      "loading": "Loading quote returns...",
+      "empty": "No quote return records yet.",
+      "deleting": "Deleting..."
+    },
+    "errors": {
+      "load": "Failed to load quote returns.",
+      "delete": "Failed to delete the quote return order."
+    },
+    "pagination": {
+      "per_page": "Rows per page"
+    },
+    "snackbar": {
+      "exported": "Excel file exported successfully"
+    },
+    "quote_ui": {
+      "default_query": "this quote request",
+      "status_ready": "Ready",
+      "status_warning": "Partial match",
+      "status_empty": "No result",
+      "success_title": "I prepared {count} quote suggestions for {query}",
+      "success_intro": "In response to {query}, I prepared a quote-ready recommendation set that includes:",
+      "success_bullet_count": "{count} products ready for direct comparison",
+      "bullet_quote_info": "item code, product name, stock, and quote information for each product",
+      "bullet_wine_details": "color, rating, model year, and brand details for faster review",
+      "bullet_compare": "a structure that makes it easier to compare products side by side",
+      "success_closing": "This list is organized in a structured way so you can quickly confirm which products should be prioritized for the quote.",
+      "closing_bullet_filter": "narrow further by category, brand, or model year",
+      "closing_bullet_save": "keep the current result and refine it later",
+      "closing_bullet_more": "ask for more similar products to expand the shortlist",
+      "shortage_title": "I prepared {count}/{requested} quote suggestions for {query}",
+      "shortage_intro": "You asked for {requested} in-stock products matching {query}. I found {count} options that are immediately available:",
+      "shortage_bullet_count": "{count} products currently match and are available now",
+      "shortage_bullet_alternatives": "{count} similar in-stock alternatives are also ready for review",
+      "shortage_closing": "If you want, I can include these similar in-stock alternatives in the next version of the quote shortlist.",
+      "empty_title": "No quote result is currently available for {query}",
+      "empty_intro": "I couldn't find a product to place directly into the quote list yet, but I can rebuild it once you narrow the request.",
+      "empty_bullet_request": "confirm the brand, category, model year, or preferred style",
+      "empty_bullet_inventory": "retry with in-stock only or a wider inventory scope",
+      "empty_bullet_refine": "refine by use case, fit, or price range",
+      "empty_closing": "If you want, I can immediately reshape this into another quote direction that is closer to your target.",
+      "empty_closing_bullet_alternative": "switch to same-brand or same-style alternatives",
+      "empty_closing_bullet_region": "rerun with category or country as the main filter",
+      "empty_closing_bullet_style": "rerun with taste, rating, or price band as the main filter"
+    },
+    "modals": {
+      "no_selection": {
+        "title": "Select a quote first",
+        "body": "You have not selected any quotes yet. Select at least one quote from the list and try exporting again.",
+        "confirm": "Got it"
+      },
+      "delete": {
+        "title": "Delete return item",
+        "body": "You are about to delete this return item. After deletion it will no longer appear in the quote return list, and this action cannot be undone. Are you sure you want to delete it?"
+      }
+    },
+    "export": {
+      "sheet_name": "Quote Returns",
+      "columns": {
+        "no": "No.",
+        "vintage": "Model Year",
+        "producer": "Brand",
+        "product": "Product",
+        "color": "Color",
+        "rating": "Rating",
+        "list_price": "List",
+        "quote_price": "Quote",
+        "bundle": "Volume",
+        "quantity": "Qty"
+      }
+    },
+    "aria": {
+      "select_all": "Select all quotes on this page",
+      "select_row": "Select quote {quoteNo}",
+      "prev_page": "Previous page",
+      "next_page": "Next page",
+      "close_snackbar": "Dismiss notification"
+    }
+  },
+  "email": {
+    "brand": {
+      "crest_alt": "__SYSTEM_NAME__ crest",
+      "mark_alt": "__SYSTEM_NAME__ mark",
+      "wordmark": "YS",
+      "subtitle": "AI CELLAR"
+    },
+    "title": "New Allocation",
+    "hero_alt": "Featured selection",
+    "cta": "View collection",
+    "legal": "You are receiving this email because you subscribed to __SYSTEM_NAME__ updates.",
+    "templates": [
+      {
+        "id": "hero",
+        "title": "Hero + Warning",
+        "description": "Hero image with warning strip.",
+        "showHero": true
+      },
+      {
+        "id": "simple",
+        "title": "Simple",
+        "description": "Text-only email without hero.",
+        "showHero": false
+      }
+    ],
+    "paragraphs": [
+      {
+        "text": "Our latest allocation is now available. Explore limited equipment drops curated for you.",
+        "link": {
+          "label": "Explore the release",
+          "href": "https://ys.local"
+        }
+      },
+      {
+        "text": "Request a quote or ask our team for use-case recommendations anytime."
+      }
+    ],
+    "warning": {
+      "items": [
+        "Limited allocation",
+        "Member exclusive"
+      ]
+    },
+    "social_links": [
+      {
+        "id": "facebook",
+        "href": "https://facebook.com/ys"
+      },
+      {
+        "id": "instagram",
+        "href": "https://instagram.com/ys"
+      },
+      {
+        "id": "mail",
+        "href": "mailto:hello{'@'}ys.local"
+      }
+    ]
+  },
+  "chat_product_card": {
+    "labels": {
+      "sku": "SKU"
+    },
+    "aria": {
+      "more_options": "More options"
+    },
+    "stats": {
+      "color": "Color",
+      "vintage": "Model Year",
+      "rating": "Rating",
+      "producer": "Brand"
+    },
+    "status": {
+      "stock": "Stock"
+    }
+  },
+  "labelSettings": {
+    "title": "Shelf Labels",
+    "step1": "Step 1",
+    "step2": "Step 2",
+    "selectWines": "Select products to print",
+    "selectSize": "Select label size",
+    "searchPlaceholder": "Search name, brand, SKU",
+    "searchLoading": "Searching...",
+    "searchEmpty": "No matching products",
+    "searchClear": "Clear search",
+    "importExcel": "Batch import (Excel)",
+    "downloadSample": "Download sample file",
+    "importing": "Importing...",
+    "addToPrint": "Add to print list",
+    "editLabel": "Edit label content",
+    "sizeSmall": "Small",
+    "sizeMedium": "Medium",
+    "sizeLarge": "Large",
+    "sizeSmallValue": "71×48mm",
+    "sizeMediumValue": "91×65mm",
+    "sizeLargeValue": "140×94mm",
+    "descriptionLoading": "Generating label content...",
+    "descriptionEmpty": "No label content yet",
+    "snackbarAdded": "This product was added to the print list.",
+    "snackbarImportSuccess": "Batch import completed. Labels were added to the print list.",
+    "snackbarImportPartial": "Batch import completed with some errors. Review the failed rows.",
+    "snackbarSampleDownloaded": "Sample workbook downloaded.",
+    "sampleFileName": "product-label-batch-import-template.xlsx",
+    "sampleSheetName": "Batch Import",
+    "sampleGuideSheetName": "Instructions",
+    "importResultTitle": "Import results",
+    "importSummaryTitle": "Summary",
+    "importSummaryTotalRows": "Rows processed",
+    "importSummaryImported": "Imported rows",
+    "importSummaryCreated": "Created items",
+    "importSummaryMerged": "Merged rows",
+    "importSummaryAddedQty": "Added quantity",
+    "importSummaryErrors": "Error rows",
+    "importErrorTableRow": "Row",
+    "importErrorTableReason": "Reason",
+    "importErrorTableMessage": "Message",
+    "importErrorTableValue": "Input",
+    "downloadFailedRows": "Download failed rows",
+    "closeImportResult": "Close",
+    "importNoErrors": "All rows imported successfully.",
+    "sampleGuideTitle": "How to fill in",
+    "sampleGuideLine1": "Use the first sheet only. Keep the header row unchanged.",
+    "sampleGuideLine2": "At least one of Product Code or Product Name is required. Product Code is recommended.",
+    "sampleGuideLine3": "Use Y, 1, TRUE, or 是 in the Large / Medium / Small columns. Blank means not selected.",
+    "sampleGuideLine4": "Price is optional and must be a positive integer when provided. All selected sizes in the same row share the same price.",
+    "sampleGuideLine5": "If the same product and size appears on multiple rows, import will merge them and add 1 label each time.",
+    "editDialogTitle": "Edit label content",
+    "priceLabel": "Price",
+    "descriptionLabel": "Description",
+    "editInstructionPlaceholder": "Enter preferences or rewrite instructions...",
+    "editCancel": "Cancel",
+    "editConfirm": "Confirm",
+    "dialogCancel": "Cancel",
+    "dialogSave": "Save"
+  },
+  "labelPrint": {
+    "title": "Print List",
+    "total": "Total quantity",
+    "smallPanelTitle": "Small Size (8 labels per sheet)",
+    "mediumPanelTitle": "Medium Size (4 labels per sheet)",
+    "largePanelTitle": "Large Size (2 labels per sheet)",
+    "printConfirmTitle": "Confirm Label Printing",
+    "printConfirmIntro": "📐 Sizes to be printed:",
+    "paperTitle": "📄 Required paper:",
+    "paperRequired": "A5 sheets required: {count}",
+    "preflightTitle": "✅ Please confirm before printing:",
+    "preflightPrinter": "Printer is powered on and connected",
+    "preflightPaper": "Enough paper is loaded",
+    "preflightDirection": "Paper orientation and size are correct",
+    "printFinalHint": "If everything is correct, click \"Start printing\".",
+    "startPrint": "Start printing",
+    "resetConfirmTitle": "Reset List",
+    "resetConfirmMessage": "This action removes all labels from the list and cannot be undone. Are you sure you want to reset the print list?",
+    "confirmReset": "Confirm reset",
+    "empty": "No print items yet",
+    "reset": "Reset list",
+    "print": "Print labels",
+    "loading": "Loading...",
+    "sizeCountSmall": "Small (71 x 48 mm) x {count}",
+    "sizeCountMedium": "Medium (91 x 65 mm) x {count}",
+    "sizeCountLarge": "Large (140 x 94 mm) x {count}"
+  },
+  "hello_world": {
+    "count_label": "count is {count}",
+    "card": {
+      "edit_prefix": "Edit",
+      "edit_path": "components/HelloWorld.vue",
+      "edit_suffix": "to test HMR"
+    },
+    "links": {
+      "check_out_prefix": "Check out",
+      "check_out_link": "create-vue",
+      "check_out_suffix": "the official Vue + Vite starter",
+      "learn_more_prefix": "Learn more about IDE Support for Vue in the",
+      "learn_more_link": "Vue Docs Scaling up Guide",
+      "learn_more_suffix": "."
+    },
+    "docs_hint": "Click on the Vite and Vue logos to learn more"
+  },
+  "projects": {
+    "title": "Projects",
+    "count": "projects",
+    "new": "New Project",
+    "searchProjects": "Search projects",
+    "searchConversations": "Search conversations in this folder",
+    "pendingProject": "You have a folder invitation:",
+    "pendingConversation": "You have a conversation invitation:",
+    "reject": "Reject",
+    "accept": "Accept",
+    "columns": {
+      "name": "Name",
+      "owner": "Owner",
+      "updatedAt": "Updated At"
+    },
+    "loading": "Loading...",
+    "noData": "No data",
+    "perPage": "Per page",
+    "menu": {
+      "permission": "Permissions",
+      "rename": "Rename",
+      "delete": "Delete"
+    },
+    "cancel": "Cancel",
+    "create": "Create",
+    "confirm": "Confirm",
+    "visibility": {
+      "private": "Private",
+      "public": "Public"
+    },
+    "modals": {
+      "create": {
+        "title": "Create Project",
+        "name": "Customer Name",
+        "visibility": "Visibility"
+      },
+      "rename": {
+        "title": "Rename",
+        "name": "Name"
+      },
+      "delete": {
+        "title": "Delete Project",
+        "body": "This action archives the folder and all conversations. This cannot be undone. Continue?",
+        "confirm": "Delete"
+      },
+      "permission": {
+        "title": "Permission Settings",
+        "visibility": "Visibility",
+        "publicHint": "When public, all signed-in users can read it.",
+        "emailPlaceholder": "Enter email to invite",
+        "add": "Invite",
+        "noInvite": "No invitees",
+        "revoke": "Revoke",
+        "remove": "Remove"
+      }
+    },
+    "profile": {
+      "customerType": "Customer Type",
+      "tradeCount": "Trade Count",
+      "lastTradeAt": "Last Trade Time",
+      "avgUnitPrice": "Average Unit Price",
+      "region": "Preferred Category",
+      "hasWineCabinet": "Has Product Cabinet",
+      "preferenceNote": "Preference Notes",
+      "title": "Customer Profile",
+      "yes": "Yes",
+      "no": "No",
+      "noPreference": "No preference note yet"
+    },
+    "common": {
+      "main_nav": "Main menu",
+      "toggle_menu": "Toggle menu",
+      "account_menu": "Account menu",
+      "search": "Search",
+      "projects": "Projects",
+      "project": "Project",
+      "new_project": "New project",
+      "customer_profile": "Customer profile",
+      "visibility": "Visibility",
+      "public": "Public",
+      "private": "Private",
+      "description": "Description",
+      "total": "Total: {count}",
+      "name": "Name",
+      "owner": "Owner",
+      "last_updated": "Last updated",
+      "loading": "Loading data...",
+      "no_match": "No matching conversations",
+      "empty": "No data",
+      "per_page": "{count} per page",
+      "prev": "Previous",
+      "next": "Next",
+      "more": "More actions",
+      "select_folder": "Select folder",
+      "new_conversation": "New conversation",
+      "permissions": "Permissions",
+      "rename": "Rename",
+      "delete_file": "Delete file",
+      "cancel": "Cancel",
+      "processing": "Processing...",
+      "confirm": "Confirm",
+      "drafts": "Drafts",
+      "all_projects": "All projects",
+      "search_drafts": "Search draft conversations",
+      "search_folder": "Search conversations in this folder",
+      "search_projects": "Search projects or conversations",
+      "untitled_conversation": "Untitled conversation",
+      "accepted": "Can view",
+      "pending": "Invited",
+      "rejected": "Rejected",
+      "revoked": "Removed",
+      "me": "Me",
+      "owner_role": "Owner",
+      "customer_name": "Customer name",
+      "type": "Type",
+      "trade_count": "Trade count",
+      "last_trade_at": "Last trade time",
+      "avg_unit_price": "Average unit price",
+      "region": "Category",
+      "has_wine_cabinet": "Has product cabinet",
+      "yes": "Yes",
+      "no": "No",
+      "load_accounts_failed": "Unable to load accounts",
+      "load_projects_failed": "Unable to load projects",
+      "load_conversations_failed": "Unable to load conversations",
+      "name_required": "Enter customer name",
+      "create_failed": "Unable to create project",
+      "blank_name": "Name cannot be blank",
+      "rename_failed": "Rename failed",
+      "load_folders_failed": "Unable to load folders",
+      "no_conversation": "Conversation not found",
+      "select_folder_first": "Select a folder first",
+      "move_failed": "Unable to move to folder",
+      "delete_failed": "Delete failed",
+      "load_permissions_failed": "Unable to load permissions",
+      "update_permissions_failed": "Unable to update permissions",
+      "select_account_first": "Select an account from the list first",
+      "invite_failed": "Invite failed",
+      "remove_permission_failed": "Unable to remove permission",
+      "conversation_count": "{count} conversations",
+      "customer_id": "Customer ID {id}",
+      "unset": "Unset",
+      "example_customer": "Example: Alex / Outdoor Shop",
+      "preference_placeholder": "Customer preferences, frequent categories, preferred price range...",
+      "delete_project": "Delete project",
+      "delete_conversation": "Delete conversation",
+      "delete_project_copy": "This will archive the project and its conversations. Delete it?",
+      "delete_conversation_copy": "Delete this conversation?",
+      "confirm_delete": "Confirm delete",
+      "visibility_setting": "Visibility",
+      "select_account": "Select system account",
+      "search_account": "Search account",
+      "searching": "Searching...",
+      "no_account": "No eligible account found",
+      "add": "Add",
+      "authorized_users": "Authorized users",
+      "no_authorized_users": "No users authorized yet",
+      "public_permission_copy": "When public, all signed-in users can view it.",
+      "move_folder_copy": "Move this conversation to the selected folder",
+      "search_folder_label": "Search folders",
+      "search_folder_placeholder": "Enter keywords to search folders",
+      "no_selectable_folder": "No selectable folders"
+    }
+  },
+  "fileResources": {
+    "title": "File Resources",
+    "subtitle": "Manage shared product labels, images, and documents for internal teams.",
+    "tabs": {
+      "wine_label": "Product Label",
+      "image": "Image",
+      "document": "Document"
+    },
+    "search": {
+      "placeholder": "Search file name"
+    },
+    "sort": {
+      "label": "Sort",
+      "uploaded_desc": "Uploaded time: Newest first",
+      "uploaded_asc": "Uploaded time: Oldest first",
+      "placeholder": "Sort",
+      "count": "{count} rules",
+      "single": "{field}: {direction}",
+      "add_rule": "Add sort",
+      "reset_rules": "Reset sort",
+      "remove_rule": "Remove rule",
+      "group_by_producer": "Group items by brand",
+      "group_by_department": "Group items by department",
+      "fields": {
+        "uploaded_at": "Uploaded At",
+        "display_name": "File Name",
+        "producer": "Brand",
+        "product_code": "Product Code",
+        "department": "Department",
+        "file_type": "File Type",
+        "visibility": "Visibility"
+      },
+      "directions": {
+        "newest_first": "Newest first",
+        "oldest_first": "Oldest first",
+        "a_z": "A to Z",
+        "z_a": "Z to A",
+        "public_private": "Public to Private",
+        "private_public": "Private to Public"
+      }
+    },
+    "table": {
+      "name": "File Name",
+      "product_code": "Product Code",
+      "producer": "Brand",
+      "department": "Department",
+      "visibility": "Visibility",
+      "uploaded_at": "Uploaded At",
+      "mime": "File Type",
+      "size": "File Size"
+    },
+    "visibility": {
+      "public": "Public",
+      "private": "Private"
+    },
+    "actions": {
+      "upload_file": "Upload File",
+      "edit": "Edit",
+      "download": "Download",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "save_changes": "Save Changes",
+      "confirm": "Confirm",
+      "reselect": "Choose Again",
+      "permission": "Permission Settings",
+      "start_upload": "Start Upload",
+      "close": "Close"
+    },
+    "states": {
+      "loading": "Loading file resources...",
+      "empty": "No files found.",
+      "submitting": "Uploading...",
+      "deleting": "Deleting...",
+      "searching": "Searching products...",
+      "uploading_file": "Uploading {filename}..."
+    },
+    "errors": {
+      "load": "Failed to load file resources.",
+      "file_required": "Please select at least one file.",
+      "wine_required": "Please choose the product for this label.",
+      "upload_failed": "File upload failed.",
+      "create": "Failed to create the file resource.",
+      "update": "Failed to update the file resource.",
+      "delete": "Failed to delete the file resource.",
+      "detail": "Failed to load the file resource.",
+      "download": "Failed to download the file.",
+      "search": "Failed to search products.",
+      "departments": "Failed to load departments.",
+      "permission_update": "Failed to update permission settings.",
+      "unsupported_extension": "Unsupported file type \"{extension}\". Allowed: {allowed}",
+      "file_too_large": "File \"{filename}\" exceeds {maxMb}MB.",
+      "upload_too_large": "Upload exceeds the {maxMb}MB limit."
+    },
+    "messages": {
+      "created": "Product label uploaded successfully.",
+      "updated": "File resource updated successfully.",
+      "deleted": "File resource deleted successfully.",
+      "images_created": "Image files uploaded successfully.",
+      "documents_created": "Document files uploaded successfully.",
+      "permissions_updated": "Permission settings updated successfully."
+    },
+    "pagination": {
+      "per_page": "Rows per page"
+    },
+    "upload_menu": {
+      "wine_label": {
+        "title": "Product label",
+        "description": "Upload product label images and bind them to product inventory items."
+      },
+      "image": {
+        "title": "Image",
+        "description": "Upload shared image assets with department and visibility settings."
+      },
+      "document": {
+        "title": "Document",
+        "description": "Upload shared documents with department and visibility settings."
+      }
+    },
+    "modal": {
+      "title": "Upload Product Label",
+      "subtitle": "Upload one label image and choose the matching product.",
+      "edit_title": "Edit Product Label",
+      "edit_subtitle": "Update the image or rebind the matching product for this label.",
+      "image_title": "Upload Image",
+      "image_subtitle": "Upload shared image files for your team.",
+      "document_title": "Upload Document",
+      "document_subtitle": "Upload shared documents for your team.",
+      "select_image": "Select image",
+      "step_image_title": "Choose label image",
+      "step_image_hint": "Upload the product label artwork first.",
+      "image_size_hint": "Recommended ratio: 414 x 1024",
+      "step_wine_title": "Choose matching product",
+      "step_wine_hint": "Bind the image to one intelligent system product and reuse it across model years.",
+      "select_wine": "Choose product",
+      "related_title": "Same series products",
+      "related_code": "Product Code",
+      "related_vintage": "Model Year",
+      "department": "Department",
+      "visibility": "Visibility",
+      "queue_title": "Queued Files",
+      "supported_formats_image": "Supported formats: JPG, PNG, GIF, BMP, WEBP",
+      "supported_formats_document": "Supported formats: PDF, DOC, DOCX, XLS, XLSX, CSV, PPT, PPTX, TXT",
+      "dropzone_title": "Drag or choose files",
+      "dropzone_copy_prefix": "Drag files here, or",
+      "choose_files": "choose files",
+      "dropzone_title_image": "Drag and drop images here or choose files",
+      "dropzone_title_document": "Drag and drop documents here or choose files",
+      "dropzone_hint": "Files will be uploaded and created as separate resources.",
+      "upload_failed_retry": "Upload failed. Please try again later.",
+      "fields": {
+        "producer": "Brand",
+        "region": "Category",
+        "color": "Color"
+      }
+    },
+    "picker": {
+      "title": "Choose Product",
+      "search_placeholder": "Search by product name or smart system code",
+      "results_title": "Search Results",
+      "empty": "No matching products found yet."
+    },
+    "preview": {
+      "loading": "Loading preview...",
+      "no_image": "Preview image unavailable.",
+      "close": "Close preview",
+      "toggle_info": "Toggle info panel",
+      "previous": "Previous image",
+      "next": "Next image",
+      "info_title": "Resource Information",
+      "product_section": "Product Information",
+      "related_section": "Same series products",
+      "basic_section": "Basic Information",
+      "details_section": "Details",
+      "uploaded_at": "Uploaded At",
+      "updated_at": "Last Edited At",
+      "updated_by": "Last Edited By",
+      "department": "Department",
+      "visibility": "Visibility",
+      "unsupported_title": "Preview is not available for this document type.",
+      "unsupported_body": "Download the file to view the full content."
+    },
+    "permission_modal": {
+      "title": "Permission Settings",
+      "department": "Department",
+      "visibility": "Visibility"
+    },
+    "delete_modal": {
+      "wine_label_title": "Delete Product Label",
+      "wine_label_body": "Deleting this product label cannot be undone. Are you sure you want to continue?",
+      "image_title": "Delete Image",
+      "image_body": "Deleting this image cannot be undone. Are you sure you want to continue?",
+      "document_title": "Delete Document",
+      "document_body": "Deleting this document cannot be undone. Are you sure you want to continue?"
+    }
+  }
+}

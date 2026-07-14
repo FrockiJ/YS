@@ -1,0 +1,1965 @@
+{
+  "home": {
+    "nav": {
+      "chat": "對話",
+      "project": "專案",
+      "showcase": "貨架標籤",
+      "quote": "報價回覆",
+      "files": "檔案資源",
+      "permission": "權限",
+      "settings": "設定"
+    },
+    "defaults": {
+      "conversation_title": "新對話",
+      "project_label": "新專案",
+      "assistant_text": "試著詢問 10 件 Alpine Rain Shell，我會整理庫存、價格與可用性。",
+      "highlights": [
+        "10 Alpine Rain Shell units (stock check)",
+        "Price ranges and availability insights",
+        "Suggested alternatives based on brand",
+        "Follow-up ideas to refine the selection"
+      ],
+      "next_steps": [
+        "Ask for a shortlist based on budget.",
+        "Compare 3 similar products side-by-side.",
+        "Generate a quote list for the selection."
+      ],
+      "user_prompt": "請找 10 件 Alpine Rain Shell，並彙整庫存與價格。",
+      "schedule": "2025/08/04 09:30 AM",
+      "project_fallback": "客戶專案"
+    },
+    "output_types": {
+      "placeholder": "輸出類型",
+      "quote_list": "報價清單",
+      "guide_list": "導購清單",
+      "text_message": "文字訊息",
+      "store_recommendation": "門市推薦",
+      "search_results": "搜尋結果",
+      "reports": "報表",
+      "free_chat": "自由對話"
+    },
+    "tabs": {
+      "gallery": "圖庫",
+      "slides": "簡報",
+      "social": "社群"
+    },
+    "errors": {
+      "load_conversation": "無法載入對話。",
+      "load_history": "無法載入對話歷史。",
+      "login_required": "請重新登入後繼續。",
+      "chat_busy": "系統忙碌中，請稍後再試。",
+      "chat_failed": "對話請求失敗。",
+      "rename_project_required": "請輸入專案名稱。",
+      "rename_missing": "未選擇對話。",
+      "rename_failed": "重新命名失敗。",
+      "visibility_missing": "未選擇對話。",
+      "visibility_failed": "更新可見性失敗。",
+      "delete_missing": "未選擇對話。",
+      "delete_failed": "刪除失敗。",
+      "load_folders": "載入資料夾失敗。"
+    },
+    "labels": {
+      "project_name": "專案名稱",
+      "unnamed_project": "未命名專案",
+      "this_conversation": "此對話",
+      "you": "你",
+      "ai": "AI"
+    },
+    "placeholders": {
+      "chat": "描述你的需求...",
+      "search": "搜尋對話...",
+      "share_email": "輸入收件者 email",
+      "rename_project": "輸入新專案名稱",
+      "chat_outdoor": "詢問登山裝備、釣具庫存、報價、檔案或團隊流程..."
+    },
+    "aria": {
+      "main_nav": "主要導覽",
+      "toggle_menu": "切換主選單",
+      "open_account_menu": "開啟帳戶選單",
+      "open_search": "開啟搜尋",
+      "edit_input": "編輯輸入內容",
+      "open_actions": "開啟操作選單",
+      "upload_file": "上傳檔案",
+      "send_message": "發送訊息",
+      "copy_response": "複製回覆",
+      "share_response": "分享回覆",
+      "close_snackbar": "關閉提示",
+      "close_share": "關閉分享",
+      "close_modal": "關閉",
+      "close_search": "關閉搜尋"
+    },
+    "menu": {
+      "pin": "釘選至頂端",
+      "unpin": "取消釘選",
+      "visibility": "權限設定",
+      "rename": "重新命名",
+      "delete": "刪除",
+      "select_folder": "選擇資料夾",
+      "new_conversation": "新增對話"
+    },
+    "visibility": {
+      "public": "公開",
+      "private": "私人",
+      "public_label": "公開（同角色）",
+      "public_description": "相同角色的成員可以閱讀此專案的內容。",
+      "private_label": "私人（僅自己）",
+      "private_description": "只有你與系統可以瀏覽這段對話。"
+    },
+    "status": {
+      "summary": "綜合摘要"
+    },
+    "history": {
+      "empty_summary": "尚無摘要"
+    },
+    "loading": {
+      "history": "載入歷史對話中…",
+      "conversation": "載入對話中…",
+      "ai_thinking": "AI 正在思考…"
+    },
+    "empty": {
+      "no_projects": "尚未有任何對話",
+      "no_pinned": "尚未釘選任何對話",
+      "no_history": "尚未產生任何歷史紀錄",
+      "no_inbox": "目前沒有草稿對話"
+    },
+    "actions": {
+      "show_references": "顯示引用",
+      "new_conversation": "新建對話",
+      "cancel": "取消"
+    },
+    "customer": {
+      "label": "客戶",
+      "link_cta": "連結客戶",
+      "aria_link": "將客戶連結到對話"
+    },
+    "search": {
+      "recent_conversations": "最近的對話",
+      "results": "搜尋結果",
+      "loading": "正在搜尋對話...",
+      "empty": "目前沒有符合的對話",
+      "empty_results": "這次搜尋沒有找到符合的對話。",
+      "error": "目前無法搜尋對話。"
+    },
+    "hero": {
+      "title": "向 __SYSTEM_NAME__ 詢問登山裝備、釣具庫存與戶外營運。",
+      "eyebrow": "戶外智慧系統 指令中心",
+      "copy": "從同一個 AI 工作區搜尋登山裝備、釣具、報價草稿、資源檔案與團隊交接。"
+    },
+    "sections": {
+      "pinned": "釘選內容",
+      "history": "對話紀錄",
+      "inbox": "草稿"
+    },
+    "snackbar": {
+      "copied": "已複製到剪貼簿"
+    },
+    "share": {
+      "title": "分享對話",
+      "submit": "發送",
+      "note": "私人對話僅會被你分享的對象看到。",
+      "default_title": "__SYSTEM_NAME__ 回覆"
+    },
+    "modals": {
+      "delete_project": {
+        "title": "刪除專案",
+        "body": "刪除後此專案會被封存，僅超級管理者可復原。確定要移除此專案嗎？",
+        "confirm": "刪除"
+      },
+      "delete_conversation": {
+        "title": "刪除對話",
+        "body": "刪除後這段對話會被封存，僅超級管理者可復原。確定要刪除嗎？",
+        "confirm": "刪除"
+      },
+      "rename": {
+        "title": "重新命名",
+        "confirm": "儲存"
+      },
+      "visibility": {
+        "title": "權限設定",
+        "confirm": "套用",
+        "hint": "設定 {target} 的閱覽權限"
+      },
+      "permission_denied": {
+        "title": "權限不足",
+        "body": "您的帳號角色無法檢視「權限成員」，請洽系統管理員以取得存取權限。",
+        "confirm": "知道了"
+      },
+      "select_folder": {
+        "title": "選擇資料夾",
+        "subtitle": "選擇要移入的資料夾。",
+        "search_label": "搜尋資料夾",
+        "search_placeholder": "輸入關鍵字篩選資料夾",
+        "loading": "資料夾讀取中...",
+        "empty": "查無可用資料夾",
+        "required": "請先選擇資料夾",
+        "submit_failed": "移動對話失敗",
+        "confirm": "確認移動",
+        "submitting": "處理中..."
+      }
+    },
+    "highlights": {
+      "section_title": "重點整理",
+      "keyword_prefix": "關鍵字："
+    },
+    "next_steps": {
+      "variant_prefix": "延伸查詢：",
+      "filter_prefix": "可再聚焦："
+    },
+    "references": {
+      "reference_label": "參考資料 #{index}",
+      "more_references": "...more",
+      "less_references": "收合",
+      "badges": {
+        "internal_approved": "內部已核准",
+        "internal_official": "內部官方",
+        "external_authoritative": "外部權威來源",
+        "external_other": "其他外部來源",
+        "internal": "內部資料"
+      }
+    },
+    "rag": {
+      "summary_title": "RAG 摘要",
+      "status_label": "RAG 引用內容",
+      "external_search_title": "外部搜尋",
+      "external_search_status": "外部搜尋"
+    },
+    "cerp": {
+      "notice_history": "I found this product in 智慧系統. Summary (from previously exported data):",
+      "notice_direct": "I found this product in 智慧系統. Summary:"
+    },
+    "cerp_results": {
+      "title": "商品庫存結果（{count} 筆）",
+      "subtitle": "以下結果留在聊天頁面供檢查，不會自動建立報價清單。",
+      "truncated_summary": "共 {total} 筆符合條件；目前顯示 {displayed} 筆。",
+      "source": "商品庫存",
+      "empty_value": "-",
+      "proof_label": "Proof {count}",
+      "timestamp_label": "智慧系統時間: {timestamp}",
+      "source_trace_label": "來源軌跡：{trace}",
+      "business_fields_label": "商務欄位：{fields}",
+      "field_separator": ", ",
+      "business_fields": {
+        "cost": "成本",
+        "margin": "毛利",
+        "margin_rate": "毛利率",
+        "supplier_terms": "供應商付款條件",
+        "sales_velocity": "銷售速度",
+        "depletion": "去化",
+        "allocation": "配額",
+        "order_history": "訂貨紀錄",
+        "review_score": "商品庫存評分"
+      },
+      "columns": {
+        "code": "品號",
+        "producer": "品牌",
+        "name": "產品",
+        "vintage": "型號型號年份",
+        "stock": "庫存",
+        "price": "價格",
+        "status": "狀態",
+        "category": "類別",
+        "reason": "原因"
+      }
+    },
+    "transparency": {
+      "title": "來源透明度",
+      "answer_mode": "回答模式",
+      "source_mix": "來源組成",
+      "rejected_evidence": "排除的證據",
+      "citation_validation": "引用驗證",
+      "citation_metric": "{citations} 筆引用 / {unmapped} 筆未映射",
+      "cerp_proof": "智慧系統佐證",
+      "cerp_proof_metric": "{count} 筆 proof",
+      "hard_flags": "硬性旗標",
+      "disclaimer": "提示",
+      "general_answer_disclaimer": "一般參考回答；尚未經 __SYSTEM_NAME__ 內部來源驗證。",
+      "filtered_out": "已排除",
+      "answer_modes": {
+        "generated": "一般回答",
+        "grounded_gap": "資料覆蓋不足",
+        "ranking_shortlist": "短名單回答",
+        "fail_closed": "拒絕推測",
+        "verified_answer": "已驗證回答",
+        "assisted_general_answer": "一般參考",
+        "data_or_permission_needed": "需要資料或權限"
+      },
+      "source_mix_labels": {
+        "internal_approved": "內部已核准",
+        "internal_official": "內部官方",
+        "internal_other": "其他內部資料",
+        "external_authoritative": "外部權威來源",
+        "external_other": "其他外部來源"
+      }
+    },
+    "product_card": {
+      "labels": {
+        "number": "No.",
+        "vintage": "型號年份",
+        "producer": "品牌",
+        "product": "品名",
+        "color": "顏色",
+        "rating": "評分",
+        "stock": "庫存",
+        "list_price": "標準價",
+        "vip_quote": "VIP 價",
+        "promo": "促銷"
+      },
+      "bundle_1_1": "搭贈 1+1",
+      "bundle_label": "1+1",
+      "default_title": "商品庫存報價",
+      "non_vintage": "NV",
+      "photo_placeholder": "產品圖片準備中"
+    },
+    "user": {
+      "default_name": "使用者",
+      "default_seed": "對話"
+    },
+    "quote_ui": {
+      "default_query": "本次報價需求",
+      "status_ready": "已完成",
+      "status_warning": "部分符合",
+      "status_empty": "尚無結果",
+      "success_title": "已為「{query}」準備 {count} 筆報價建議",
+      "success_intro": "針對「{query}」，我已整理可直接比較的報價候選內容：",
+      "success_bullet_count": "{count} 筆產品可直接比較",
+      "bullet_quote_info": "每項產品的代碼、名稱、庫存與報價資訊",
+      "bullet_wine_details": "顏色、評級、型號年份與品牌資訊，方便快速檢視",
+      "bullet_compare": "以便於並排比較的結構呈現",
+      "success_closing": "這份清單已整理成可快速確認優先報價產品的格式。",
+      "closing_bullet_filter": "可再依類別、品牌或型號年份縮小範圍",
+      "closing_bullet_save": "可保留目前結果，稍後再調整",
+      "closing_bullet_more": "可要求更多相近產品擴充候選清單",
+      "shortage_title": "已為「{query}」整理 {count}/{requested} 筆報價建議",
+      "shortage_intro": "你要求 {requested} 筆符合「{query}」且有庫存的產品；目前找到 {count} 筆可立即檢視的選項：",
+      "shortage_bullet_count": "目前有 {count} 筆產品符合條件且可用",
+      "shortage_bullet_alternatives": "也可檢視相近且有庫存的替代產品",
+      "shortage_closing": "如需，我可以把這些相近且有庫存的替代品加入下一版報價候選。",
+      "empty_title": "目前沒有「{query}」的報價結果",
+      "empty_intro": "暫時找不到可直接放入報價清單的產品；縮小條件後可重新整理。",
+      "empty_bullet_request": "確認品牌、類別、型號年份或偏好風格",
+      "empty_bullet_inventory": "改用有庫存項目或放寬庫存範圍重試",
+      "empty_bullet_refine": "以用途、適配性或價格區間重新篩選",
+      "empty_closing": "如需，我可以立即改成更接近目標的另一個報價方向。",
+      "empty_closing_bullet_alternative": "切換為同品牌或同風格替代品",
+      "empty_closing_bullet_region": "改以類別作為主要篩選條件",
+      "empty_closing_bullet_style": "改以用途、評級或價格帶重新推薦",
+      "near_match_title": "找到接近「{query}」的報價候選",
+      "near_match_intro": "沒有找到完全符合且可銷售的項目，但有相近的報價候選可檢視。",
+      "near_match_bullet_count": "目前有 {count} 筆相近的智慧系統候選",
+      "near_match_bullet_review": "送出報價前請先確認價格、庫存或相近可售項目",
+      "near_match_bullet_action": "可使用後續操作開啟最接近的報價候選",
+      "near_match_closing": "目前找到的最接近候選：",
+      "near_match_closing_bullet_count": "找到 {count} 筆接近的智慧系統候選",
+      "near_match_closing_bullet_review": "建議先檢視同類別或同風格替代品",
+      "near_match_closing_bullet_continue": "可進入報價對話比較可售選項"
+    },
+    "permission": {
+      "search_failed": "搜尋邀請成員失敗",
+      "load_failed": "載入權限清單失敗",
+      "remove_failed": "移除成員失敗",
+      "select_candidate": "請先選擇可邀請的成員",
+      "invite_failed": "邀請失敗",
+      "owner": "擁有者",
+      "accepted": "已授權",
+      "pending": "待確認",
+      "rejected": "已拒絕",
+      "revoked": "已移除",
+      "invite_members": "邀請成員",
+      "current_members": "目前可存取成員",
+      "lookup_placeholder": "搜尋使用者名稱 / email",
+      "lookup_loading": "搜尋中...",
+      "lookup_empty": "找不到可邀請的成員",
+      "invite": "邀請",
+      "remove": "移除",
+      "empty_members": "目前沒有可存取成員",
+      "public_copy": "公開對話可由有權限的成員查看，不需要另外邀請。",
+      "saving": "儲存中...",
+      "confirm": "確認",
+      "visibility_setting": "公開設定"
+    },
+    "quote_followup": {
+      "summary_fill": "下一步：加入 {remaining} 筆相近產品，讓候選清單達到 {target} 筆。",
+      "summary_include": "下一步：把有庫存的相近產品加入候選清單。",
+      "summary_relax": "下一步：放寬一層條件並重建候選清單。",
+      "summary_show": "下一步：展開最接近的推薦供直接檢視。",
+      "summary_continue": "下一步：沿用目前候選清單內容。",
+      "fill": "補到 {target} 筆",
+      "fill_prompt": "補到 {target} 筆",
+      "include": "加入有庫存相近品",
+      "include_prompt": "加入有庫存的相近產品",
+      "relax": "放寬條件",
+      "relax_prompt": "放寬條件並重建候選清單",
+      "show": "顯示接近推薦",
+      "show_prompt": "顯示最接近的推薦",
+      "continue_label": "保留這份候選清單",
+      "continue_prompt": "只保留目前候選清單",
+      "pivot_label": "前往報價",
+      "pivot_prompt": "在報價對話中繼續此產品"
+    }
+  },
+  "app": {
+    "sidebar": {
+      "aria": "主要導覽",
+      "logo_alt": "__SYSTEM_NAME__ 標誌"
+    },
+    "topbar": {
+      "menu_aria": "切換側邊欄",
+      "avatar_aria": "開啟帳號選單",
+      "logo_alt": "__SYSTEM_NAME__ 標誌",
+      "logout": "登出",
+      "avatar_fallback": "帳號",
+      "default_name": "__SYSTEM_NAME__ 使用者",
+      "no_email": "尚未設定 email",
+      "menu": {
+        "change_password": "變更密碼"
+      },
+      "password_modal": {
+        "eyebrow": "帳號安全",
+        "title": "變更密碼",
+        "copy": "請輸入目前密碼與新的登入密碼，儲存後會登出。",
+        "fields": {
+          "current_password": "目前密碼",
+          "new_password": "新密碼",
+          "confirm_password": "確認新密碼"
+        },
+        "toast_title": "密碼已更新",
+        "toast_message": "請使用新密碼重新登入。",
+        "errors": {
+          "current_required": "請輸入目前密碼。",
+          "new_required": "請輸入新密碼。",
+          "new_length": "新密碼至少需要 {count} 個字元。",
+          "confirm_required": "請再次輸入新密碼。",
+          "confirm_mismatch": "兩次輸入的密碼不一致。"
+        }
+      }
+    },
+    "locale": {
+      "label": "語言",
+      "zh": "繁",
+      "en": "EN",
+      "ja": "日",
+      "zh_long": "繁體中文",
+      "en_long": "英文",
+      "ja_long": "日文"
+    },
+    "command": {
+      "open": "開啟指令中心",
+      "close": "關閉指令中心",
+      "title": "指令中心",
+      "subtitle": "搜尋、切換對話，開始戶外 智慧系統 工作。",
+      "search": "搜尋工作區",
+      "quick_actions": "快速動作",
+      "recent": "最近對話",
+      "pinned": "釘選對話",
+      "empty": "目前沒有項目",
+      "new_conversation": "新增對話",
+      "account": "帳號"
+    }
+  },
+  "common": {
+    "actions": {
+      "add": "新增",
+      "cancel": "取消",
+      "confirm": "確認",
+      "hide": "隱藏",
+      "show": "顯示",
+      "processing": "處理中...",
+      "saving": "儲存中",
+      "sending": "寄送中",
+      "setting": "設定中",
+      "updating": "更新中",
+      "delete": "刪除"
+    }
+  },
+  "customer": {
+    "modal": {
+      "title": "連結客戶",
+      "close": "關閉"
+    },
+    "search": {
+      "placeholder": "以姓名或 Email 搜尋",
+      "action": "搜尋",
+      "loading": "搜尋中...",
+      "empty": "找不到客戶"
+    },
+    "actions": {
+      "link": "連結"
+    },
+    "labels": {
+      "no_email": "無 Email"
+    },
+    "errors": {
+      "search_failed": "無法載入客戶。",
+      "link_failed": "連結客戶失敗。",
+      "no_conversation": "沒有作用中的對話。"
+    },
+    "create": {
+      "title": "建立客戶",
+      "name_label": "名稱",
+      "email_label": "Email",
+      "phone_label": "電話",
+      "action": "建立並連結",
+      "creating": "建立中...",
+      "required": "名稱為必填。"
+    }
+  },
+  "chat_composer": {
+    "aria": {
+      "remove_attachment": "移除附件",
+      "send": "發送訊息",
+      "upload": "上傳檔案"
+    },
+    "output_placeholder": "選擇輸出",
+    "preview_image": "圖片預覽",
+    "actions": {
+      "add_file": "加入附檔",
+      "add_url": "提供網址"
+    },
+    "url": {
+      "title": "提供網址",
+      "hint": "可用逗號或換行分隔多個網址",
+      "placeholder": "貼上一個或多個網址",
+      "submit": "加入網址",
+      "cancel": "取消"
+    }
+  },
+  "login": {
+    "hero": {
+      "logo_alt": "__SYSTEM_NAME__ 標誌",
+      "title": "歡迎回來",
+      "copy": "登入以管理報價、對話與團隊權限。"
+    },
+    "panel": {
+      "eyebrow": "登入",
+      "title": "進入工作區"
+    },
+    "banner": {
+      "title": "登入失敗。",
+      "copy": "請確認帳號與密碼。"
+    },
+    "form": {
+      "account_label": "Email 或使用者名稱",
+      "account_placeholder": "name{'@'}example.com",
+      "password_label": "密碼",
+      "password_placeholder": "輸入密碼",
+      "toggle_password": "顯示或隱藏密碼",
+      "forgot_password": "忘記密碼？",
+      "submit": "登入"
+    },
+    "errors": {
+      "account_required": "請輸入帳號。",
+      "account_invalid": "請輸入有效的 Email 或授權帳號。",
+      "password_required": "請輸入密碼。",
+      "token_missing": "登入成功但未取得憑證。",
+      "login_failed": "登入失敗，請再試一次。"
+    },
+    "forgot": {
+      "title": "忘記密碼",
+      "description": "請輸入帳號 Email。",
+      "sent_title": "重設密碼",
+      "sent_description": "請至 Email 重設密碼。",
+      "field_label": "Email",
+      "field_placeholder": "sample{'@'}email.com",
+      "success_title": "重設密碼通知已送出",
+      "success_copy": "請至 {email} 收取重設密碼信，並依照 Email 內的連結完成流程。",
+      "errors": {
+        "required": "請輸入帳號 Email。",
+        "invalid": "請輸入正確的 Email 格式。",
+        "submit_failed": "暫時無法送出重設密碼要求，請稍後再試。"
+      }
+    },
+    "outdoor": {
+      "brand": "戶外智慧系統",
+      "kicker": "高級戶外營運",
+      "title": "登山裝備與釣具庫存智慧工作台。",
+      "copy": "用於登山裝備、釣具庫存、報價流程、檔案與團隊權限的 Demo 工作區。",
+      "trail": "登山裝備",
+      "tackle": "釣具庫存",
+      "flow": "智慧流程",
+      "panel_brand": "__SYSTEM_NAME__",
+      "panel_eyebrow": "安全裝備工作區"
+    }
+  },
+  "account": {
+    "nav": {
+      "chat": "聊天",
+      "project": "專案",
+      "showcase": "展櫃標示",
+      "quote": "報價回傳",
+      "files": "檔案資源",
+      "permission": "權限與人員",
+      "settings": "設定"
+    },
+    "sections": {
+      "roles": "權限管理",
+      "users": "人員管理",
+      "settings": "設定"
+    },
+    "crumbs": {
+      "permission": "權限與人員",
+      "management": "成員管理"
+    },
+    "hero": {
+      "title": "權限成員",
+      "subtitle": "管理團隊存取與角色權限。"
+    },
+    "search": {
+      "chat_placeholder": "搜尋聊天...",
+      "roles_placeholder": "搜尋角色",
+      "members_placeholder": "搜尋成員..."
+    },
+    "table": {
+      "status": "狀態",
+      "account": "帳號",
+      "role": "角色",
+      "updated_at": "更新時間",
+      "actions": "操作",
+      "roles": {
+        "name": "角色名稱",
+        "conversation_visibility": "對話權限",
+        "member_count": "人數",
+        "updated_at": "上次修改時間"
+      },
+      "users": {
+        "name": "人員名稱",
+        "role": "角色",
+        "account": "帳號",
+        "updated_at": "更新時間"
+      }
+    },
+    "status": {
+      "enabled": "啟用",
+      "disabled": "停用"
+    },
+    "visibility": {
+      "private": "私人",
+      "public": "公開"
+    },
+    "actions": {
+      "add_role": "新增角色",
+      "add_member": "新增成員",
+      "edit": "編輯",
+      "delete": "刪除",
+      "add": "新增",
+      "cancel": "取消",
+      "confirm": "儲存"
+    },
+    "pagination": {
+      "per_page": "每頁顯示",
+      "empty": "尚無成員。"
+    },
+    "aria": {
+      "main_nav": "主要導覽",
+      "toggle_menu": "切換側邊欄",
+      "toggle_profile": "開啟帳戶選單",
+      "search_chat": "搜尋聊天",
+      "search_member": "搜尋成員",
+      "prev_page": "上一頁",
+      "next_page": "下一頁",
+      "change_page_size": "變更每頁筆數",
+      "close_modal": "關閉視窗"
+    },
+    "errors": {
+      "load_roles": "載入角色失敗。",
+      "load_members": "載入成員失敗。",
+      "save_role": "儲存角色失敗。",
+      "delete_role": "刪除角色失敗。",
+      "update_role_status": "更新角色狀態失敗。",
+      "save_member": "儲存成員失敗。",
+      "update_member_status": "更新成員狀態失敗。",
+      "delete_member": "刪除成員失敗。"
+    },
+    "loading": {
+      "roles": "載入角色中...",
+      "members": "載入成員中..."
+    },
+    "empty": {
+      "roles": "尚無符合的角色。",
+      "members": "尚無符合的成員。"
+    },
+    "permissions": {
+      "chat": "聊天",
+      "projects": "專案",
+      "labels": "展櫃標示",
+      "files": "檔案資源",
+      "account": "權限與人員",
+      "roles": "權限管理",
+      "users": "人員管理",
+      "settings": "設定"
+    },
+    "headings": {
+      "basic_settings": "基本設定",
+      "default_conversation_access": "預設對話權限",
+      "permission_settings": "權限設定",
+      "menu_name": "選單名稱"
+    },
+    "form": {
+      "role_name_label": "角色名稱",
+      "input_placeholder": "輸入",
+      "member_name_label": "人員名稱",
+      "member_name_placeholder": "輸入人員名稱",
+      "account_label": "帳號",
+      "account_placeholder": "電子郵件或帳號",
+      "email_label": "Email",
+      "email_placeholder": "brand{'@'}ys.local",
+      "password_label": "密碼",
+      "password_placeholder": "至少 6 個字元",
+      "new_password_label": "新密碼",
+      "new_password_placeholder": "留空則維持原密碼",
+      "role_label": "角色",
+      "select_placeholder": "選擇角色",
+      "send_setup_email": "寄送設定密碼信",
+      "setup_email_success": "設定密碼信已寄出。",
+      "setup_email_failed": "寄送設定密碼信失敗。"
+    },
+    "settings_stage": {
+      "title": "AI 訓練",
+      "summary": "{count} 個專案",
+      "create_project": "新增專案",
+      "unnamed_project": "未命名專案",
+      "search_placeholder": "搜尋議題",
+      "loading": "資料讀取中...",
+      "page_size": "每頁幾筆",
+      "tabs": {
+        "pending": "待處理",
+        "processed": "已處理"
+      },
+      "columns": {
+        "topic": "對話議題",
+        "time": "時間"
+      },
+      "empty": {
+        "filtered": "找不到符合條件的議題。",
+        "default": "目前沒有可顯示的專案。"
+      },
+      "errors": {
+        "load": "載入設定清單失敗"
+      },
+      "modal": {
+        "title": "新增專案",
+        "name_label": "客戶名稱",
+        "name_placeholder": "例如：王大明 / XX 戶外用品店",
+        "visibility_label": "權限",
+        "customer_type_label": "類型",
+        "type_unset": "未設定",
+        "trade_count_label": "交易次數",
+        "last_trade_at_label": "最近交易時間",
+        "avg_unit_price_label": "平均單價",
+        "region_label": "類別",
+        "region_placeholder": "登山 / 釣具",
+        "has_wine_cabinet_label": "Has storage locker",
+        "description_label": "描述",
+        "description_placeholder": "客戶偏好、常買類別、偏好價格區間...",
+        "errors": {
+          "name_required": "請輸入專案名稱",
+          "create": "建立專案失敗"
+        }
+      }
+    },
+    "modals": {
+      "role_create": {
+        "title": "新增角色"
+      },
+      "role_edit": {
+        "title": "編輯角色"
+      },
+      "role_delete": {
+        "title": "刪除角色",
+        "body": "您即將刪除此角色，操作將無法復原。您確定要刪除此角色嗎？"
+      },
+      "member_create": {
+        "title": "新增成員"
+      },
+      "member_edit": {
+        "title": "編輯成員"
+      },
+      "member_delete": {
+        "title": "移除成員",
+        "body": "確定要移除此帳號嗎？此操作無法復原。"
+      }
+    },
+    "settings": {
+      "dev_lane": "前端 DEV 會透過本機代理連到 __SYSTEM_NAME__ API。",
+      "dev_auth": "登入成功後，受保護 API 需維持可讀取聊天紀錄與專案資料。"
+    },
+    "knowledge": {
+      "tabs": {
+        "rag_tables": "RAG 表格",
+        "company_profile": "企業資料",
+        "external_sites": "外部專業網站"
+      },
+      "common": {
+        "loading": "載入中...",
+        "chunks": "個 chunks",
+        "language": "語言"
+      },
+      "rag": {
+        "table_name": "表格名稱",
+        "table_name_placeholder": "產品問答 / 服務政策",
+        "source_name": "來源名稱",
+        "source_name_placeholder": "內部知識表",
+        "tags": "標籤",
+        "tags_placeholder": "裝備、保固、服務",
+        "file": "CSV / XLSX 檔案",
+        "import": "匯入表格",
+        "empty": "尚未匯入 RAG 表格。",
+        "import_success": "已匯入 {rows} 列，建立 {chunks} 個 chunks。"
+      },
+      "profile": {
+        "company_name": "企業 / 品牌名稱",
+        "industry": "產業類型",
+        "product_categories": "產品類別",
+        "tone": "回覆語氣",
+        "service_scope": "服務範圍",
+        "contact_info": "聯絡資訊",
+        "faq": "常見問答",
+        "policies": "重要政策",
+        "save": "儲存企業資料",
+        "save_success": "企業資料已寫入 {chunks} 個 RAG chunks。"
+      },
+      "sites": {
+        "url": "URL",
+        "name": "網站名稱",
+        "category": "分類",
+        "trust_level": "信任等級",
+        "enabled": "啟用",
+        "add": "新增網站",
+        "ingest": "讀入",
+        "save_success": "外部網站已儲存。",
+        "ingest_success": "外部網站已讀入 {chunks} 個 chunks。",
+        "trust": {
+          "approved": "核准來源",
+          "reference": "參考來源",
+          "experimental": "實驗來源"
+        }
+      },
+      "errors": {
+        "load": "無法載入知識表格。",
+        "load_profile": "無法載入企業資料。",
+        "load_sites": "無法載入外部網站。",
+        "file_required": "請選擇 CSV 或 XLSX 檔案。",
+        "import": "無法匯入此表格。",
+        "delete": "無法刪除此表格。",
+        "save_profile": "無法儲存企業資料。",
+        "save_site": "無法儲存外部網站。",
+        "ingest_site": "無法讀入外部網站。"
+      }
+    }
+  },
+  "password_flow": {
+    "common": {
+      "back_to_login": "返回登入",
+      "no_email": "未提供 Email",
+      "expired_headline": "這個連結已逾時",
+      "invalid_headline": "無法使用這個連結",
+      "fields": {
+        "new_password": "新密碼",
+        "confirm_password": "確認新密碼"
+      },
+      "errors": {
+        "new_required": "請輸入新密碼。",
+        "new_length": "新密碼至少需要 {count} 個字元。",
+        "confirm_required": "請再次輸入新密碼。",
+        "confirm_mismatch": "兩次輸入的密碼不一致。"
+      }
+    },
+    "reset": {
+      "title": "從 Email 重設密碼",
+      "description": "請設定新的登入密碼。完成後將可使用新密碼回到系統登入。",
+      "loading": "正在驗證重設密碼連結...",
+      "complete_title": "密碼已重設",
+      "complete_description": "請回到登入頁，使用新的密碼重新登入 __SYSTEM_NAME__。",
+      "success_headline": "密碼已完成更新",
+      "success_message": "重設密碼完成。",
+      "expired_title": "重設連結已失效",
+      "invalid_title": "重設連結無效",
+      "invalid_description": "此連結可能已過期、已被使用，或是輸入錯誤。請回到登入頁重新操作忘記密碼流程。",
+      "invalid_hint": "請回到登入頁重新點擊「忘記密碼」，系統會再寄出新的重設密碼連結。",
+      "account_label": "對象帳號",
+      "submit": "確認修改",
+      "errors": {
+        "validate": "目前無法驗證重設密碼連結。",
+        "submit": "重設密碼失敗，請稍後再試。"
+      }
+    },
+    "setup": {
+      "title": "新用戶設定密碼",
+      "description": "請先完成初始密碼設定，再使用這組密碼登入 __SYSTEM_NAME__。",
+      "loading": "正在驗證設定密碼連結...",
+      "complete_title": "帳號已完成啟用",
+      "complete_description": "密碼設定完成後，即可返回登入頁開始使用 __SYSTEM_NAME__。",
+      "success_headline": "歡迎加入 __SYSTEM_NAME__",
+      "success_message": "密碼設定完成。",
+      "expired_title": "設定連結已失效",
+      "invalid_title": "設定連結無效",
+      "invalid_description": "此連結可能已過期或已被使用。請聯絡管理員重新寄送設定密碼信。",
+      "invalid_hint": "請聯絡管理員重新寄送設定密碼信，再使用新的 Email 連結完成帳號啟用。",
+      "account_label": "啟用帳號",
+      "submit": "完成設定",
+      "errors": {
+        "validate": "目前無法驗證設定密碼連結。",
+        "submit": "設定密碼失敗，請稍後再試。"
+      }
+    }
+  },
+  "api_errors": {
+    "request_failed": "要求失敗，請稍後再試。",
+    "auth": {
+      "identifier_required": "請輸入帳號或 Email。",
+      "credentials_invalid": "帳號或密碼錯誤。",
+      "missing_token": "登入已逾時，請重新登入。",
+      "invalid_token": "登入狀態無效，請重新登入。",
+      "session_expired": "登入已逾時，請重新登入。",
+      "user_disabled": "此帳號已停用，請聯絡管理員。",
+      "role_disabled": "此角色已停用，請聯絡管理員。",
+      "password_confirmation_mismatch": "兩次輸入的密碼不一致。",
+      "password_too_short": "密碼至少需要 8 個字元。",
+      "password_too_long": "密碼長度過長。",
+      "current_password_incorrect": "目前密碼不正確。",
+      "email_required": "請輸入有效的 Email。",
+      "email_missing": "此帳號尚未設定 Email。",
+      "email_delivery_disabled": "目前 DEV 環境未啟用信件寄送。",
+      "email_delivery_incomplete": "信件寄送設定尚未完成。",
+      "email_delivery_failed": "信件寄送失敗，請稍後再試。",
+      "password_link_invalid": "密碼連結無效。",
+      "password_link_used": "此密碼連結已被使用。",
+      "password_link_expired": "此密碼連結已過期。",
+      "change_password_failed": "修改密碼失敗，請稍後再試。",
+      "refresh_failed": "目前無法更新登入狀態。"
+    },
+    "admin": {
+      "user_not_found": "找不到使用者。",
+      "role_not_found": "找不到角色。",
+      "role_missing": "請選擇角色。",
+      "role_exists": "此角色名稱已存在。",
+      "role_delete_conflict": "目前無法刪除此角色。",
+      "role_disabled": "所選角色已停用。",
+      "username_exists": "此帳號已被註冊。",
+      "email_exists": "此 Email 已被註冊。",
+      "setup_email_failed": "目前無法寄送設定密碼信。",
+      "permission_exists": "此權限代碼已存在。",
+      "permission_not_found": "找不到權限設定。"
+    }
+  },
+  "quote": {
+    "nav": {
+      "chat": "聊天",
+      "project": "專案",
+      "showcase": "展櫃標示",
+      "quote": "報價回傳",
+      "files": "檔案資源",
+      "permission": "權限與人員",
+      "settings": "設定"
+    },
+    "aria": {
+      "main_nav": "主要導覽",
+      "toggle_menu": "切換側邊欄",
+      "toggle_profile": "開啟帳戶選單",
+      "search_chat": "搜尋聊天",
+      "send_message": "發送訊息",
+      "open_card_menu": "開啟卡片操作",
+      "open_actions": "開啟操作選單",
+      "copy": "複製",
+      "share": "分享",
+      "favorite": "收藏"
+    },
+    "advice": {
+      "title": "報價總覽"
+    },
+    "output_types": {
+      "quote_list": "報價清單"
+    },
+    "table": {
+      "columns": {
+        "no": "編號",
+        "vintage": "型號型號年份",
+        "producer": "品牌",
+        "product": "產品",
+        "color": "顏色",
+        "rating": "評級",
+        "stock": "庫存",
+        "price": "價格",
+        "vip": "VIP 價",
+        "bundle": "組合",
+        "spec": "規格 / 型號"
+      },
+      "actions": "操作",
+      "loading": "載入對話中...",
+      "select_all": "全選",
+      "select_row": "選取列"
+    },
+    "labels": {
+      "ai": "AI",
+      "you": "你",
+      "vip": "VIP"
+    },
+    "chat": {
+      "title": "報價對話"
+    },
+    "loading": {
+      "conversation": "載入對話中..."
+    },
+    "placeholders": {
+      "compose": "描述你的需求...",
+      "search_chat": "搜尋對話..."
+    },
+    "actions": {
+      "show_generated": "顯示產生結果",
+      "swap_recommendation": "更換推薦",
+      "delete": "刪除",
+      "cancel": "取消",
+      "export": "匯出",
+      "reset_filters": "重設篩選",
+      "send": "送出",
+      "clear_selection": "清除選取",
+      "create_edm": "匯出結果 ({count})"
+    },
+    "filters": {
+      "output_type": "輸出類型",
+      "price_type": {
+        "label": "價格類型",
+        "placeholder": "選擇價格類型",
+        "selected": "已選 {count} 項"
+      },
+      "price_range": "價格區間",
+      "color": "顏色",
+      "rating": "評級",
+      "vintage": "型號型號年份",
+      "producer": "品牌",
+      "inventory": "庫存",
+      "all": "全部"
+    },
+    "price_types": {
+      "vip": "VIP 價",
+      "restaurant": "門市價",
+      "dealer": "經銷價",
+      "promo": "促銷價",
+      "price": "價格"
+    },
+    "colors": {
+      "red": "紅",
+      "white": "白",
+      "rose": "粉紅"
+    },
+    "inventory": {
+      "all": "全部",
+      "boutique": "門市現貨",
+      "overall": "總庫存"
+    },
+    "tabs": {
+      "report": "報價清單",
+      "gallery": "說明清單",
+      "slides": "文字訊息",
+      "social": "門市推薦"
+    },
+    "defaults": {
+      "bundle_label": "搭贈",
+      "bundle_short": "搭贈",
+      "color": "顏色",
+      "color_unknown": "未知",
+      "conversation_title": "新報價",
+      "non_vintage": "NV",
+      "none": "無",
+      "price_estimate": "預估 {price}",
+      "price_pending": "價格待確認",
+      "producer": "品牌",
+      "product": "產品",
+      "rating": "評分",
+      "stock_bottles": "{count} 件",
+      "stock_pending": "庫存待確認",
+      "supplier": "智慧系統",
+      "unnamed": "未命名"
+    },
+    "gallery": {
+      "default_title": "推薦產品",
+      "default_link": "查看細節",
+      "photo_placeholder": "產品圖片即將提供",
+      "more_info": "更多資訊",
+      "cases": "{count} 箱"
+    },
+    "slides": {
+      "count": "{count} 張",
+      "meta": {
+        "price": "價格",
+        "vintage": "型號型號年份",
+        "sku": "SKU",
+        "link": "連結",
+        "area": "區域: {value}"
+      }
+    },
+    "slide": {
+      "notes": {
+        "color": "顏色: {value}",
+        "rating": "評級: {value}"
+      }
+    },
+    "share": {
+      "title": "分享報價",
+      "lead": "將此報價寄給收件者。",
+      "body": "我們會提供安全連結通知收件者。",
+      "email_placeholder": "收件者 Email",
+      "email_aria": "分享 Email",
+      "hint": "只有收件者能看到這份報價。"
+    },
+    "modals": {
+      "delete": {
+        "title": "刪除報價",
+        "body": "確定要刪除此報價嗎？"
+      }
+    },
+    "snackbar": {
+      "copied_title": "已複製",
+      "copied_body": "報價內容已複製到剪貼簿。",
+      "select_items_title": "請選擇項目",
+      "select_items_body": "請先選擇項目。"
+    },
+    "pagination": {
+      "prev": "上一頁",
+      "next": "下一頁",
+      "page": "第 {current} / {total} 頁"
+    },
+    "sort": {
+      "add_rule": "新增規則",
+      "reset_rules": "重設規則",
+      "remove_rule": "移除規則",
+      "group_by_producer": "依品牌分組",
+      "show_bundle_column": "顯示搭贈欄",
+      "placeholder": "排序",
+      "count": "{count} 項規則",
+      "single": "{field} - {direction}",
+      "directions": {
+        "a_z": "A-Z",
+        "z_a": "Z-A",
+        "old_new": "舊到新",
+        "new_old": "新到舊",
+        "high_low": "高到低",
+        "low_high": "低到高",
+        "many_few": "多到少",
+        "few_many": "少到多"
+      },
+      "fields": {
+        "product": "產品",
+        "vintage": "型號型號年份",
+        "color": "顏色",
+        "rating": "評級",
+        "stock": "庫存",
+        "price": "價格",
+        "bundle": "組合",
+        "spec": "規格 / 型號"
+      }
+    },
+    "errors": {
+      "auth_required": "請登入後繼續。",
+      "load_conversation": "載入對話失敗。",
+      "submit_failed": "送出報價請求失敗。",
+      "cerp_failed": "取得商品庫存產品失敗。"
+    },
+    "producer_description": {
+      "line1": "{brand} {version} {product}（{color}，{rating}）。",
+      "line2": "庫存: {stock}. 價格: {price}.",
+      "line3": "可詢問用途建議或類別替代品.",
+      "line4": "使用篩選器縮小顏色、型號型號年份與評級.",
+      "filler": " 可提供附加備註."
+    },
+    "rating": {
+      "steps": [
+        80,
+        85,
+        90,
+        95,
+        100
+      ]
+    },
+    "sample_messages": [
+      {
+        "role": "assistant",
+        "text": "這裡是報價重點摘要。"
+      }
+    ],
+    "selection": {
+      "count": "已選 {count} 筆"
+    }
+  },
+  "edm": {
+    "preview": {
+      "title": "報價預覽",
+      "shared_title": "EDM 報價單"
+    },
+    "actions": {
+      "clear": "清除",
+      "confirm": "確認報價",
+      "export_excel": "匯出 Excel",
+      "share_link": "分享連結",
+      "close": "關閉",
+      "back_to_quote": "返回報價"
+    },
+    "banner": {
+      "logo_alt": "__SYSTEM_NAME__ 標誌",
+      "meta": {
+        "sales": "業務",
+        "quote_no": "報價單號",
+        "quote_date": "報價日期"
+      }
+    },
+    "hero": {
+      "title": "精選產品推薦",
+      "product_fallback": "精選產品",
+      "recommendation": "如果您喜歡 {product}，也會喜歡這 {count} 款精選產品"
+    },
+    "table": {
+      "note": "請先確認欲報價的數量，再繼續下一步。",
+      "color_icon": "{color} 色系",
+      "columns": {
+        "no": "No.",
+        "vintage": "型號年份",
+        "producer": "品牌",
+        "product": "產品",
+        "color": "顏色",
+        "rating": "評分",
+        "list_price": "牌價",
+        "quote_price": "報價",
+        "bundle": "搭贈",
+        "quote_action": "報價類型",
+        "quantity": "數量"
+      }
+    },
+    "quote_tiers": {
+      "wholesale": "批發價",
+      "vip": "VIP",
+      "fb": "F&B"
+    },
+    "bundle": {
+      "enabled_11_plus_1": "已套用",
+      "disabled_11_plus_1": "已取消",
+      "toggle_aria": "切換 {product} 的搭贈優惠，目前狀態：{state}",
+      "payable_hint": "{quantity} 件收 {payable} 件"
+    },
+    "feedback": {
+      "sent": "EDM 已成功寄出。",
+      "failed": "EDM 寄送失敗。"
+    },
+    "errors": {
+      "no_items": "請至少選擇一項產品。",
+      "no_customer": "請先連結客戶後再寄送。",
+      "no_conversation": "缺少對話內容。"
+    },
+    "confirm": {
+      "title": "報價明細",
+      "back_aria": "返回",
+      "list": {
+        "product": "產品",
+        "unit_price": "單價",
+        "quantity": "數量",
+        "subtotal": "小計"
+      },
+      "summary": {
+        "title": "摘要",
+        "count": "{count} 件",
+        "taxable": "含稅合計",
+        "tax": "稅額",
+        "total": "總計"
+      },
+      "submit": "送出報價",
+      "note": "報價送出後將保留 7 天，請盡快確認。"
+    },
+    "complete": {
+      "title": "感謝您，報價單已送出。",
+      "subtitle": "我們已收到您的報價需求，將盡快為您處理。",
+      "note": "以下為本次確認的報價資訊，請留存備查。",
+      "download": "下載報價單（PDF）",
+      "info": {
+        "order_no": "訂單編號",
+        "order_date": "訂單日期",
+        "order_amount": "訂單金額",
+        "total_qty": "總數量",
+        "sales_rep": "業務",
+        "contact_phone": "聯絡電話"
+      },
+      "table": {
+        "sku": "編號",
+        "product": "產品",
+        "color": "顏色",
+        "quantity": "數量",
+        "subtotal": "小計"
+      }
+    },
+    "units": {
+      "bottle": "{count} 件"
+    },
+    "share": {
+      "title": "分享連結",
+      "email_placeholder": "輸入客戶 Email",
+      "send": "寄出",
+      "sending": "寄送中...",
+      "link_section_title": "或複製此連結分享",
+      "copy": "複製",
+      "remove_recipient": "移除 {email}",
+      "errors": {
+        "invalid_email": "Email 格式錯誤：{email}",
+        "recipients_required": "請至少新增一個 Email 收件者。",
+        "copy_failed": "無法複製分享連結。",
+        "send_failed": "無法寄出分享連結。"
+      }
+    },
+    "snackbar": {
+      "share_sent": "分享連結已寄送至指定 Email",
+      "exported": "Excel 檔案已成功匯出"
+    },
+    "state": {
+      "loading": "載入中...",
+      "error_title": "無法載入 EDM 預覽",
+      "load_failed": "載入 EDM 預覽失敗。",
+      "invalid_link": "此分享連結無效。",
+      "empty_title": "目前沒有可用的 EDM 預覽",
+      "empty_body": "請回到 QuoteView 選擇至少一筆資料後再匯出。"
+    },
+    "export": {
+      "sheet_name": "EDM 預覽"
+    }
+  },
+  "returns": {
+    "page_title": "報價回傳",
+    "search": {
+      "placeholder": "搜尋客戶名稱或報價單號",
+      "aria": "搜尋客戶名稱或報價單號"
+    },
+    "table": {
+      "quote_no": "報價單號",
+      "customer_name": "客戶名稱",
+      "sales_rep": "業務員",
+      "quote_date": "報價日期",
+      "reply_date": "回傳日期"
+    },
+    "actions": {
+      "export_excel": "匯出 Excel",
+      "delete": "刪除",
+      "cancel": "取消"
+    },
+    "states": {
+      "loading": "載入報價回傳中...",
+      "empty": "目前尚無報價回傳資料",
+      "deleting": "刪除中..."
+    },
+    "errors": {
+      "load": "載入報價回傳失敗",
+      "delete": "刪除回傳訂單失敗"
+    },
+    "pagination": {
+      "per_page": "每頁顯示"
+    },
+    "snackbar": {
+      "exported": "Excel 檔案已成功匯出"
+    },
+    "quote_ui": {
+      "default_query": "本次報價需求",
+      "status_ready": "已完成",
+      "status_warning": "部分符合",
+      "status_empty": "尚無結果",
+      "success_title": "已為「{query}」準備 {count} 筆報價建議",
+      "success_intro": "針對「{query}」，我已整理可直接比較的報價候選內容：",
+      "success_bullet_count": "{count} 筆產品可直接比較",
+      "bullet_quote_info": "每項產品的代碼、名稱、庫存與報價資訊",
+      "bullet_wine_details": "顏色、評級、型號年份與品牌資訊，方便快速檢視",
+      "bullet_compare": "以便於並排比較的結構呈現",
+      "success_closing": "這份清單已整理成可快速確認優先報價產品的格式。",
+      "closing_bullet_filter": "可再依類別、品牌或型號年份縮小範圍",
+      "closing_bullet_save": "可保留目前結果，稍後再調整",
+      "closing_bullet_more": "可要求更多相近產品擴充候選清單",
+      "shortage_title": "已為「{query}」整理 {count}/{requested} 筆報價建議",
+      "shortage_intro": "你要求 {requested} 筆符合「{query}」且有庫存的產品；目前找到 {count} 筆可立即檢視的選項：",
+      "shortage_bullet_count": "目前有 {count} 筆產品符合條件且可用",
+      "shortage_bullet_alternatives": "也可檢視相近且有庫存的替代產品",
+      "shortage_closing": "如需，我可以把這些相近且有庫存的替代品加入下一版報價候選。",
+      "empty_title": "目前沒有「{query}」的報價結果",
+      "empty_intro": "暫時找不到可直接放入報價清單的產品；縮小條件後可重新整理。",
+      "empty_bullet_request": "確認品牌、類別、型號年份或偏好風格",
+      "empty_bullet_inventory": "改用有庫存項目或放寬庫存範圍重試",
+      "empty_bullet_refine": "以用途、適配性或價格區間重新篩選",
+      "empty_closing": "如需，我可以立即改成更接近目標的另一個報價方向。",
+      "empty_closing_bullet_alternative": "切換為同品牌或同風格替代品",
+      "empty_closing_bullet_region": "改以類別作為主要篩選條件",
+      "empty_closing_bullet_style": "改以用途、評級或價格帶重新推薦",
+      "near_match_title": "找到接近「{query}」的報價候選",
+      "near_match_intro": "沒有找到完全符合且可銷售的項目，但有相近的報價候選可檢視。",
+      "near_match_bullet_count": "目前有 {count} 筆相近的智慧系統候選",
+      "near_match_bullet_review": "送出報價前請先確認價格、庫存或相近可售項目",
+      "near_match_bullet_action": "可使用後續操作開啟最接近的報價候選",
+      "near_match_closing": "目前找到的最接近候選：",
+      "near_match_closing_bullet_count": "找到 {count} 筆接近的智慧系統候選",
+      "near_match_closing_bullet_review": "建議先檢視同類別或同風格替代品",
+      "near_match_closing_bullet_continue": "可進入報價對話比較可售選項"
+    },
+    "modals": {
+      "no_selection": {
+        "title": "請先選擇報價單",
+        "body": "您尚未選擇任何報價單，請先從列表中勾選欲匯出的報價單，再重新嘗試匯出。",
+        "confirm": "我知道了"
+      },
+      "delete": {
+        "title": "刪除回傳項目",
+        "body": "您即將刪除此回傳項目，刪除後將不再顯示於報價回傳列表，且操作無法復原。您確定要刪除此項目嗎？"
+      }
+    },
+    "export": {
+      "sheet_name": "報價回傳",
+      "columns": {
+        "no": "編號",
+        "vintage": "型號年份",
+        "producer": "品牌",
+        "product": "產品名稱",
+        "color": "顏色",
+        "rating": "評分",
+        "list_price": "牌價",
+        "quote_price": "報價",
+        "bundle": "容量",
+        "quantity": "數量"
+      }
+    },
+    "aria": {
+      "select_all": "選擇本頁所有報價單",
+      "select_row": "選擇報價單 {quoteNo}",
+      "prev_page": "上一頁",
+      "next_page": "下一頁",
+      "close_snackbar": "關閉提示"
+    }
+  },
+  "email": {
+    "brand": {
+      "crest_alt": "__SYSTEM_NAME__ 徽章",
+      "mark_alt": "__SYSTEM_NAME__ 標誌",
+      "wordmark": "YS",
+      "subtitle": "AI CELLAR"
+    },
+    "title": "最新配額",
+    "hero_alt": "主打產品",
+    "cta": "查看產品",
+    "legal": "您收到此郵件，是因為您訂閱了 __SYSTEM_NAME__ 更新。",
+    "templates": [
+      {
+        "id": "hero",
+        "title": "Hero + Warning",
+        "description": "Hero image with warning strip.",
+        "showHero": true
+      },
+      {
+        "id": "simple",
+        "title": "Simple",
+        "description": "Text-only email without hero.",
+        "showHero": false
+      }
+    ],
+    "paragraphs": [
+      {
+        "text": "Our latest allocation is now available. Explore limited equipment drops curated for you.",
+        "link": {
+          "label": "Explore the release",
+          "href": "https://ys.local"
+        }
+      },
+      {
+        "text": "Request a quote or ask our team for use-case recommendations anytime."
+      }
+    ],
+    "warning": {
+      "items": [
+        "Limited allocation",
+        "Member exclusive"
+      ]
+    },
+    "social_links": [
+      {
+        "id": "facebook",
+        "href": "https://facebook.com/ys"
+      },
+      {
+        "id": "instagram",
+        "href": "https://instagram.com/ys"
+      },
+      {
+        "id": "mail",
+        "href": "mailto:hello{'@'}ys.local"
+      }
+    ]
+  },
+  "chat_product_card": {
+    "labels": {
+      "sku": "SKU"
+    },
+    "aria": {
+      "more_options": "更多操作"
+    },
+    "stats": {
+      "color": "顏色",
+      "vintage": "型號年份",
+      "rating": "評分",
+      "producer": "品牌"
+    },
+    "status": {
+      "stock": "庫存"
+    }
+  },
+  "labelSettings": {
+    "title": "展櫃標示",
+    "step1": "Step 1",
+    "step2": "Step 2",
+    "selectWines": "選擇列印產品",
+    "selectSize": "選擇標示尺寸",
+    "searchPlaceholder": "搜尋品名、brand、產品編號",
+    "searchLoading": "搜尋中...",
+    "searchEmpty": "沒有符合的產品",
+    "searchClear": "清除搜尋",
+    "importExcel": "批次匯入(Excel)",
+    "downloadSample": "下載範例檔案",
+    "importing": "匯入中...",
+    "addToPrint": "加入列印清單",
+    "editLabel": "編輯標示內容",
+    "sizeSmall": "小尺寸",
+    "sizeMedium": "中尺寸",
+    "sizeLarge": "大尺寸",
+    "sizeSmallValue": "71×48mm",
+    "sizeMediumValue": "91×65mm",
+    "sizeLargeValue": "140×94mm",
+    "descriptionLoading": "標示內容產生中...",
+    "descriptionEmpty": "尚未有標示內容",
+    "snackbarAdded": "此產品已成功加入列印清單",
+    "snackbarImportSuccess": "批次匯入完成，產品標籤已加入列印清單。",
+    "snackbarImportPartial": "批次匯入完成，但有部分資料失敗，請檢查結果。",
+    "snackbarSampleDownloaded": "已下載範例檔案。",
+    "sampleFileName": "product-label-batch-import-template.xlsx",
+    "sampleSheetName": "批次匯入",
+    "sampleGuideSheetName": "填寫說明",
+    "importResultTitle": "匯入結果",
+    "importSummaryTitle": "摘要",
+    "importSummaryTotalRows": "處理列數",
+    "importSummaryImported": "成功匯入列數",
+    "importSummaryCreated": "新增項目",
+    "importSummaryMerged": "合併列數",
+    "importSummaryAddedQty": "增加張數",
+    "importSummaryErrors": "錯誤列數",
+    "importErrorTableRow": "列號",
+    "importErrorTableReason": "錯誤代碼",
+    "importErrorTableMessage": "訊息",
+    "importErrorTableValue": "匯入資料",
+    "downloadFailedRows": "下載失敗列",
+    "closeImportResult": "關閉",
+    "importNoErrors": "所有資料皆已成功匯入。",
+    "sampleGuideTitle": "填寫說明",
+    "sampleGuideLine1": "僅使用第一個工作表匯入，請勿修改標題列。",
+    "sampleGuideLine2": "產品編號、品名至少填一項，建議優先填產品編號。",
+    "sampleGuideLine3": "請在大尺寸 / 中尺寸 / 小尺寸欄位填入 Y、1、TRUE 或 是，空白代表不印。",
+    "sampleGuideLine4": "價格可留白，若填寫必須是正整數；同一列被勾選的尺寸共用同一個價格。",
+    "sampleGuideLine5": "同一件酒同一尺寸若在多列重複出現，匯入時會自動合併並累加 1 張。",
+    "editDialogTitle": "編輯標示內容",
+    "priceLabel": "標價",
+    "descriptionLabel": "說明",
+    "editInstructionPlaceholder": "輸入偏好或修改建議...",
+    "editCancel": "取消",
+    "editConfirm": "確認",
+    "dialogCancel": "取消",
+    "dialogSave": "儲存"
+  },
+  "labelPrint": {
+    "title": "列印清單",
+    "total": "總數量",
+    "smallPanelTitle": "小尺寸（每張紙可列印 8 張標示）",
+    "mediumPanelTitle": "中尺寸（每張紙可列印 4 張標示）",
+    "largePanelTitle": "大尺寸（每張紙可列印 2 張標示）",
+    "printConfirmTitle": "確認列印標示",
+    "printConfirmIntro": "📐 您即將列印的標示尺寸：",
+    "paperTitle": "📄 所需紙張：",
+    "paperRequired": "A5 紙張 {count} 張",
+    "preflightTitle": "✅ 列印前請確認：",
+    "preflightPrinter": "印表機已開機並連線正常",
+    "preflightPaper": "已放入足夠紙張",
+    "preflightDirection": "紙張方向與尺寸正確",
+    "printFinalHint": "確定無誤後，按下「開始列印」。",
+    "startPrint": "開始列印",
+    "resetConfirmTitle": "重設清單",
+    "resetConfirmMessage": "此操作將清除所有已加入的標示，無法復原。您確定要重設列印清單嗎？",
+    "confirmReset": "確認重設",
+    "empty": "暫無列印內容",
+    "reset": "重設清單",
+    "print": "列印標示",
+    "loading": "載入中...",
+    "sizeCountSmall": "小尺寸 (71 x 48 mm) x {count}",
+    "sizeCountMedium": "中尺寸 (91 x 65 mm) x {count}",
+    "sizeCountLarge": "大尺寸 (140 x 94 mm) x {count}"
+  },
+  "hello_world": {
+    "count_label": "目前計數 {count}",
+    "card": {
+      "edit_prefix": "編輯",
+      "edit_path": "components/HelloWorld.vue",
+      "edit_suffix": "以測試 HMR"
+    },
+    "links": {
+      "check_out_prefix": "查看",
+      "check_out_link": "create-vue",
+      "check_out_suffix": "，官方 Vue + Vite 起始專案",
+      "learn_more_prefix": "了解更多 IDE 件援請見",
+      "learn_more_link": "Vue Docs Scaling up Guide",
+      "learn_more_suffix": "."
+    },
+    "docs_hint": "點擊 Vite 與 Vue 圖示了解更多資訊"
+  },
+  "projects": {
+    "title": "專案",
+    "count": "個專案",
+    "new": "新增專案",
+    "searchProjects": "搜尋專案名稱",
+    "searchConversations": "搜尋此客戶資料夾內對話內容",
+    "pendingProject": "你已收到資料夾邀請：",
+    "pendingConversation": "你已收到對話邀請：",
+    "reject": "拒絕",
+    "accept": "接受",
+    "columns": {
+      "name": "名稱",
+      "owner": "擁有者",
+      "updatedAt": "上次修改時間"
+    },
+    "loading": "載入中...",
+    "noData": "目前沒有資料",
+    "perPage": "每頁顯示",
+    "menu": {
+      "permission": "權限設定",
+      "rename": "重新命名",
+      "delete": "刪除專案"
+    },
+    "cancel": "取消",
+    "create": "新增",
+    "confirm": "確認",
+    "visibility": {
+      "private": "私人",
+      "public": "公開"
+    },
+    "modals": {
+      "create": {
+        "title": "新增專案",
+        "name": "客戶名稱",
+        "visibility": "權限設定"
+      },
+      "rename": {
+        "title": "重新命名",
+        "name": "名稱"
+      },
+      "delete": {
+        "title": "刪除專案",
+        "body": "此操作會封存此資料夾與其所有對話，且無法復原。是否確定刪除？",
+        "confirm": "確認刪除"
+      },
+      "permission": {
+        "title": "權限設定",
+        "visibility": "可見範圍",
+        "publicHint": "公開時所有已登入使用者都可閱覽。",
+        "emailPlaceholder": "輸入 email 並送出邀請",
+        "add": "加入",
+        "noInvite": "尚無受邀名單",
+        "revoke": "撤銷",
+        "remove": "移除"
+      }
+    },
+    "profile": {
+      "customerType": "客戶類型",
+      "tradeCount": "交易次數",
+      "lastTradeAt": "最近交易時間",
+      "avgUnitPrice": "平均單價",
+      "region": "偏好類別",
+      "hasWineCabinet": "是否租儲物櫃",
+      "preferenceNote": "客戶喜好描述",
+      "title": "客戶資訊",
+      "yes": "是",
+      "no": "No",
+      "noPreference": "尚未填寫客戶喜好描述"
+    },
+    "common": {
+      "main_nav": "主選單",
+      "toggle_menu": "切換選單",
+      "account_menu": "帳號選單",
+      "search": "搜尋",
+      "projects": "專案",
+      "project": "專案",
+      "new_project": "新增專案",
+      "customer_profile": "客戶資料",
+      "visibility": "權限",
+      "public": "公開",
+      "private": "私人",
+      "description": "描述",
+      "total": "總數：{count}",
+      "name": "名稱",
+      "owner": "擁有者",
+      "last_updated": "最後更新",
+      "loading": "資料讀取中...",
+      "no_match": "查無符合對話",
+      "empty": "暫無資料",
+      "per_page": "每頁 {count} 筆",
+      "prev": "上一頁",
+      "next": "下一頁",
+      "more": "更多操作",
+      "select_folder": "選擇資料夾",
+      "new_conversation": "新增對話",
+      "permissions": "權限設定",
+      "rename": "重新命名",
+      "delete_file": "刪除檔案",
+      "cancel": "取消",
+      "processing": "處理中...",
+      "confirm": "確認",
+      "drafts": "草稿",
+      "all_projects": "全部專案",
+      "search_drafts": "搜尋草稿對話內容",
+      "search_folder": "搜尋此資料夾內對話內容",
+      "search_projects": "搜尋專案或對話內容",
+      "untitled_conversation": "未命名對話",
+      "accepted": "可閱覽",
+      "pending": "邀請中",
+      "rejected": "已拒絕",
+      "revoked": "已移除",
+      "me": "我",
+      "owner_role": "擁有者",
+      "customer_name": "客戶名稱",
+      "type": "類型",
+      "trade_count": "交易次數",
+      "last_trade_at": "最近一次交易時間",
+      "avg_unit_price": "平均單價",
+      "region": "類別",
+      "has_wine_cabinet": "有沒有倉儲櫃",
+      "yes": "有",
+      "no": "無",
+      "load_accounts_failed": "載入帳號清單失敗",
+      "load_projects_failed": "載入專案失敗",
+      "load_conversations_failed": "載入對話失敗",
+      "name_required": "請輸入客戶名稱",
+      "create_failed": "建立專案失敗",
+      "blank_name": "名稱不可空白",
+      "rename_failed": "重新命名失敗",
+      "load_folders_failed": "載入資料夾失敗",
+      "no_conversation": "找不到對話",
+      "select_folder_first": "請先選擇資料夾",
+      "move_failed": "移動到資料夾失敗",
+      "delete_failed": "刪除失敗",
+      "load_permissions_failed": "載入權限名單失敗",
+      "update_permissions_failed": "更新權限失敗",
+      "select_account_first": "請先從清單選擇系統內的帳號",
+      "invite_failed": "邀請失敗",
+      "remove_permission_failed": "移除權限失敗",
+      "conversation_count": "{count} 筆對話",
+      "customer_id": "客戶ID {id}",
+      "unset": "未設定",
+      "example_customer": "例如：王大明 / XX 戶外用品店",
+      "preference_placeholder": "客戶喜好、常買品類、偏好價格區間...",
+      "delete_project": "刪除專案",
+      "delete_conversation": "刪除對話",
+      "delete_project_copy": "此操作會封存專案與其底下對話，確定要刪除嗎？",
+      "delete_conversation_copy": "確定要刪除此對話嗎？",
+      "confirm_delete": "確認刪除",
+      "visibility_setting": "公開設定",
+      "select_account": "選擇系統帳號",
+      "search_account": "搜尋系統帳號",
+      "searching": "搜尋中...",
+      "no_account": "找不到可授權的帳號",
+      "add": "新增",
+      "authorized_users": "已授權的使用者",
+      "no_authorized_users": "尚未授權任何人",
+      "public_permission_copy": "公開狀態下，所有已登入使用者皆可閱覽。",
+      "move_folder_copy": "將這筆對話移動到指定資料夾",
+      "search_folder_label": "搜尋資料夾",
+      "search_folder_placeholder": "輸入關鍵字搜尋資料夾",
+      "no_selectable_folder": "查無可選擇的資料夾"
+    }
+  },
+  "fileResources": {
+    "title": "檔案資源",
+    "subtitle": "管理內部團隊共用的產品標籤、圖片與文件。",
+    "tabs": {
+      "wine_label": "產品標籤",
+      "image": "圖片",
+      "document": "文件"
+    },
+    "search": {
+      "placeholder": "搜尋檔案名稱"
+    },
+    "sort": {
+      "label": "排序",
+      "uploaded_desc": "上傳時間：近到遠",
+      "uploaded_asc": "上傳時間：遠到近",
+      "placeholder": "排序",
+      "count": "{count} 個排序",
+      "single": "{field}：{direction}",
+      "add_rule": "新增排序",
+      "reset_rules": "重設排序",
+      "remove_rule": "移除排序",
+      "group_by_producer": "將相同品牌的商品分組",
+      "group_by_department": "將相同部門的檔案進行分組",
+      "fields": {
+        "uploaded_at": "上傳時間",
+        "display_name": "檔案名稱",
+        "producer": "品牌",
+        "product_code": "產品代碼",
+        "department": "所屬部門",
+        "file_type": "檔案類型",
+        "visibility": "公開狀態"
+      },
+      "directions": {
+        "newest_first": "近到遠",
+        "oldest_first": "遠到近",
+        "a_z": "A to Z",
+        "z_a": "Z to A",
+        "public_private": "公開到私人",
+        "private_public": "私人到公開"
+      }
+    },
+    "table": {
+      "name": "檔案名稱",
+      "product_code": "產品代碼",
+      "producer": "品牌",
+      "department": "所屬部門",
+      "visibility": "公開狀態",
+      "uploaded_at": "上傳時間",
+      "mime": "檔案類型",
+      "size": "檔案大小"
+    },
+    "visibility": {
+      "public": "公開",
+      "private": "私人"
+    },
+    "actions": {
+      "upload_file": "上傳檔案",
+      "edit": "編輯",
+      "download": "下載",
+      "delete": "刪除",
+      "cancel": "取消",
+      "save": "儲存",
+      "save_changes": "儲存變更",
+      "confirm": "確認",
+      "reselect": "重新選擇",
+      "permission": "權限設定",
+      "start_upload": "開始上傳",
+      "close": "關閉"
+    },
+    "states": {
+      "loading": "載入檔案資源中...",
+      "empty": "目前沒有檔案。",
+      "submitting": "上傳中...",
+      "deleting": "刪除中...",
+      "searching": "搜尋產品中...",
+      "uploading_file": "正在上傳 {filename}..."
+    },
+    "errors": {
+      "load": "載入檔案資源失敗。",
+      "file_required": "請至少選擇一個檔案。",
+      "wine_required": "請選擇此標籤對應的產品。",
+      "upload_failed": "檔案上傳失敗。",
+      "create": "建立檔案資源失敗。",
+      "update": "更新檔案資源失敗。",
+      "delete": "刪除檔案資源失敗。",
+      "detail": "載入檔案詳情失敗。",
+      "download": "下載檔案失敗。",
+      "search": "搜尋產品失敗。",
+      "departments": "載入部門清單失敗。",
+      "permission_update": "更新權限設定失敗。",
+      "unsupported_extension": "不件援的檔案格式「{extension}」，允許格式：{allowed}",
+      "file_too_large": "檔案「{filename}」超過 {maxMb}MB 限制。",
+      "upload_too_large": "上傳檔案超過 {maxMb}MB 限制。"
+    },
+    "messages": {
+      "created": "產品標籤上傳成功。",
+      "updated": "檔案資源已更新。",
+      "deleted": "檔案資源已刪除。",
+      "images_created": "圖片上傳成功。",
+      "documents_created": "文件上傳成功。",
+      "permissions_updated": "權限設定已更新。"
+    },
+    "pagination": {
+      "per_page": "每頁筆數"
+    },
+    "upload_menu": {
+      "wine_label": {
+        "title": "商品標籤",
+        "description": "上傳商品標籤圖片，並綁定到商品庫存品項。"
+      },
+      "image": {
+        "title": "圖片",
+        "description": "上傳共用圖片並設定所屬部門與公開狀態。"
+      },
+      "document": {
+        "title": "文件",
+        "description": "上傳共用文件並設定所屬部門與公開狀態。"
+      }
+    },
+    "modal": {
+      "title": "上傳產品標籤",
+      "subtitle": "上傳一張產品標籤圖片，並選擇對應的產品。",
+      "edit_title": "編輯產品標籤",
+      "edit_subtitle": "更新產品標籤圖片或重新綁定對應產品。",
+      "image_title": "上傳圖片",
+      "image_subtitle": "上傳團隊共用圖片資源。",
+      "document_title": "上傳文件",
+      "document_subtitle": "上傳團隊共用文件資源。",
+      "select_image": "選擇圖片",
+      "step_image_title": "選擇產品標籤圖片",
+      "step_image_hint": "請先上傳產品標籤圖片。",
+      "image_size_hint": "建議比例：414 x 1024",
+      "step_wine_title": "選擇對應產品",
+      "step_wine_hint": "Bind the image to one 智慧系統 product and reuse it across model years.",
+      "select_wine": "選擇產品",
+      "related_title": "同系列商品",
+      "related_code": "產品代碼",
+      "related_vintage": "型號年份",
+      "department": "所屬部門",
+      "visibility": "公開設定",
+      "queue_title": "待上傳檔案",
+      "supported_formats_image": "件援格式：JPG、PNG、GIF、BMP、WEBP",
+      "supported_formats_document": "件援格式：PDF、DOC、DOCX、XLS、XLSX、CSV、PPT、PPTX、TXT",
+      "dropzone_title": "拖曳或選擇檔案",
+      "dropzone_copy_prefix": "將檔案拖曳至此，或從裝置中",
+      "choose_files": "選擇檔案",
+      "dropzone_title_image": "拖曳圖片到這裡或選擇檔案",
+      "dropzone_title_document": "拖曳文件到這裡或選擇檔案",
+      "dropzone_hint": "每一個檔案都會建立為獨立資源。",
+      "upload_failed_retry": "上傳失敗，請稍後再試一次。",
+      "fields": {
+        "producer": "品牌",
+        "region": "類別",
+        "color": "顏色"
+      }
+    },
+    "picker": {
+      "title": "選擇產品",
+      "search_placeholder": "Search by product name or 智慧系統代碼",
+      "results_title": "搜尋結果",
+      "empty": "目前沒有符合的產品。"
+    },
+    "preview": {
+      "loading": "載入預覽中...",
+      "no_image": "目前沒有可顯示的預覽圖片。",
+      "close": "關閉預覽",
+      "toggle_info": "切換資訊面板",
+      "previous": "上一筆",
+      "next": "下一筆",
+      "info_title": "資源資訊",
+      "product_section": "產品資訊",
+      "related_section": "同系列商品",
+      "basic_section": "基本資訊",
+      "details_section": "詳細資訊",
+      "uploaded_at": "上傳時間",
+      "updated_at": "最後編輯時間",
+      "updated_by": "最後編輯者",
+      "department": "所屬部門",
+      "visibility": "公開狀態",
+      "unsupported_title": "此文件類型暫不件援線上預覽。",
+      "unsupported_body": "請下載檔案後查看完整內容。"
+    },
+    "permission_modal": {
+      "title": "權限設定",
+      "department": "所屬部門",
+      "visibility": "公開設定"
+    },
+    "delete_modal": {
+      "wine_label_title": "刪除產品標籤",
+      "wine_label_body": "刪除此產品標籤後無法復原。確定要繼續嗎？",
+      "image_title": "刪除圖片",
+      "image_body": "刪除後無法復原，確定要刪除此圖片嗎？",
+      "document_title": "刪除文件",
+      "document_body": "刪除後無法復原，確定要刪除此文件嗎？"
+    }
+  }
+}

@@ -1,0 +1,885 @@
+﻿.quote-view-shell .stage-canvas.quote-stage {
+  --quote-left-width: 360px;
+  --quote-filter-width: 352px;
+  --quote-results-shell-width: 1040px;
+  --quote-report-edge-right: 0px;
+  --quote-report-edge-bottom: 24px;
+  --quote-stage-offset: 152px;
+  --quote-filter-footer-gap: 16px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: #f4f6f8;
+  overflow: visible;
+  gap: 0;
+}
+
+.quote-view-shell .quote-stage .quote-page {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  color: #212b36;
+  overflow: visible;
+}
+
+.quote-view-shell .quote-stage .quote-layout {
+  display: grid;
+  grid-template-columns:
+    var(--quote-left-width)
+    minmax(0, 1fr)
+    var(--quote-filter-width);
+  grid-template-rows: minmax(0, 1fr);
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  gap: 0;
+  align-items: start;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+.quote-view-shell .quote-stage .quote-panel {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  background: #ffffff;
+}
+
+.quote-view-shell .quote-stage .quote-panel--left,
+.quote-view-shell .quote-stage .quote-panel--table,
+.quote-view-shell .quote-stage .quote-panel--filters {
+  height: 100%;
+  min-height: 0;
+}
+
+.quote-view-shell .quote-stage .quote-panel--left {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  width: var(--quote-left-width);
+  min-width: var(--quote-left-width);
+  max-width: var(--quote-left-width);
+  height: calc(100vh - var(--quote-stage-offset));
+  height: calc(100dvh - var(--quote-stage-offset));
+  max-height: calc(100vh - var(--quote-stage-offset));
+  max-height: calc(100dvh - var(--quote-stage-offset));
+  padding: 16px 16px 20px;
+  background: #f4f6f8;
+  border-radius: 24px 0 0 24px;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.quote-view-shell .quote-stage .quote-chat {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.quote-view-shell .quote-stage .quote-thread {
+  min-height: 0;
+}
+
+.quote-view-shell .quote-stage .quote-thread {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+  max-height: none;
+  padding-right: 8px;
+  margin-right: -8px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  color: #212b36;
+}
+
+.quote-view-shell .quote-stage .quote-thread__loading {
+  min-height: 160px;
+}
+
+.quote-view-shell .quote-stage .quote-thread__bubble {
+  gap: 8px;
+  padding: 0;
+}
+
+.quote-view-shell .quote-stage .quote-thread__bubble.is-user {
+  align-items: flex-end;
+}
+
+.quote-view-shell .quote-stage .quote-thread__bubble.is-user .quote-thread__meta {
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+}
+
+.quote-view-shell .quote-stage .quote-thread__meta {
+  gap: 10px;
+  color: #637381;
+  font-size: 12px;
+}
+
+.quote-view-shell .quote-stage .quote-thread__avatar {
+  width: 30px;
+  height: 30px;
+  background: #19446b;
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.quote-view-shell .quote-stage .quote-thread__bubble.is-assistant .quote-thread__avatar {
+  background: #dfe3e8;
+  color: #212b36;
+}
+
+.quote-view-shell .quote-stage .quote-thread__bubble.is-user .quote-thread__text {
+  max-width: 288px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: var(--ys-chat-radius, 6px);
+  background: #dfe3e8;
+  color: #212b36;
+}
+
+.quote-view-shell .quote-stage .quote-thread__bubble.is-assistant .quote-thread__text {
+  color: #212b36;
+  line-height: 24px;
+}
+
+.quote-view-shell .quote-stage .quote-thread__bubble.is-assistant.is-quote-response {
+  gap: 10px;
+}
+
+.quote-view-shell .quote-stage .quote-thread__quote-response.chat-message__bubble {
+  width: 100%;
+  max-width: none;
+  padding: 24px 24px 8px;
+  border-radius: var(--ys-chat-radius, 6px);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.quote-view-shell .quote-stage .quote-thread__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+  white-space: pre-wrap;
+}
+
+.quote-view-shell .quote-stage .quote-chat > .chat-composer {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding: 14px 14px 12px;
+  border: 1px solid #dfe3e8;
+  border-radius: var(--ys-chat-radius, 6px);
+  background: #ffffff;
+  gap: 10px;
+}
+
+.quote-view-shell .quote-stage .quote-chat > .chat-composer .chat-composer__field {
+  min-width: 0;
+}
+
+.quote-view-shell .quote-stage .quote-chat > .chat-composer .chat-composer__field textarea {
+  min-height: 72px;
+  padding: 0;
+  color: #637381;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.quote-view-shell .quote-stage .quote-chat > .chat-composer .chat-composer__actions {
+  gap: 8px;
+}
+
+.quote-view-shell .quote-stage .quote-chat > .chat-composer .chat-dropdown {
+  min-width: 0;
+}
+
+.quote-view-shell .quote-stage .quote-chat > .chat-composer .chat-composer__send {
+  margin-left: auto;
+}
+
+.quote-view-shell .quote-stage .quote-panel--table {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  padding: 28px 0 24px 40px;
+  border-left: 1px solid rgba(145, 158, 171, 0.24);
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.quote-view-shell .quote-stage .quote-panel--table.is-report {
+  position: relative;
+  padding-right: 0;
+}
+
+.quote-view-shell .quote-stage .quote-panel--filters {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  width: var(--quote-filter-width);
+  min-width: var(--quote-filter-width);
+  max-width: var(--quote-filter-width);
+  height: calc(100vh - var(--quote-stage-offset));
+  height: calc(100dvh - var(--quote-stage-offset));
+  max-height: calc(100vh - var(--quote-stage-offset));
+  max-height: calc(100dvh - var(--quote-stage-offset));
+  padding: 16px 16px 20px;
+  background: #ffffff;
+  border-left: 1px solid rgba(145, 158, 171, 0.2);
+  border-radius: 0 24px 24px 0;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.quote-view-shell .quote-stage .quote-filter__stack {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding-bottom: var(--quote-filter-footer-gap);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.quote-view-shell .quote-stage .quote-filter__header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 20px;
+}
+
+.quote-view-shell .quote-stage .quote-filter__header > p,
+.quote-view-shell .quote-stage .quote-filter__section > p,
+.quote-view-shell .quote-stage .quote-filter__row > p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  color: #212b36;
+}
+
+.quote-view-shell .quote-stage .quote-filter__tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #dfe3e8;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.quote-view-shell .quote-stage .quote-filter__tab {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 4px;
+  min-height: 54px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  color: #212b36;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.quote-view-shell .quote-stage .quote-filter__tab img {
+  width: 16px;
+  height: 16px;
+}
+
+.quote-view-shell .quote-stage .quote-filter__tab span {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.quote-view-shell .quote-stage .quote-filter__tab.is-active {
+  background: #55b77f;
+  color: #ffffff;
+}
+
+.quote-view-shell .quote-stage .quote-filter__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid #dfe3e8;
+}
+
+.quote-view-shell .quote-stage .quote-filter__row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quote-view-shell .quote-stage .quote-filter__dropdown,
+.quote-view-shell .quote-stage .quote-autocomplete__field {
+  min-height: 40px;
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+  color: #637381;
+  font-size: 14px;
+  line-height: 20px;
+  box-sizing: border-box;
+}
+
+.quote-view-shell .quote-stage .quote-filter__dropdown {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-weight: 400;
+}
+
+.quote-view-shell .quote-stage .quote-filter__caret {
+  flex: 0 0 auto;
+  color: #637381;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.quote-view-shell .quote-stage .quote-filter__menu {
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.quote-view-shell .quote-stage .quote-filter__menu button {
+  min-height: 40px;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #212b36;
+}
+
+.quote-view-shell .quote-stage .quote-filter__menu-item.is-active {
+  background: #fff3f3;
+}
+
+.quote-view-shell .quote-stage .quote-filter__menu-item .quote-filter__check {
+  width: 18px;
+  color: #55b77f;
+  font-weight: 700;
+}
+
+.quote-view-shell .quote-stage .quote-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.quote-view-shell .quote-stage .quote-slider__track {
+  position: relative;
+  height: 4px;
+  border-radius: 999px;
+  background: #dfe3e8;
+}
+
+.quote-view-shell .quote-stage .quote-slider__track.is-rating {
+  height: 4px;
+  margin-bottom: 0;
+  background: #dfe3e8;
+}
+
+.quote-view-shell .quote-stage .quote-slider__fill {
+  background: #55b77f;
+}
+
+.quote-view-shell .quote-stage .quote-slider__track input {
+  top: -6px;
+  height: 16px;
+}
+
+.quote-view-shell .quote-stage .quote-slider__track input::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  background: #55b77f;
+  box-shadow: none;
+}
+
+.quote-view-shell .quote-stage .quote-slider__track input::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 50%;
+  background: #55b77f;
+  box-shadow: none;
+}
+
+.quote-view-shell .quote-stage .quote-slider__inputs {
+  gap: 10px;
+  color: #637381;
+}
+
+.quote-view-shell .quote-stage .quote-slider__inputs label {
+  min-height: 40px;
+  min-width: 0;
+  border: 1px solid #dfe3e8;
+  border-radius: var(--ys-control-radius, 6px);
+  padding: 10px 12px;
+  justify-content: center;
+}
+
+.quote-view-shell .quote-stage .quote-slider__inputs label span {
+  width: auto;
+  margin-right: 4px;
+  color: #637381;
+}
+
+.quote-view-shell .quote-stage .quote-slider__inputs input {
+  text-align: center;
+  color: #637381;
+  font-size: 14px;
+}
+
+.quote-view-shell .quote-stage .quote-slider__dash {
+  color: #637381;
+  font-size: 18px;
+  line-height: 20px;
+}
+
+.quote-view-shell .quote-stage .quote-rating {
+  gap: 12px;
+}
+
+.quote-view-shell .quote-stage .quote-rating__labels {
+  gap: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #637381;
+}
+
+.quote-view-shell .quote-stage .quote-rating__labels span {
+  flex: 1 1 0;
+  text-align: center;
+}
+
+.quote-view-shell .quote-stage .quote-color__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quote-view-shell .quote-stage .quote-color__pill {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  min-width: 0;
+  justify-content: flex-start;
+  gap: 10px;
+  color: #212b36;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.quote-view-shell .quote-stage .quote-color__pill.is-active {
+  background: transparent;
+  color: #212b36;
+}
+
+.quote-view-shell .quote-stage .quote-color__dot {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  margin-right: 0;
+  border: 1px solid #c4cdd5;
+  border-radius: 6px;
+  background: #ffffff !important;
+}
+
+.quote-view-shell .quote-stage .quote-color__pill.is-active .quote-color__dot {
+  border-color: #55b77f;
+  background: #55b77f !important;
+}
+
+.quote-view-shell .quote-stage .quote-color__pill.is-active .quote-color__dot::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border-right: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+  transform: rotate(45deg);
+}
+
+.quote-view-shell .quote-stage .quote-autocomplete {
+  width: 100%;
+}
+
+.quote-view-shell .quote-stage .quote-autocomplete__field {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.quote-view-shell .quote-stage .quote-autocomplete__chips {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.quote-view-shell .quote-stage .quote-autocomplete__placeholder {
+  color: #637381;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.quote-view-shell .quote-stage .quote-chip {
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: #eef2f6;
+  color: #637381;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.quote-view-shell .quote-stage .quote-chip button {
+  color: inherit;
+}
+
+.quote-view-shell .quote-stage .quote-radio {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quote-view-shell .quote-stage .quote-radio__item {
+  gap: 8px;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #212b36;
+}
+
+.quote-view-shell .quote-stage .quote-radio__item input {
+  margin: 0;
+  accent-color: #55b77f;
+}
+
+.quote-view-shell .quote-stage .quote-filter__actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 12px;
+  align-self: stretch;
+  margin-top: 0;
+  padding-top: 20px;
+  border-top: 1px solid #dfe3e8;
+  background: #ffffff;
+}
+
+.quote-view-shell .quote-stage .quote-filter__actions.is-single {
+  gap: 0;
+}
+
+.quote-view-shell .quote-stage .quote-filter__actions button {
+  flex: 1 1 0;
+  min-height: 40px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.quote-view-shell .quote-stage .quote-filter__actions.is-single button {
+  flex-basis: 100%;
+  width: 100%;
+}
+
+.quote-view-shell .quote-stage .quote-filter__actions .quote-ghost {
+  border: 1px solid #dfe3e8;
+  background: #ffffff;
+  color: #212b36;
+}
+
+.quote-view-shell .quote-stage .quote-filter__actions .quote-primary {
+  border: 0;
+  background: #55b77f;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.quote-view-shell .quote-stage .quote-report-shell {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.quote-view-shell .quote-stage .quote-report-shell--tab {
+  height: 100%;
+}
+
+.quote-view-shell .quote-stage .quote-summary-shell {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.quote-view-shell .quote-stage .quote-summary-shell__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.quote-view-shell .quote-stage .quote-tab-shell {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 24px;
+  width: var(--quote-results-shell-width);
+  min-width: var(--quote-results-shell-width);
+  max-width: var(--quote-results-shell-width);
+  min-height: 0;
+}
+
+.quote-view-shell .quote-stage .quote-tab-shell--gallery,
+.quote-view-shell .quote-stage .quote-tab-shell--slides,
+.quote-view-shell .quote-stage .quote-tab-shell--social {
+  overflow: visible;
+}
+
+.quote-view-shell .quote-stage .quote-table-viewport {
+  position: relative;
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin-bottom: calc(var(--quote-report-edge-bottom, 0px) * -1);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.quote-view-shell .quote-stage .quote-table-viewport__content {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 100%;
+  min-height: 100%;
+  width: max-content;
+  max-width: none;
+  padding-bottom: var(--quote-report-edge-bottom, 0px);
+}
+
+.quote-view-shell .quote-stage .quote-table {
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  width: max-content;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  overflow: visible;
+  border: 1px solid rgba(145, 158, 171, 0.24);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow:
+    0 0 2px rgba(145, 158, 171, 0.2),
+    0 12px 24px -4px rgba(145, 158, 171, 0.12);
+}
+
+.quote-view-shell .quote-stage .quote-table__header,
+.quote-view-shell .quote-stage .quote-row {
+  display: grid;
+  align-items: center;
+}
+
+.quote-view-shell .quote-stage .quote-panel--table.is-report .quote-table__header,
+.quote-view-shell .quote-stage .quote-panel--table.is-report .quote-row {
+  gap: 0;
+  padding: 0;
+}
+
+.quote-view-shell .quote-stage .quote-table__header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  width: max-content;
+  min-width: 0;
+  background: #f4f6f8;
+  border-radius: 16px 16px 0 0;
+}
+
+.quote-view-shell .quote-stage .quote-table__header .quote-table__cell {
+  min-height: 56px;
+  padding: 16px 12px;
+  background: #f4f6f8;
+  color: #637381;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 22px;
+  border-right: 1px solid #dfe3e8;
+}
+
+.quote-view-shell .quote-stage .quote-table__header .quote-table__cell:first-child {
+  padding-left: 16px;
+}
+
+.quote-view-shell .quote-stage .quote-table__header .quote-table__cell:last-child {
+  border-right: 0;
+}
+
+.quote-view-shell .quote-stage .quote-table__body {
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: 0;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.quote-view-shell .quote-stage .quote-panel--table.is-report .quote-table__header .quote-table__cell,
+.quote-view-shell .quote-stage .quote-panel--table.is-report .quote-row .quote-table__cell,
+.quote-view-shell .quote-stage .quote-panel--table.is-report .quote-table__cell[data-column],
+.quote-view-shell .quote-stage .quote-panel--table.is-report .quote-row .quote-table__cell.quote-product {
+  min-width: 0;
+  max-width: none;
+  width: auto;
+  flex: none;
+}
+
+.quote-view-shell .quote-stage .quote-panel--table.is-report .quote-row .quote-table__cell,
+.quote-view-shell .quote-stage .quote-panel--table.is-report .quote-row .quote-table__cell.quote-product {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.quote-view-shell .quote-stage .quote-panel--table.is-report .quote-table__cell.is-select,
+.quote-view-shell .quote-stage .quote-panel--table.is-report .quote-table__cell.is-action {
+  justify-self: stretch;
+}
+
+.quote-view-shell .quote-stage .quote-panel--table.is-report .quote-row .quote-table__cell.quote-product a {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.quote-view-shell .quote-stage .quote-row {
+  background: #ffffff;
+  border-top: 1px solid rgba(145, 158, 171, 0.16);
+}
+
+.quote-view-shell .quote-stage .quote-row .quote-table__cell {
+  min-height: 72px;
+  padding: 14px 12px;
+  border-right: 1px solid rgba(145, 158, 171, 0.16);
+}
+
+.quote-view-shell .quote-stage .quote-row .quote-table__cell:first-child {
+  padding-left: 16px;
+}
+
+.quote-view-shell .quote-stage .quote-row .quote-table__cell:last-child {
+  border-right: 0;
+}
+
+.quote-view-shell .quote-stage .quote-table__cell.is-select,
+.quote-view-shell .quote-stage .quote-table__cell.is-action {
+  justify-content: center;
+}
+
+.quote-view-shell .quote-stage .quote-table__load-more {
+  display: grid;
+  border-top: 1px solid rgba(145, 158, 171, 0.16);
+  background: #ffffff;
+}
+
+.quote-view-shell .quote-stage .quote-table__load-more-cell {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 12px 16px;
+  color: #637381;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+@media (max-width: 1439px) {
+  .quote-view-shell .stage-canvas.quote-stage {
+    --quote-stage-offset: 144px;
+  }
+}
+
+@media (max-width: 720px) {
+  .quote-view-shell .stage-canvas.quote-stage {
+    --quote-stage-offset: 164px;
+  }
+
+  .quote-view-shell .quote-stage .quote-layout {
+    grid-template-columns:
+      max(100vw, var(--quote-left-width))
+      100vw
+      max(100vw, var(--quote-filter-width));
+    width: max-content;
+    min-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+  }
+
+  .quote-view-shell .quote-stage .quote-panel--left,
+  .quote-view-shell .quote-stage .quote-panel--table,
+  .quote-view-shell .quote-stage .quote-panel--filters {
+    scroll-snap-align: start;
+  }
+
+  .quote-view-shell .quote-stage .quote-panel--left {
+    justify-self: start;
+  }
+
+  .quote-view-shell .quote-stage .quote-panel--table {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .quote-view-shell .quote-stage .quote-panel--filters {
+    justify-self: end;
+  }
+}
+.composer-file-input {
+  display: none;
+}

@@ -1,0 +1,1982 @@
+{
+  "home": {
+    "nav": {
+      "chat": "チャット",
+      "project": "プロジェクト",
+      "showcase": "棚ラベル",
+      "quote": "見積返信",
+      "files": "ファイルリソース",
+      "permission": "権限",
+      "settings": "設定"
+    },
+    "defaults": {
+      "conversation_title": "新しいチャット",
+      "project_label": "新規プロジェクト",
+      "assistant_text": "Alpine Rain Shell を 10 件探して、在庫・価格・入手可否を整理できます。",
+      "highlights": [
+        "10 Alpine Rain Shell units (stock check)",
+        "Price ranges and availability insights",
+        "Suggested alternatives based on brand",
+        "Follow-up ideas to refine the selection"
+      ],
+      "next_steps": [
+        "Ask for a shortlist based on budget.",
+        "Compare 3 similar products side-by-side.",
+        "Generate a quote list for the selection."
+      ],
+      "user_prompt": "Alpine Rain Shell を 10 件探して、在庫と価格をまとめてください。",
+      "schedule": "2025/08/04 09:30 AM",
+      "project_fallback": "顧客プロジェクト"
+    },
+    "output_types": {
+      "placeholder": "出力タイプ",
+      "quote_list": "見積リスト",
+      "guide_list": "ガイドリスト",
+      "text_message": "テキストメッセージ",
+      "store_recommendation": "店舗おすすめ",
+      "search_results": "検索結果",
+      "reports": "レポート",
+      "free_chat": "自由チャット"
+    },
+    "tabs": {
+      "gallery": "ギャラリー",
+      "slides": "スライド",
+      "social": "ソーシャル"
+    },
+    "errors": {
+      "load_conversation": "会話を読み込めません。",
+      "load_history": "履歴を読み込めません。",
+      "login_required": "続行するには再ログインしてください。",
+      "chat_busy": "システムが混み合っています。後でもう一度お試しください。",
+      "chat_failed": "チャットリクエストに失敗しました。",
+      "rename_project_required": "プロジェクト名を入力してください。",
+      "rename_missing": "会話が選択されていません。",
+      "rename_failed": "名前の変更に失敗しました。",
+      "visibility_missing": "会話が選択されていません。",
+      "visibility_failed": "公開設定の更新に失敗しました。",
+      "delete_missing": "会話が選択されていません。",
+      "delete_failed": "削除に失敗しました。",
+      "load_folders": "フォルダの読み込みに失敗しました。"
+    },
+    "labels": {
+      "project_name": "プロジェクト名",
+      "unnamed_project": "無題のプロジェクト",
+      "this_conversation": "この会話",
+      "you": "あなた",
+      "ai": "AI"
+    },
+    "placeholders": {
+      "chat": "依頼内容を入力...",
+      "search": "会話を検索...",
+      "share_email": "通知先メールを入力",
+      "rename_project": "新しいプロジェクト名を入力",
+      "chat_outdoor": "登山ギア、釣具在庫、見積、ファイル、チーム業務について質問..."
+    },
+    "aria": {
+      "main_nav": "操作",
+      "toggle_menu": "操作",
+      "open_account_menu": "操作",
+      "open_search": "操作",
+      "edit_input": "操作",
+      "open_actions": "操作",
+      "upload_file": "操作",
+      "send_message": "操作",
+      "copy_response": "操作",
+      "share_response": "操作",
+      "close_snackbar": "操作",
+      "close_share": "操作",
+      "close_modal": "操作",
+      "close_search": "操作"
+    },
+    "menu": {
+      "pin": "先頭に固定",
+      "unpin": "固定を解除",
+      "visibility": "公開設定",
+      "rename": "名前を変更",
+      "delete": "削除",
+      "select_folder": "フォルダーを選択",
+      "new_conversation": "新しい会話"
+    },
+    "visibility": {
+      "public": "公開",
+      "private": "非公開",
+      "public_label": "ラベル",
+      "public_description": "同じロールのメンバーがこのプロジェクトを閲覧できます。",
+      "private_label": "ラベル",
+      "private_description": "この会話を閲覧できるのはあなたとシステムだけです。"
+    },
+    "status": {
+      "summary": "内容を確認して続行してください。"
+    },
+    "history": {
+      "empty_summary": "該当するデータはありません。"
+    },
+    "loading": {
+      "history": "履歴を読み込み中...",
+      "conversation": "会話を読み込み中...",
+      "ai_thinking": "AI が考えています..."
+    },
+    "empty": {
+      "no_projects": "該当するデータはありません。",
+      "no_pinned": "ピン留めされた会話はありません",
+      "no_history": "該当するデータはありません。",
+      "no_inbox": "該当するデータはありません。"
+    },
+    "actions": {
+      "show_references": "実行",
+      "new_conversation": "実行",
+      "cancel": "キャンセル"
+    },
+    "customer": {
+      "label": "ラベル",
+      "link_cta": "顧客を連携",
+      "aria_link": "操作"
+    },
+    "search": {
+      "recent_conversations": "最近の会話",
+      "results": "検索結果",
+      "loading": "読み込み中...",
+      "empty": "一致する会話はありません",
+      "empty_results": "この検索に一致する会話はありません。",
+      "error": "現在、会話を検索できません。"
+    },
+    "hero": {
+      "title": "登山ギア、釣具在庫、アウトドア運用を __SYSTEM_NAME__ に質問。",
+      "eyebrow": "アウトドアスマートシステム コマンドセンター",
+      "copy": "AI ワークスペースから装備、釣具、見積ドラフト、資料、チーム連携を検索できます。"
+    },
+    "sections": {
+      "pinned": "固定済み",
+      "history": "履歴",
+      "inbox": "下書き"
+    },
+    "snackbar": {
+      "copied": "クリップボードにコピーしました"
+    },
+    "share": {
+      "title": "タイトル",
+      "submit": "送信",
+      "note": "非公開の会話は共有先の相手にのみ表示されます。",
+      "default_title": "タイトル"
+    },
+    "modals": {
+      "delete_project": {
+        "title": "タイトル",
+        "body": "削除後、このプロジェクトはアーカイブされ、スーパー管理者のみ復元できます。削除しますか？",
+        "confirm": "削除"
+      },
+      "delete_conversation": {
+        "title": "タイトル",
+        "body": "削除後、この会話はアーカイブされ、スーパー管理者のみ復元できます。削除しますか？",
+        "confirm": "削除"
+      },
+      "rename": {
+        "title": "タイトル",
+        "confirm": "保存"
+      },
+      "visibility": {
+        "title": "タイトル",
+        "confirm": "実行",
+        "hint": "{target} の閲覧権限を設定します"
+      },
+      "permission_denied": {
+        "title": "タイトル",
+        "body": "内容を確認して続行してください。",
+        "confirm": "実行"
+      },
+      "select_folder": {
+        "title": "タイトル",
+        "subtitle": "この会話の移動先フォルダーを選択してください。",
+        "search_label": "ラベル",
+        "search_placeholder": "キーワードでフォルダーを絞り込み",
+        "loading": "読み込み中...",
+        "empty": "該当するデータはありません。",
+        "required": "先にフォルダーを選択してください",
+        "submit_failed": "会話の移動に失敗しました",
+        "confirm": "実行",
+        "submitting": "実行"
+      }
+    },
+    "highlights": {
+      "section_title": "タイトル",
+      "keyword_prefix": "キーワード："
+    },
+    "next_steps": {
+      "variant_prefix": "操作",
+      "filter_prefix": "絞り込み："
+    },
+    "references": {
+      "reference_label": "ラベル",
+      "more_references": "...さらに表示",
+      "less_references": "折りたたむ",
+      "badges": {
+        "internal_approved": "内部承認済み",
+        "internal_official": "内部公式",
+        "external_authoritative": "外部の信頼ソース",
+        "external_other": "その他外部",
+        "internal": "内部"
+      }
+    },
+    "rag": {
+      "summary_title": "内容を確認して続行してください。",
+      "status_label": "ラベル",
+      "external_search_title": "タイトル",
+      "external_search_status": "外部検索"
+    },
+    "cerp": {
+      "notice_history": "I found this product in スマートシステム. Summary (from previously exported data):",
+      "notice_direct": "I found this product in スマートシステム. Summary:"
+    },
+    "cerp_results": {
+      "title": "商品在庫結果 ({count})",
+      "subtitle": "これらの結果は確認用としてチャット内に残り、見積リストは自動作成されません。",
+      "truncated_summary": "{total} 件一致しました。{displayed} 件を表示しています。",
+      "source": "スマートシステム",
+      "empty_value": "-",
+      "proof_label": "ラベル",
+      "timestamp_label": "スマートシステム時刻: {timestamp}",
+      "source_trace_label": "ソース経路：{trace}",
+      "business_fields_label": "業務項目：{fields}",
+      "field_separator": ", ",
+      "business_fields": {
+        "cost": "原価",
+        "margin": "粗利",
+        "margin_rate": "粗利率",
+        "supplier_terms": "仕入条件",
+        "sales_velocity": "販売速度",
+        "depletion": "消化",
+        "allocation": "割当",
+        "order_history": "注文履歴",
+        "review_score": "レビュー評価"
+      },
+      "columns": {
+        "code": "コード",
+        "producer": "ブランド",
+        "name": "商品",
+        "vintage": "モデル年",
+        "stock": "在庫",
+        "price": "価格",
+        "status": "ステータス",
+        "category": "カテゴリ",
+        "reason": "理由"
+      }
+    },
+    "transparency": {
+      "title": "タイトル",
+      "answer_mode": "回答モード",
+      "source_mix": "根拠ソース構成",
+      "rejected_evidence": "除外された根拠",
+      "citation_validation": "引用検証",
+      "citation_metric": "{citations} 件の引用 / {unmapped} 件未対応",
+      "cerp_proof": "スマートシステム根拠",
+      "cerp_proof_metric": "{count} 件の証跡",
+      "hard_flags": "重要フラグ",
+      "disclaimer": "注意",
+      "general_answer_disclaimer": "一般参考回答です。__SYSTEM_NAME__ 内部ソースでは未検証です。",
+      "filtered_out": "除外済み",
+      "answer_modes": {
+        "generated": "Generated",
+        "grounded_gap": "Grounded Gap",
+        "ranking_shortlist": "Ranking Shortlist",
+        "fail_closed": "Fail Closed",
+        "verified_answer": "Verified Answer",
+        "assisted_general_answer": "General Reference",
+        "data_or_permission_needed": "データまたは権限が必要"
+      },
+      "source_mix_labels": {
+        "internal_approved": "ラベル",
+        "internal_official": "ラベル",
+        "internal_other": "ラベル",
+        "external_authoritative": "ラベル",
+        "external_other": "ラベル"
+      }
+    },
+    "product_card": {
+      "labels": {
+        "number": "No.",
+        "vintage": "モデル年",
+        "producer": "ブランド",
+        "product": "商品",
+        "color": "?",
+        "rating": "評価",
+        "stock": "在庫",
+        "list_price": "ラベル",
+        "vip_quote": "ラベル",
+        "promo": "ラベル"
+      },
+      "bundle_1_1": "Bundle 1+1",
+      "bundle_label": "1+1",
+      "default_title": "スマートシステム見積",
+      "non_vintage": "NV",
+      "photo_placeholder": "商品画像は準備中です"
+    },
+    "user": {
+      "default_name": "User",
+      "default_seed": "チャット"
+    },
+    "quote_ui": {
+      "default_query": "今回の見積依頼",
+      "status_ready": "準備完了",
+      "status_warning": "一部一致",
+      "status_empty": "結果なし",
+      "success_title": "{query} について {count} 件の見積候補を用意しました",
+      "success_intro": "{query} の依頼に対して、見積に使える候補セットを整理しました。",
+      "success_bullet_count": "{count} 件の商品を直接比較できます",
+      "bullet_quote_info": "各商品のコード、商品名、在庫、見積情報を含みます",
+      "bullet_wine_details": "色、評価、モデル年、ブランド情報を確認できます",
+      "bullet_compare": "商品を横並びで比較しやすい構成です",
+      "success_closing": "優先して見積に入れる商品を素早く確認できるよう整理しています。",
+      "closing_bullet_filter": "カテゴリ、ブランド、モデル年でさらに絞り込めます",
+      "closing_bullet_save": "現在の結果を保持して後で調整できます",
+      "closing_bullet_more": "必要に応じて類似商品を追加できます",
+      "shortage_title": "{query} について {requested} 件中 {count} 件の候補を用意しました",
+      "shortage_intro": "{query} に一致する在庫あり商品を {requested} 件希望されました。現在 {count} 件が利用できます。",
+      "shortage_bullet_count": "現在条件に一致し、すぐ確認できる商品が {count} 件あります",
+      "shortage_bullet_alternatives": "類似の在庫あり代替品も確認できます",
+      "shortage_closing": "必要であれば、類似の在庫あり商品も次の見積候補に含められます。",
+      "empty_title": "{query} の見積結果はまだありません",
+      "empty_intro": "直接見積リストに入れられる商品はまだ見つかりません。条件を絞ると再構成できます。",
+      "empty_bullet_request": "ブランド、カテゴリ、モデル年、希望スタイルを確認してください",
+      "empty_bullet_inventory": "在庫ありのみ、または在庫範囲を広げて再検索してください",
+      "empty_bullet_refine": "用途、適合性、価格帯で絞り込んでください",
+      "empty_closing": "必要であれば、別の見積方向に組み直せます。",
+      "empty_closing_bullet_alternative": "同ブランドまたは同スタイルの代替品に切り替える",
+      "empty_closing_bullet_region": "カテゴリを主条件にして再検索する",
+      "empty_closing_bullet_style": "用途、評価、価格帯を主条件にして再検索する",
+      "near_match_title": "{query} に近い見積候補があります",
+      "near_match_intro": "完全一致はありませんが、近い見積候補を確認できます。",
+      "near_match_bullet_count": "{count} 件の近いスマート候補があります",
+      "near_match_bullet_review": "見積送信前に価格、在庫、類似商品を確認してください",
+      "near_match_bullet_action": "フォローアップ操作で近い候補を開けます",
+      "near_match_closing": "現在見つかった近い候補：",
+      "near_match_closing_bullet_count": "近いスマート候補が {count} 件あります",
+      "near_match_closing_bullet_review": "同カテゴリまたは同スタイルの代替品を先に確認してください",
+      "near_match_closing_bullet_continue": "見積チャットで販売可能な候補を比較できます"
+    },
+    "permission": {
+      "search_failed": "招待候補の検索に失敗しました",
+      "load_failed": "権限リストの読み込みに失敗しました",
+      "remove_failed": "メンバーの削除に失敗しました",
+      "select_candidate": "招待するアカウントを選択してください",
+      "invite_failed": "招待に失敗しました",
+      "owner": "所有者",
+      "accepted": "承認済み",
+      "pending": "保留中",
+      "rejected": "拒否済み",
+      "revoked": "削除済み",
+      "invite_members": "メンバーを招待",
+      "current_members": "アクセス可能なメンバー",
+      "lookup_placeholder": "ユーザー名 / email を検索",
+      "lookup_loading": "検索中...",
+      "lookup_empty": "招待可能なメンバーが見つかりません",
+      "invite": "招待",
+      "remove": "削除",
+      "empty_members": "アクセス可能なメンバーはいません",
+      "public_copy": "公開会話は権限のあるメンバーが追加招待なしで閲覧できます。",
+      "saving": "保存中...",
+      "confirm": "確認",
+      "visibility_setting": "公開設定"
+    },
+    "quote_followup": {
+      "summary_fill": "次の手順：類似商品を {remaining} 件追加し、候補を {target} 件にします。",
+      "summary_include": "次の手順：在庫ありの類似商品を候補に含めます。",
+      "summary_relax": "次の手順：条件を一段階緩めて候補を再構成します。",
+      "summary_show": "次の手順：近い推奨候補を展開して確認します。",
+      "summary_continue": "次の手順：現在の候補コンテキストを維持します。",
+      "fill": "{target} 件にする",
+      "fill_prompt": "{target} 件にする",
+      "include": "在庫あり類似品を含める",
+      "include_prompt": "在庫ありの類似商品を含める",
+      "relax": "条件を緩める",
+      "relax_prompt": "条件を緩めて候補を再構成する",
+      "show": "近い推奨を表示",
+      "show_prompt": "最も近い推奨を表示する",
+      "continue_label": "ラベル",
+      "continue_prompt": "現在の候補のみ維持する",
+      "pivot_label": "ラベル",
+      "pivot_prompt": "この商品を見積チャットで続ける"
+    }
+  },
+  "app": {
+    "sidebar": {
+      "aria": "メインナビゲーション",
+      "logo_alt": "__SYSTEM_NAME__ ロゴ"
+    },
+    "topbar": {
+      "menu_aria": "サイドバーを切り替え",
+      "avatar_aria": "アカウントメニューを開く",
+      "logo_alt": "__SYSTEM_NAME__ ロゴ",
+      "logout": "ログアウト",
+      "avatar_fallback": "アカウント",
+      "default_name": "__SYSTEM_NAME__ ユーザー",
+      "no_email": "メール未設定",
+      "menu": {
+        "change_password": "パスワード変更"
+      },
+      "password_modal": {
+        "eyebrow": "アカウントセキュリティ",
+        "title": "パスワード変更",
+        "copy": "現在のパスワードと新しいパスワードを入力してください。保存後にログアウトします。",
+        "fields": {
+          "current_password": "現在のパスワード",
+          "new_password": "新しいパスワード",
+          "confirm_password": "新しいパスワード確認"
+        },
+        "toast_title": "パスワードを更新しました",
+        "toast_message": "新しいパスワードで再度ログインしてください。",
+        "errors": {
+          "current_required": "処理に失敗しました。",
+          "new_required": "処理に失敗しました。",
+          "new_length": "処理に失敗しました。",
+          "confirm_required": "処理に失敗しました。",
+          "confirm_mismatch": "処理に失敗しました。"
+        }
+      }
+    },
+    "locale": {
+      "label": "言語",
+      "zh": "繁",
+      "en": "EN",
+      "ja": "日",
+      "zh_long": "繁体字中国語",
+      "en_long": "英語",
+      "ja_long": "日本語"
+    },
+    "command": {
+      "open": "コマンドセンターを開く",
+      "close": "コマンドセンターを閉じる",
+      "title": "コマンドセンター",
+      "subtitle": "検索、会話の切替、アウトドアスマートシステム 作業を開始できます。",
+      "search": "ワークスペース検索",
+      "quick_actions": "クイック操作",
+      "recent": "最近の会話",
+      "pinned": "ピン留め会話",
+      "empty": "項目はまだありません",
+      "new_conversation": "新規会話",
+      "account": "アカウント"
+    }
+  },
+  "common": {
+    "actions": {
+      "add": "実行",
+      "cancel": "キャンセル",
+      "confirm": "確認",
+      "hide": "非表示",
+      "show": "表示",
+      "processing": "実行",
+      "saving": "保存中",
+      "sending": "送信中",
+      "setting": "設定中",
+      "updating": "更新中",
+      "delete": "削除"
+    }
+  },
+  "customer": {
+    "modal": {
+      "title": "タイトル",
+      "close": "閉じる"
+    },
+    "search": {
+      "placeholder": "入力してください",
+      "action": "検索",
+      "loading": "検索中...",
+      "empty": "該当するデータはありません。"
+    },
+    "actions": {
+      "link": "実行"
+    },
+    "labels": {
+      "no_email": "ラベル"
+    },
+    "errors": {
+      "search_failed": "処理に失敗しました。",
+      "link_failed": "処理に失敗しました。",
+      "no_conversation": "処理に失敗しました。"
+    },
+    "create": {
+      "title": "タイトル",
+      "name_label": "名前",
+      "email_label": "メール",
+      "phone_label": "電話",
+      "action": "実行",
+      "creating": "作成中...",
+      "required": "名前は必須です。"
+    }
+  },
+  "chat_composer": {
+    "aria": {
+      "remove_attachment": "操作",
+      "send": "操作",
+      "upload": "操作"
+    },
+    "output_placeholder": "入力してください",
+    "preview_image": "画像プレビュー",
+    "actions": {
+      "add_file": "ファイルを追加",
+      "add_url": "URLを追加"
+    },
+    "url": {
+      "title": "URLを追加",
+      "hint": "複数の URL はカンマまたは改行で区切れます",
+      "placeholder": "URL を貼り付け",
+      "submit": "URLを追加",
+      "cancel": "キャンセル"
+    }
+  },
+  "login": {
+    "hero": {
+      "logo_alt": "__SYSTEM_NAME__ ロゴ",
+      "title": "おかえりなさい",
+      "copy": "ログインして見積、会話、チーム権限を管理します。"
+    },
+    "panel": {
+      "eyebrow": "ログイン",
+      "title": "ワークスペースへアクセス"
+    },
+    "banner": {
+      "title": "ログインに失敗しました。",
+      "copy": "アカウントとパスワードを確認してください。"
+    },
+    "form": {
+      "account_label": "メールまたはユーザー名",
+      "account_placeholder": "name{'@'}example.com",
+      "password_label": "パスワード",
+      "password_placeholder": "パスワードを入力",
+      "toggle_password": "パスワードの表示切替",
+      "forgot_password": "パスワードをお忘れですか？",
+      "submit": "ログイン"
+    },
+    "errors": {
+      "account_required": "処理に失敗しました。",
+      "account_invalid": "処理に失敗しました。",
+      "password_required": "処理に失敗しました。",
+      "token_missing": "処理に失敗しました。",
+      "login_failed": "処理に失敗しました。"
+    },
+    "forgot": {
+      "title": "タイトル",
+      "description": "内容を確認して続行してください。",
+      "sent_title": "タイトル",
+      "sent_description": "内容を確認して続行してください。",
+      "field_label": "メール",
+      "field_placeholder": "入力してください",
+      "success_title": "タイトル",
+      "success_copy": "内容を確認して続行してください。",
+      "errors": {
+        "required": "処理に失敗しました。",
+        "invalid": "処理に失敗しました。",
+        "submit_failed": "処理に失敗しました。"
+      }
+    },
+    "outdoor": {
+      "brand": "アウトドアスマートシステム",
+      "kicker": "プレミアムアウトドア運用",
+      "title": "登山ギアと釣具在庫のインテリジェンス。",
+      "copy": "登山用品、釣具在庫、見積フロー、ファイル、チーム権限の Demo ワークスペース。",
+      "trail": "登山ギア",
+      "tackle": "釣具在庫",
+      "flow": "スマートワークフロー",
+      "panel_brand": "__SYSTEM_NAME__",
+      "panel_eyebrow": "安全な装備ワークスペース"
+    }
+  },
+  "account": {
+    "nav": {
+      "chat": "チャット",
+      "project": "プロジェクト",
+      "showcase": "棚ラベル",
+      "quote": "見積返信",
+      "files": "ファイルリソース",
+      "permission": "権限とメンバー",
+      "settings": "設定"
+    },
+    "sections": {
+      "roles": "権限管理",
+      "users": "メンバー管理",
+      "settings": "設定"
+    },
+    "crumbs": {
+      "permission": "権限とメンバー",
+      "management": "メンバー管理"
+    },
+    "hero": {
+      "title": "権限メンバー",
+      "subtitle": "チームのアクセス権とロールを管理します。"
+    },
+    "search": {
+      "chat_placeholder": "チャットを検索...",
+      "roles_placeholder": "ロールを検索",
+      "members_placeholder": "メンバーを検索..."
+    },
+    "table": {
+      "status": "ステータス",
+      "account": "アカウント",
+      "role": "ロール",
+      "updated_at": "更新日時",
+      "actions": "操作",
+      "roles": {
+        "name": "ロール名",
+        "conversation_visibility": "会話アクセス",
+        "member_count": "メンバー数",
+        "updated_at": "最終更新"
+      },
+      "users": {
+        "name": "メンバー名",
+        "role": "ロール",
+        "account": "アカウント",
+        "updated_at": "更新日時"
+      }
+    },
+    "status": {
+      "enabled": "有効",
+      "disabled": "無効"
+    },
+    "visibility": {
+      "private": "非公開",
+      "public": "公開"
+    },
+    "actions": {
+      "add_role": "実行",
+      "add_member": "実行",
+      "edit": "編集",
+      "delete": "削除",
+      "add": "実行",
+      "cancel": "キャンセル",
+      "confirm": "保存"
+    },
+    "pagination": {
+      "per_page": "件数",
+      "empty": "メンバーはまだいません。"
+    },
+    "aria": {
+      "main_nav": "操作",
+      "toggle_menu": "操作",
+      "toggle_profile": "操作",
+      "search_chat": "操作",
+      "search_member": "操作",
+      "prev_page": "操作",
+      "next_page": "操作",
+      "change_page_size": "操作",
+      "close_modal": "操作"
+    },
+    "errors": {
+      "load_roles": "処理に失敗しました。",
+      "load_members": "処理に失敗しました。",
+      "save_role": "処理に失敗しました。",
+      "delete_role": "処理に失敗しました。",
+      "update_role_status": "処理に失敗しました。",
+      "save_member": "処理に失敗しました。",
+      "update_member_status": "処理に失敗しました。",
+      "delete_member": "処理に失敗しました。"
+    },
+    "loading": {
+      "roles": "読み込み中...",
+      "members": "読み込み中..."
+    },
+    "empty": {
+      "roles": "一致するロールはありません。",
+      "members": "一致するメンバーはありません。"
+    },
+    "permissions": {
+      "chat": "チャット",
+      "projects": "プロジェクト",
+      "labels": "棚ラベル",
+      "files": "ファイルリソース",
+      "account": "権限とメンバー",
+      "roles": "権限管理",
+      "users": "メンバー管理",
+      "settings": "設定"
+    },
+    "headings": {
+      "basic_settings": "基本設定",
+      "default_conversation_access": "既定の会話アクセス権",
+      "permission_settings": "権限設定",
+      "menu_name": "メニュー名"
+    },
+    "form": {
+      "role_name_label": "ラベル",
+      "input_placeholder": "入力してください",
+      "member_name_label": "ラベル",
+      "member_name_placeholder": "入力してください",
+      "account_label": "アカウント",
+      "account_placeholder": "入力してください",
+      "email_label": "メール",
+      "email_placeholder": "入力してください",
+      "password_label": "ラベル",
+      "password_placeholder": "入力してください",
+      "new_password_label": "ラベル",
+      "new_password_placeholder": "入力してください",
+      "role_label": "ロール",
+      "select_placeholder": "入力してください",
+      "send_setup_email": "パスワード設定メールを送信",
+      "setup_email_success": "パスワード設定メールを送信しました。",
+      "setup_email_failed": "処理に失敗しました。"
+    },
+    "settings_stage": {
+      "title": "タイトル",
+      "summary": "内容を確認して続行してください。",
+      "create_project": "プロジェクトを作成",
+      "unnamed_project": "無題のプロジェクト",
+      "search_placeholder": "入力してください",
+      "loading": "読み込み中...",
+      "page_size": "件数",
+      "tabs": {
+        "pending": "未処理",
+        "processed": "処理済み"
+      },
+      "columns": {
+        "topic": "トピック",
+        "time": "時間"
+      },
+      "empty": {
+        "filtered": "該当するデータはありません。",
+        "default": "該当するデータはありません。"
+      },
+      "errors": {
+        "load": "処理に失敗しました。"
+      },
+      "modal": {
+        "title": "タイトル",
+        "name_label": "ラベル",
+        "name_placeholder": "入力してください",
+        "visibility_label": "ラベル",
+        "customer_type_label": "ラベル",
+        "type_unset": "未設定",
+        "trade_count_label": "ラベル",
+        "last_trade_at_label": "ラベル",
+        "avg_unit_price_label": "ラベル",
+        "region_label": "ラベル",
+        "region_placeholder": "入力してください",
+        "has_wine_cabinet_label": "Has storage locker",
+        "description_label": "内容を確認して続行してください。",
+        "description_placeholder": "入力してください",
+        "errors": {
+          "name_required": "処理に失敗しました。",
+          "create": "処理に失敗しました。"
+        }
+      }
+    },
+    "modals": {
+      "role_create": {
+        "title": "タイトル"
+      },
+      "role_edit": {
+        "title": "タイトル"
+      },
+      "role_delete": {
+        "title": "タイトル",
+        "body": "この操作は元に戻せません。続行しますか？"
+      },
+      "member_create": {
+        "title": "タイトル"
+      },
+      "member_edit": {
+        "title": "タイトル"
+      },
+      "member_delete": {
+        "title": "タイトル",
+        "body": "この操作は元に戻せません。続行しますか？"
+      }
+    },
+    "knowledge": {
+      "tabs": {
+        "rag_tables": "RAG テーブル",
+        "company_profile": "企業情報",
+        "external_sites": "外部専門サイト"
+      },
+      "common": {
+        "loading": "読み込み中...",
+        "chunks": "チャンク",
+        "language": "言語"
+      },
+      "rag": {
+        "table_name": "テーブル名",
+        "table_name_placeholder": "商品FAQ / サービスポリシー",
+        "source_name": "ソース名",
+        "source_name_placeholder": "社内ナレッジ表",
+        "tags": "タグ",
+        "tags_placeholder": "装備、保証、サービス",
+        "file": "CSV / XLSX ファイル",
+        "import": "テーブルを取り込む",
+        "empty": "RAG テーブルはまだありません。",
+        "import_success": "{rows} 行を取り込み、{chunks} チャンクを作成しました。"
+      },
+      "profile": {
+        "company_name": "企業 / ブランド名",
+        "industry": "業種",
+        "product_categories": "商品カテゴリ",
+        "tone": "回答トーン",
+        "service_scope": "サービス範囲",
+        "contact_info": "連絡先情報",
+        "faq": "FAQ",
+        "policies": "重要ポリシー",
+        "save": "企業情報を保存",
+        "save_success": "企業情報を {chunks} チャンクに保存しました。"
+      },
+      "sites": {
+        "url": "URL",
+        "name": "サイト名",
+        "category": "カテゴリ",
+        "trust_level": "信頼レベル",
+        "enabled": "有効",
+        "add": "サイトを追加",
+        "ingest": "取り込み",
+        "save_success": "外部サイトを保存しました。",
+        "ingest_success": "外部サイトを {chunks} チャンクに取り込みました。",
+        "trust": {
+          "approved": "承認済み",
+          "reference": "参考",
+          "experimental": "試験運用"
+        }
+      },
+      "errors": {
+        "load": "ナレッジテーブルを読み込めません。",
+        "load_profile": "企業情報を読み込めません。",
+        "load_sites": "外部サイトを読み込めません。",
+        "file_required": "CSV または XLSX ファイルを選択してください。",
+        "import": "このテーブルを取り込めません。",
+        "delete": "このテーブルを削除できません。",
+        "save_profile": "企業情報を保存できません。",
+        "save_site": "外部サイトを保存できません。",
+        "ingest_site": "外部サイトを取り込めません。"
+      }
+    }
+  },
+  "password_flow": {
+    "common": {
+      "back_to_login": "サインインに戻る",
+      "no_email": "メール未設定",
+      "expired_headline": "このリンクは期限切れです",
+      "invalid_headline": "処理に失敗しました。",
+      "fields": {
+        "new_password": "新しいパスワード",
+        "confirm_password": "実行"
+      },
+      "errors": {
+        "new_required": "処理に失敗しました。",
+        "new_length": "処理に失敗しました。",
+        "confirm_required": "処理に失敗しました。",
+        "confirm_mismatch": "処理に失敗しました。"
+      }
+    },
+    "reset": {
+      "title": "タイトル",
+      "description": "内容を確認して続行してください。",
+      "loading": "読み込み中...",
+      "complete_title": "タイトル",
+      "complete_description": "内容を確認して続行してください。",
+      "success_headline": "パスワードを更新しました",
+      "success_message": "パスワードの再設定が完了しました。",
+      "expired_title": "タイトル",
+      "invalid_title": "処理に失敗しました。",
+      "invalid_description": "処理に失敗しました。",
+      "invalid_hint": "サインイン画面に戻り、「パスワードを忘れた場合」を選択して再設定メールを再送してください。",
+      "account_label": "アカウント",
+      "submit": "実行",
+      "errors": {
+        "validate": "処理に失敗しました。",
+        "submit": "処理に失敗しました。"
+      }
+    },
+    "setup": {
+      "title": "タイトル",
+      "description": "内容を確認して続行してください。",
+      "loading": "読み込み中...",
+      "complete_title": "タイトル",
+      "complete_description": "内容を確認して続行してください。",
+      "success_headline": "__SYSTEM_NAME__ へようこそ",
+      "success_message": "内容を確認して続行してください。",
+      "expired_title": "タイトル",
+      "invalid_title": "処理に失敗しました。",
+      "invalid_description": "処理に失敗しました。",
+      "invalid_hint": "入力してください",
+      "account_label": "ラベル",
+      "submit": "実行",
+      "errors": {
+        "validate": "処理に失敗しました。",
+        "submit": "処理に失敗しました。"
+      }
+    }
+  },
+  "api_errors": {
+    "request_failed": "処理に失敗しました。",
+    "auth": {
+      "identifier_required": "処理に失敗しました。",
+      "credentials_invalid": "処理に失敗しました。",
+      "missing_token": "処理に失敗しました。",
+      "invalid_token": "処理に失敗しました。",
+      "session_expired": "処理に失敗しました。",
+      "user_disabled": "処理に失敗しました。",
+      "role_disabled": "処理に失敗しました。",
+      "password_confirmation_mismatch": "処理に失敗しました。",
+      "password_too_short": "処理に失敗しました。",
+      "password_too_long": "処理に失敗しました。",
+      "current_password_incorrect": "処理に失敗しました。",
+      "email_required": "処理に失敗しました。",
+      "email_missing": "処理に失敗しました。",
+      "email_delivery_disabled": "処理に失敗しました。",
+      "email_delivery_incomplete": "処理に失敗しました。",
+      "email_delivery_failed": "処理に失敗しました。",
+      "password_link_invalid": "処理に失敗しました。",
+      "password_link_used": "処理に失敗しました。",
+      "password_link_expired": "処理に失敗しました。",
+      "change_password_failed": "処理に失敗しました。",
+      "refresh_failed": "処理に失敗しました。"
+    },
+    "admin": {
+      "user_not_found": "処理に失敗しました。",
+      "role_not_found": "処理に失敗しました。",
+      "role_missing": "処理に失敗しました。",
+      "role_exists": "処理に失敗しました。",
+      "role_delete_conflict": "処理に失敗しました。",
+      "role_disabled": "処理に失敗しました。",
+      "username_exists": "処理に失敗しました。",
+      "email_exists": "処理に失敗しました。",
+      "setup_email_failed": "処理に失敗しました。",
+      "permission_exists": "処理に失敗しました。",
+      "permission_not_found": "処理に失敗しました。"
+    }
+  },
+  "quote": {
+    "nav": {
+      "chat": "チャット",
+      "project": "プロジェクト",
+      "showcase": "棚ラベル",
+      "quote": "見積返信",
+      "files": "ファイルリソース",
+      "permission": "権限",
+      "settings": "設定"
+    },
+    "aria": {
+      "main_nav": "操作",
+      "toggle_menu": "操作",
+      "toggle_profile": "操作",
+      "search_chat": "操作",
+      "send_message": "操作",
+      "open_card_menu": "操作",
+      "open_actions": "操作",
+      "copy": "コピー",
+      "share": "共有",
+      "favorite": "操作"
+    },
+    "advice": {
+      "title": "見積概要"
+    },
+    "output_types": {
+      "quote_list": "見積リスト"
+    },
+    "table": {
+      "columns": {
+        "no": "番号",
+        "vintage": "モデル年",
+        "producer": "ブランド",
+        "product": "商品",
+        "color": "色",
+        "rating": "評価",
+        "stock": "在庫",
+        "price": "価格",
+        "vip": "VIP価格",
+        "bundle": "セット",
+        "spec": "仕様 / モデル"
+      },
+      "actions": "操作",
+      "loading": "会話を読み込み中...",
+      "select_all": "すべて選択",
+      "select_row": "行を選択"
+    },
+    "labels": {
+      "ai": "AI",
+      "you": "あなた",
+      "vip": "VIP"
+    },
+    "chat": {
+      "title": "見積チャット"
+    },
+    "loading": {
+      "conversation": "会話を読み込み中..."
+    },
+    "placeholders": {
+      "compose": "要望を入力してください...",
+      "search_chat": "会話を検索..."
+    },
+    "actions": {
+      "show_generated": "実行",
+      "swap_recommendation": "実行",
+      "delete": "削除",
+      "cancel": "キャンセル",
+      "export": "エクスポート",
+      "reset_filters": "フィルターをリセット",
+      "send": "送信",
+      "clear_selection": "選択を解除",
+      "create_edm": "EDM 作成 ({count})"
+    },
+    "followup": {
+      "summary": {
+        "fill_to_target": "内容を確認して続行してください。",
+        "include_similar": "内容を確認して続行してください。",
+        "relax": "内容を確認して続行してください。",
+        "show_recommended": "内容を確認して続行してください。",
+        "continue": "内容を確認して続行してください。"
+      },
+      "actions": {
+        "fill_to_target": "実行",
+        "fill_to_target_prompt": "実行",
+        "include_similar": "実行",
+        "include_similar_prompt": "実行",
+        "relax": "実行",
+        "relax_prompt": "実行",
+        "show_recommended": "実行",
+        "show_recommended_prompt": "実行",
+        "continue": "実行",
+        "continue_prompt": "実行"
+      }
+    },
+    "selection": {
+      "count": "{count} 件選択済み"
+    },
+    "filters": {
+      "output_type": "出力タイプ",
+      "price_type": {
+        "label": "価格タイプ",
+        "placeholder": "価格タイプを選択",
+        "selected": "{count} 件選択済み"
+      },
+      "price_range": "価格範囲",
+      "color": "色",
+      "rating": "評価",
+      "vintage": "モデル年",
+      "producer": "ブランド",
+      "inventory": "在庫",
+      "all": "すべて"
+    },
+    "price_types": {
+      "vip": "VIP価格",
+      "restaurant": "店舗価格",
+      "dealer": "取引先価格",
+      "promo": "プロモ価格",
+      "price": "価格"
+    },
+    "colors": {
+      "red": "レッド",
+      "white": "ホワイト",
+      "rose": "ロゼ"
+    },
+    "inventory": {
+      "all": "すべて",
+      "boutique": "店舗在庫",
+      "overall": "全体在庫"
+    },
+    "tabs": {
+      "report": "見積リスト",
+      "gallery": "説明リスト",
+      "slides": "テキストメッセージ",
+      "social": "店舗推奨"
+    },
+    "defaults": {
+      "bundle_label": "セット",
+      "bundle_short": "セット",
+      "color": "色",
+      "color_unknown": "不明",
+      "conversation_title": "タイトル",
+      "non_vintage": "NV",
+      "none": "なし",
+      "price_estimate": "概算 {price}",
+      "price_pending": "価格未確定",
+      "producer": "ブランド",
+      "product": "商品",
+      "rating": "評価",
+      "stock_bottles": "{count} 点",
+      "stock_pending": "在庫未確定",
+      "supplier": "インテリジェントシステム",
+      "unnamed": "無題"
+    },
+    "gallery": {
+      "default_title": "タイトル",
+      "default_link": "詳細を見る",
+      "photo_placeholder": "入力してください",
+      "more_info": "詳細情報",
+      "cases": "{count} ケース"
+    },
+    "slides": {
+      "count": "{count} 枚のスライド",
+      "meta": {
+        "price": "価格",
+        "vintage": "モデル年",
+        "sku": "SKU",
+        "link": "リンク",
+        "area": "エリア：{value}"
+      }
+    },
+    "slide": {
+      "notes": {
+        "color": "内容を確認して続行してください。",
+        "rating": "内容を確認して続行してください。"
+      }
+    },
+    "share": {
+      "title": "タイトル",
+      "lead": "この見積を宛先へ送信します。",
+      "body": "内容を確認して続行してください。",
+      "email_placeholder": "入力してください",
+      "email_aria": "操作",
+      "hint": "入力してください"
+    },
+    "modals": {
+      "delete": {
+        "title": "タイトル",
+        "body": "この操作は元に戻せません。続行しますか？"
+      }
+    },
+    "snackbar": {
+      "copied_title": "タイトル",
+      "copied_body": "内容を確認して続行してください。",
+      "select_items_title": "項目を選択",
+      "select_items_body": "先に項目を選択してください。"
+    },
+    "pagination": {
+      "prev": "前へ",
+      "next": "次へ",
+      "page": "{current} / {total} ページ"
+    },
+    "sort": {
+      "add_rule": "ルールを追加",
+      "reset_rules": "ルールをリセット",
+      "remove_rule": "ルールを削除",
+      "group_by_producer": "ブランドでグループ化",
+      "show_bundle_column": "セット列を表示",
+      "placeholder": "並び替え",
+      "count": "{count} 件のルール",
+      "single": "{field} - {direction}",
+      "directions": {
+        "a_z": "A-Z",
+        "z_a": "Z-A",
+        "old_new": "古い順",
+        "new_old": "新しい順",
+        "high_low": "高い順",
+        "low_high": "低い順",
+        "many_few": "多い順",
+        "few_many": "少ない順"
+      },
+      "fields": {
+        "product": "商品",
+        "vintage": "モデル年",
+        "color": "色",
+        "rating": "評価",
+        "stock": "在庫",
+        "price": "価格",
+        "bundle": "セット",
+        "spec": "仕様 / モデル"
+      }
+    },
+    "errors": {
+      "auth_required": "処理に失敗しました。",
+      "load_conversation": "処理に失敗しました。",
+      "submit_failed": "処理に失敗しました。",
+      "cerp_failed": "処理に失敗しました。"
+    },
+    "producer_description": {
+      "line1": "内容を確認して続行してください。",
+      "line2": "内容を確認して続行してください。",
+      "line3": "内容を確認して続行してください。",
+      "line4": "内容を確認して続行してください。",
+      "filler": "内容を確認して続行してください。"
+    },
+    "rating": {
+      "steps": [
+        80,
+        85,
+        90,
+        95,
+        100
+      ]
+    },
+    "sample_messages": [
+      {
+        "role": "assistant",
+        "text": "Here is a preview of your quote highlights."
+      }
+    ]
+  },
+  "edm": {
+    "preview": {
+      "title": "見積プレビュー",
+      "shared_title": "見積プレビュー"
+    },
+    "actions": {
+      "clear": "クリア",
+      "confirm": "確認",
+      "export_excel": "実行",
+      "share_link": "実行",
+      "close": "閉じる",
+      "back_to_quote": "実行"
+    },
+    "banner": {
+      "logo_alt": "__SYSTEM_NAME__ ロゴ",
+      "meta": {
+        "sales": "担当者",
+        "quote_no": "見積番号",
+        "quote_date": "見積日"
+      }
+    },
+    "hero": {
+      "title": "タイトル",
+      "product_fallback": "おすすめ商品",
+      "recommendation": "{product} がお好みなら、こちらの {count} 件もおすすめです"
+    },
+    "table": {
+      "note": "内容を確認して続行してください。",
+      "color_icon": "色：{color}",
+      "columns": {
+        "no": "No.",
+        "vintage": "モデル年",
+        "producer": "ブランド",
+        "product": "商品",
+        "color": "?",
+        "rating": "評価",
+        "list_price": "定価",
+        "quote_price": "見積",
+        "bundle": "セット",
+        "quote_action": "実行",
+        "quantity": "数量"
+      }
+    },
+    "quote_tiers": {
+      "wholesale": "卸価格",
+      "vip": "VIP",
+      "fb": "F&B"
+    },
+    "bundle": {
+      "enabled_11_plus_1": "適用済み",
+      "disabled_11_plus_1": "解除済み",
+      "toggle_aria": "操作",
+      "payable_hint": "入力してください"
+    },
+    "feedback": {
+      "sent": "EDM を送信しました。",
+      "failed": "処理に失敗しました。"
+    },
+    "errors": {
+      "no_items": "処理に失敗しました。",
+      "no_customer": "処理に失敗しました。",
+      "no_conversation": "処理に失敗しました。"
+    },
+    "confirm": {
+      "title": "タイトル",
+      "back_aria": "戻る",
+      "list": {
+        "product": "商品",
+        "unit_price": "単価",
+        "quantity": "実行",
+        "subtotal": "小計"
+      },
+      "summary": {
+        "title": "内容を確認して続行してください。",
+        "count": "内容を確認して続行してください。",
+        "taxable": "内容を確認して続行してください。",
+        "tax": "税額",
+        "total": "合計"
+      },
+      "submit": "実行",
+      "note": "内容を確認して続行してください。"
+    },
+    "complete": {
+      "title": "タイトル",
+      "subtitle": "内容を確認して続行してください。",
+      "note": "内容を確認して続行してください。",
+      "download": "見積をダウンロード（PDF）",
+      "info": {
+        "order_no": "注文番号",
+        "order_date": "注文日",
+        "order_amount": "注文合計",
+        "total_qty": "合計数量",
+        "sales_rep": "担当者",
+        "contact_phone": "連絡先電話"
+      },
+      "table": {
+        "sku": "SKU",
+        "product": "商品",
+        "color": "?",
+        "quantity": "数量",
+        "subtotal": "小計"
+      }
+    },
+    "units": {
+      "bottle": "{count} 件"
+    },
+    "share": {
+      "title": "タイトル",
+      "email_placeholder": "入力してください",
+      "send": "送信",
+      "sending": "送信中...",
+      "link_section_title": "タイトル",
+      "copy": "コピー",
+      "remove_recipient": "{email} を削除",
+      "errors": {
+        "invalid_email": "処理に失敗しました。",
+        "recipients_required": "処理に失敗しました。",
+        "copy_failed": "処理に失敗しました。",
+        "send_failed": "処理に失敗しました。"
+      }
+    },
+    "snackbar": {
+      "share_sent": "選択したメールアドレスへ共有リンクを送信しました",
+      "exported": "Excel ファイルをエクスポートしました"
+    },
+    "state": {
+      "loading": "読み込み中...",
+      "error_title": "処理に失敗しました。",
+      "load_failed": "処理に失敗しました。",
+      "invalid_link": "処理に失敗しました。",
+      "empty_title": "該当するデータはありません。",
+      "empty_body": "該当するデータはありません。"
+    },
+    "export": {
+      "sheet_name": "EDM プレビュー"
+    }
+  },
+  "returns": {
+    "page_title": "見積返信",
+    "search": {
+      "placeholder": "入力してください",
+      "aria": "操作"
+    },
+    "table": {
+      "quote_no": "見積番号",
+      "customer_name": "顧客名",
+      "sales_rep": "担当者",
+      "quote_date": "見積日",
+      "reply_date": "返信日"
+    },
+    "actions": {
+      "export_excel": "実行",
+      "delete": "削除",
+      "cancel": "キャンセル"
+    },
+    "states": {
+      "loading": "読み込み中...",
+      "empty": "該当するデータはありません。",
+      "deleting": "削除中..."
+    },
+    "errors": {
+      "load": "処理に失敗しました。",
+      "delete": "処理に失敗しました。"
+    },
+    "pagination": {
+      "per_page": "表示件数"
+    },
+    "snackbar": {
+      "exported": "Excel ファイルをエクスポートしました"
+    },
+    "quote_ui": {
+      "default_query": "今回の見積依頼",
+      "status_ready": "準備完了",
+      "status_warning": "一部一致",
+      "status_empty": "結果なし",
+      "success_title": "{query} について {count} 件の見積候補を用意しました",
+      "success_intro": "{query} の依頼に対して、見積に使える候補セットを整理しました。",
+      "success_bullet_count": "{count} 件の商品を直接比較できます",
+      "bullet_quote_info": "各商品のコード、商品名、在庫、見積情報を含みます",
+      "bullet_wine_details": "色、評価、モデル年、ブランド情報を確認できます",
+      "bullet_compare": "商品を横並びで比較しやすい構成です",
+      "success_closing": "優先して見積に入れる商品を素早く確認できるよう整理しています。",
+      "closing_bullet_filter": "カテゴリ、ブランド、モデル年でさらに絞り込めます",
+      "closing_bullet_save": "現在の結果を保持して後で調整できます",
+      "closing_bullet_more": "必要に応じて類似商品を追加できます",
+      "shortage_title": "{query} について {requested} 件中 {count} 件の候補を用意しました",
+      "shortage_intro": "{query} に一致する在庫あり商品を {requested} 件希望されました。現在 {count} 件が利用できます。",
+      "shortage_bullet_count": "現在条件に一致し、すぐ確認できる商品が {count} 件あります",
+      "shortage_bullet_alternatives": "類似の在庫あり代替品も確認できます",
+      "shortage_closing": "必要であれば、類似の在庫あり商品も次の見積候補に含められます。",
+      "empty_title": "{query} の見積結果はまだありません",
+      "empty_intro": "直接見積リストに入れられる商品はまだ見つかりません。条件を絞ると再構成できます。",
+      "empty_bullet_request": "ブランド、カテゴリ、モデル年、希望スタイルを確認してください",
+      "empty_bullet_inventory": "在庫ありのみ、または在庫範囲を広げて再検索してください",
+      "empty_bullet_refine": "用途、適合性、価格帯で絞り込んでください",
+      "empty_closing": "必要であれば、別の見積方向に組み直せます。",
+      "empty_closing_bullet_alternative": "同ブランドまたは同スタイルの代替品に切り替える",
+      "empty_closing_bullet_region": "カテゴリを主条件にして再検索する",
+      "empty_closing_bullet_style": "用途、評価、価格帯を主条件にして再検索する",
+      "near_match_title": "{query} に近い見積候補があります",
+      "near_match_intro": "完全一致はありませんが、近い見積候補を確認できます。",
+      "near_match_bullet_count": "{count} 件の近いスマート候補があります",
+      "near_match_bullet_review": "見積送信前に価格、在庫、類似商品を確認してください",
+      "near_match_bullet_action": "フォローアップ操作で近い候補を開けます",
+      "near_match_closing": "現在見つかった近い候補：",
+      "near_match_closing_bullet_count": "近い候補が {count} 件あります",
+      "near_match_closing_bullet_review": "同カテゴリまたは同スタイルの代替品を先に確認してください",
+      "near_match_closing_bullet_continue": "見積チャットで販売可能な候補を比較できます"
+    },
+    "modals": {
+      "no_selection": {
+        "title": "タイトル",
+        "body": "内容を確認して続行してください。",
+        "confirm": "実行"
+      },
+      "delete": {
+        "title": "タイトル",
+        "body": "この操作は元に戻せません。続行しますか？"
+      }
+    },
+    "export": {
+      "sheet_name": "見積返信",
+      "columns": {
+        "no": "No.",
+        "vintage": "モデル年",
+        "producer": "ブランド",
+        "product": "商品",
+        "color": "?",
+        "rating": "評価",
+        "list_price": "定価",
+        "quote_price": "見積",
+        "bundle": "容量",
+        "quantity": "数量"
+      }
+    },
+    "aria": {
+      "select_all": "操作",
+      "select_row": "操作",
+      "prev_page": "操作",
+      "next_page": "操作",
+      "close_snackbar": "操作"
+    }
+  },
+  "email": {
+    "brand": {
+      "crest_alt": "__SYSTEM_NAME__ エンブレム",
+      "mark_alt": "__SYSTEM_NAME__ マーク",
+      "wordmark": "YS",
+      "subtitle": "内容を確認して続行してください。"
+    },
+    "title": "タイトル",
+    "hero_alt": "おすすめ商品",
+    "cta": "コレクションを見る",
+    "legal": "__SYSTEM_NAME__ の更新を購読しているため、このメールをお送りしています。",
+    "templates": [
+      {
+        "id": "hero",
+        "title": "Hero + Warning",
+        "description": "Hero image with warning strip.",
+        "showHero": true
+      },
+      {
+        "id": "simple",
+        "title": "Simple",
+        "description": "Text-only email without hero.",
+        "showHero": false
+      }
+    ],
+    "paragraphs": [
+      {
+        "text": "Our latest allocation is now available. Explore limited equipment drops curated for you.",
+        "link": {
+          "label": "Explore the release",
+          "href": "https://ys.local"
+        }
+      },
+      {
+        "text": "Request a quote or ask our team for use-case recommendations anytime."
+      }
+    ],
+    "warning": {
+      "items": [
+        "Limited allocation",
+        "Member exclusive"
+      ]
+    },
+    "social_links": [
+      {
+        "id": "facebook",
+        "href": "https://facebook.com/ys"
+      },
+      {
+        "id": "instagram",
+        "href": "https://instagram.com/ys"
+      },
+      {
+        "id": "mail",
+        "href": "mailto:hello{'@'}ys.local"
+      }
+    ]
+  },
+  "chat_product_card": {
+    "labels": {
+      "sku": "SKU"
+    },
+    "aria": {
+      "more_options": "操作"
+    },
+    "stats": {
+      "color": "?",
+      "vintage": "モデル年",
+      "rating": "評価",
+      "producer": "ブランド"
+    },
+    "status": {
+      "stock": "在庫"
+    }
+  },
+  "labelSettings": {
+    "title": "棚ラベル",
+    "step1": "ラベル",
+    "step2": "ラベル",
+    "selectWines": "印刷する商品を選択",
+    "selectSize": "ラベル",
+    "searchPlaceholder": "名称、ブランド、SKU を検索",
+    "searchLoading": "検索中...",
+    "searchEmpty": "ラベル",
+    "searchClear": "ラベル",
+    "importExcel": "ラベル",
+    "downloadSample": "ラベル",
+    "importing": "ラベル",
+    "addToPrint": "ラベル",
+    "editLabel": "ラベル",
+    "sizeSmall": "ラベル",
+    "sizeMedium": "ラベル",
+    "sizeLarge": "ラベル",
+    "sizeSmallValue": "71×48mm",
+    "sizeMediumValue": "91×65mm",
+    "sizeLargeValue": "140×94mm",
+    "descriptionLoading": "ラベル内容を生成中...",
+    "descriptionEmpty": "内容を確認して続行してください。",
+    "snackbarAdded": "この商品を印刷リストに追加しました。",
+    "snackbarImportSuccess": "ラベル",
+    "snackbarImportPartial": "ラベル",
+    "snackbarSampleDownloaded": "ラベル",
+    "sampleFileName": "product-label-batch-import-template.xlsx",
+    "sampleSheetName": "ラベル",
+    "sampleGuideSheetName": "ラベル",
+    "importResultTitle": "ラベル",
+    "importSummaryTitle": "ラベル",
+    "importSummaryTotalRows": "ラベル",
+    "importSummaryImported": "ラベル",
+    "importSummaryCreated": "ラベル",
+    "importSummaryMerged": "ラベル",
+    "importSummaryAddedQty": "ラベル",
+    "importSummaryErrors": "ラベル",
+    "importErrorTableRow": "ラベル",
+    "importErrorTableReason": "ラベル",
+    "importErrorTableMessage": "ラベル",
+    "importErrorTableValue": "ラベル",
+    "downloadFailedRows": "ラベル",
+    "closeImportResult": "閉じる",
+    "importNoErrors": "ラベル",
+    "sampleGuideTitle": "ラベル",
+    "sampleGuideLine1": "ラベル",
+    "sampleGuideLine2": "ラベル",
+    "sampleGuideLine3": "ラベル",
+    "sampleGuideLine4": "ラベル",
+    "sampleGuideLine5": "ラベル",
+    "editDialogTitle": "ラベル",
+    "priceLabel": "価格",
+    "descriptionLabel": "内容を確認して続行してください。",
+    "editInstructionPlaceholder": "ラベル",
+    "editCancel": "キャンセル",
+    "editConfirm": "確認",
+    "dialogCancel": "キャンセル",
+    "dialogSave": "保存"
+  },
+  "labelPrint": {
+    "title": "印刷リスト",
+    "total": "合計数量",
+    "smallPanelTitle": "小サイズ（1 枚あたり 8 ラベル）",
+    "mediumPanelTitle": "中サイズ（1 枚あたり 4 ラベル）",
+    "largePanelTitle": "大サイズ（1 枚あたり 2 ラベル）",
+    "printConfirmTitle": "ラベル印刷の確認",
+    "printConfirmIntro": "ラベル",
+    "paperTitle": "ラベル",
+    "paperRequired": "ラベル",
+    "preflightTitle": "ラベル",
+    "preflightPrinter": "ラベル",
+    "preflightPaper": "ラベル",
+    "preflightDirection": "ラベル",
+    "printFinalHint": "問題がなければ「印刷開始」をクリックしてください。",
+    "startPrint": "印刷開始",
+    "resetConfirmTitle": "リストをリセット",
+    "resetConfirmMessage": "この操作は元に戻せません。続行しますか？",
+    "confirmReset": "リセットを確認",
+    "empty": "該当するデータはありません。",
+    "reset": "ラベル",
+    "print": "ラベル",
+    "loading": "読み込み中...",
+    "sizeCountSmall": "小サイズ (71 x 48 mm) x {count}",
+    "sizeCountMedium": "中サイズ (91 x 65 mm) x {count}",
+    "sizeCountLarge": "大サイズ (140 x 94 mm) x {count}"
+  },
+  "hello_world": {
+    "count_label": "ラベル",
+    "card": {
+      "edit_prefix": "編集",
+      "edit_path": "components/HelloWorld.vue",
+      "edit_suffix": "to test HMR"
+    },
+    "links": {
+      "check_out_prefix": "Check out",
+      "check_out_link": "create-vue",
+      "check_out_suffix": "the official Vue + Vite starter",
+      "learn_more_prefix": "Learn more about IDE Support for Vue in the",
+      "learn_more_link": "Vue Docs Scaling up Guide",
+      "learn_more_suffix": "."
+    },
+    "docs_hint": "入力してください"
+  },
+  "projects": {
+    "title": "プロジェクト",
+    "count": "件のプロジェクト",
+    "new": "新規プロジェクト",
+    "searchProjects": "プロジェクトを検索",
+    "searchConversations": "このフォルダー内の会話を検索",
+    "pendingProject": "フォルダーへの招待があります：",
+    "pendingConversation": "会話への招待があります：",
+    "reject": "拒否",
+    "accept": "承認",
+    "columns": {
+      "name": "名前",
+      "owner": "所有者",
+      "updatedAt": "更新日時"
+    },
+    "loading": "読み込み中...",
+    "noData": "データがありません",
+    "perPage": "件数",
+    "menu": {
+      "permission": "権限",
+      "rename": "名前を変更",
+      "delete": "削除"
+    },
+    "cancel": "キャンセル",
+    "create": "作成",
+    "confirm": "確認",
+    "visibility": {
+      "private": "非公開",
+      "public": "公開"
+    },
+    "modals": {
+      "create": {
+        "title": "タイトル",
+        "name": "顧客名",
+        "visibility": "公開設定"
+      },
+      "rename": {
+        "title": "タイトル",
+        "name": "名前"
+      },
+      "delete": {
+        "title": "タイトル",
+        "body": "この操作はフォルダーとすべての会話をアーカイブし、元に戻せません。続行しますか？",
+        "confirm": "削除"
+      },
+      "permission": {
+        "title": "タイトル",
+        "visibility": "公開設定",
+        "publicHint": "公開にすると、ログイン済みのすべてのユーザーが閲覧できます。",
+        "emailPlaceholder": "招待するメールアドレスを入力",
+        "add": "招待",
+        "noInvite": "招待者はいません",
+        "revoke": "取り消し",
+        "remove": "削除"
+      }
+    },
+    "profile": {
+      "customerType": "顧客タイプ",
+      "tradeCount": "取引回数",
+      "lastTradeAt": "最終取引日時",
+      "avgUnitPrice": "平均単価",
+      "region": "希望カテゴリ",
+      "hasWineCabinet": "商品保管庫あり",
+      "preferenceNote": "希望メモ",
+      "title": "タイトル",
+      "yes": "はい",
+      "no": "No",
+      "noPreference": "希望メモはまだありません"
+    },
+    "common": {
+      "main_nav": "メインメニュー",
+      "toggle_menu": "メニュー切替",
+      "account_menu": "アカウントメニュー",
+      "search": "検索",
+      "projects": "プロジェクト",
+      "project": "プロジェクト",
+      "new_project": "新規プロジェクト",
+      "customer_profile": "顧客情報",
+      "visibility": "権限",
+      "public": "公開",
+      "private": "非公開",
+      "description": "説明",
+      "total": "合計：{count}",
+      "name": "名前",
+      "owner": "所有者",
+      "last_updated": "最終更新",
+      "loading": "読み込み中...",
+      "no_match": "一致する会話はありません",
+      "empty": "データがありません",
+      "per_page": "1ページ {count} 件",
+      "prev": "前へ",
+      "next": "次へ",
+      "more": "その他の操作",
+      "select_folder": "フォルダ選択",
+      "new_conversation": "新規会話",
+      "permissions": "権限設定",
+      "rename": "名前変更",
+      "delete_file": "削除",
+      "cancel": "キャンセル",
+      "processing": "処理中...",
+      "confirm": "確認",
+      "drafts": "下書き",
+      "all_projects": "すべてのプロジェクト",
+      "search_drafts": "下書き会話を検索",
+      "search_folder": "このフォルダ内の会話を検索",
+      "search_projects": "プロジェクトまたは会話を検索",
+      "untitled_conversation": "無題の会話",
+      "accepted": "閲覧可",
+      "pending": "招待中",
+      "rejected": "拒否済み",
+      "revoked": "削除済み",
+      "me": "自分",
+      "owner_role": "所有者",
+      "customer_name": "顧客名",
+      "type": "タイプ",
+      "trade_count": "取引回数",
+      "last_trade_at": "最終取引日時",
+      "avg_unit_price": "平均単価",
+      "region": "地域",
+      "has_wine_cabinet": "保管ロッカー契約",
+      "yes": "あり",
+      "no": "なし",
+      "load_accounts_failed": "アカウント一覧の読み込みに失敗しました",
+      "load_projects_failed": "プロジェクトの読み込みに失敗しました",
+      "load_conversations_failed": "会話の読み込みに失敗しました",
+      "name_required": "顧客名を入力してください",
+      "create_failed": "プロジェクト作成に失敗しました",
+      "blank_name": "名前は空白にできません",
+      "rename_failed": "名前変更に失敗しました",
+      "load_folders_failed": "フォルダの読み込みに失敗しました",
+      "no_conversation": "会話が見つかりません",
+      "select_folder_first": "先にフォルダを選択してください",
+      "move_failed": "フォルダへの移動に失敗しました",
+      "delete_failed": "削除に失敗しました",
+      "load_permissions_failed": "権限リストの読み込みに失敗しました",
+      "update_permissions_failed": "権限更新に失敗しました",
+      "select_account_first": "一覧からアカウントを選択してください",
+      "invite_failed": "招待に失敗しました",
+      "remove_permission_failed": "権限削除に失敗しました",
+      "conversation_count": "会話 {count} 件",
+      "customer_id": "顧客ID {id}",
+      "unset": "未設定",
+      "example_customer": "例：山田太郎 / XX レストラン",
+      "preference_placeholder": "顧客の好み、よく購入するカテゴリ、希望価格帯...",
+      "delete_project": "プロジェクト削除",
+      "delete_conversation": "会話削除",
+      "delete_project_copy": "この操作はプロジェクトと配下の会話をアーカイブします。削除しますか？",
+      "delete_conversation_copy": "この会話を削除しますか？",
+      "confirm_delete": "削除を確認",
+      "visibility_setting": "公開設定",
+      "select_account": "システムアカウントを選択",
+      "search_account": "アカウントを検索",
+      "searching": "検索中...",
+      "no_account": "権限付与できるアカウントが見つかりません",
+      "add": "追加",
+      "authorized_users": "承認済みユーザー",
+      "no_authorized_users": "承認済みユーザーはいません",
+      "public_permission_copy": "公開状態では、ログイン済みユーザー全員が閲覧できます。",
+      "move_folder_copy": "この会話を指定フォルダへ移動します",
+      "search_folder_label": "フォルダ検索",
+      "search_folder_placeholder": "キーワードでフォルダを検索",
+      "no_selectable_folder": "選択できるフォルダがありません"
+    }
+  },
+  "fileResources": {
+    "title": "ファイルリソース",
+    "subtitle": "社内チーム向けの共有商品ラベル、画像、ドキュメントを管理します。",
+    "tabs": {
+      "wine_label": "商品ラベル",
+      "image": "画像",
+      "document": "ドキュメント"
+    },
+    "search": {
+      "placeholder": "入力してください"
+    },
+    "sort": {
+      "label": "並び替え",
+      "uploaded_desc": "アップロード日時：新しい順",
+      "uploaded_asc": "アップロード日時：古い順",
+      "placeholder": "並び替え",
+      "count": "{count} 件のルール",
+      "single": "{field}: {direction}",
+      "add_rule": "並び替えを追加",
+      "reset_rules": "並び替えをリセット",
+      "remove_rule": "ルールを削除",
+      "group_by_producer": "ブランドでグループ化",
+      "group_by_department": "部門別に項目をグループ化",
+      "fields": {
+        "uploaded_at": "アップロード日時",
+        "display_name": "ファイル名",
+        "producer": "ブランド",
+        "product_code": "商品コード",
+        "department": "部門",
+        "file_type": "ファイル形式",
+        "visibility": "公開設定"
+      },
+      "directions": {
+        "newest_first": "新しい順",
+        "oldest_first": "古い順",
+        "a_z": "A to Z",
+        "z_a": "Z to A",
+        "public_private": "公開から非公開",
+        "private_public": "非公開から公開"
+      }
+    },
+    "table": {
+      "name": "ファイル名",
+      "product_code": "商品コード",
+      "producer": "ブランド",
+      "department": "部門",
+      "visibility": "公開設定",
+      "uploaded_at": "アップロード日時",
+      "mime": "ファイル形式",
+      "size": "ファイルサイズ"
+    },
+    "visibility": {
+      "public": "公開",
+      "private": "非公開"
+    },
+    "actions": {
+      "upload_file": "実行",
+      "edit": "編集",
+      "download": "ダウンロード",
+      "delete": "削除",
+      "cancel": "キャンセル",
+      "save": "保存",
+      "save_changes": "実行",
+      "confirm": "確認",
+      "reselect": "実行",
+      "permission": "実行",
+      "start_upload": "実行",
+      "close": "閉じる"
+    },
+    "states": {
+      "loading": "ファイルリソースを読み込み中...",
+      "empty": "該当するデータはありません。",
+      "submitting": "実行",
+      "deleting": "削除中...",
+      "searching": "商品を検索中...",
+      "uploading_file": "{filename} をアップロード中..."
+    },
+    "errors": {
+      "load": "ファイルリソースの読み込みに失敗しました。",
+      "file_required": "少なくとも 1 つのファイルを選択してください。",
+      "wine_required": "このラベルに対応する商品を選択してください。",
+      "upload_failed": "処理に失敗しました。",
+      "create": "ファイルリソースの作成に失敗しました。",
+      "update": "ファイルリソースの更新に失敗しました。",
+      "delete": "ファイルリソースの削除に失敗しました。",
+      "detail": "ファイルリソース詳細の読み込みに失敗しました。",
+      "download": "ファイルのダウンロードに失敗しました。",
+      "search": "商品の検索に失敗しました。",
+      "departments": "部門の読み込みに失敗しました。",
+      "permission_update": "権限設定の更新に失敗しました。",
+      "unsupported_extension": "処理に失敗しました。",
+      "file_too_large": "処理に失敗しました。",
+      "upload_too_large": "処理に失敗しました。"
+    },
+    "messages": {
+      "created": "商品ラベルをアップロードしました。",
+      "updated": "ファイルリソースを更新しました。",
+      "deleted": "ファイルリソースを削除しました。",
+      "images_created": "画像ファイルをアップロードしました。",
+      "documents_created": "ドキュメントファイルをアップロードしました。",
+      "permissions_updated": "権限設定を更新しました。"
+    },
+    "pagination": {
+      "per_page": "表示件数"
+    },
+    "upload_menu": {
+      "wine_label": {
+        "title": "商品ラベル",
+        "description": "商品ラベル画像をアップロードし、商品在庫の品目に紐づけます。"
+      },
+      "image": {
+        "title": "画像",
+        "description": "内容を確認して続行してください。"
+      },
+      "document": {
+        "title": "ドキュメント",
+        "description": "内容を確認して続行してください。"
+      }
+    },
+    "modal": {
+      "title": "タイトル",
+      "subtitle": "ラベル画像を 1 枚アップロードし、対応する商品を選択します。",
+      "edit_title": "タイトル",
+      "edit_subtitle": "このラベルの画像を更新するか、対応商品を再設定します。",
+      "image_title": "タイトル",
+      "image_subtitle": "チーム向けの共有画像ファイルをアップロードします。",
+      "document_title": "タイトル",
+      "document_subtitle": "チーム向けの共有ドキュメントをアップロードします。",
+      "select_image": "画像を選択",
+      "step_image_title": "タイトル",
+      "step_image_hint": "入力してください",
+      "image_size_hint": "入力してください",
+      "step_wine_title": "対応商品を選択",
+      "step_wine_hint": "Bind the image to one スマートシステム product and reuse it across model years.",
+      "select_wine": "商品を選択",
+      "related_title": "タイトル",
+      "related_code": "商品コード",
+      "related_vintage": "モデル年",
+      "department": "部門",
+      "visibility": "公開設定",
+      "queue_title": "タイトル",
+      "supported_formats_image": "対応形式：JPG、PNG、GIF、BMP、WEBP",
+      "supported_formats_document": "対応形式：PDF、DOC、DOCX、XLS、XLSX、CSV、PPT、PPTX、TXT",
+      "dropzone_title": "タイトル",
+      "dropzone_copy_prefix": "内容を確認して続行してください。",
+      "choose_files": "ファイルを選択",
+      "dropzone_title_image": "タイトル",
+      "dropzone_title_document": "タイトル",
+      "dropzone_hint": "入力してください",
+      "upload_failed_retry": "処理に失敗しました。",
+      "fields": {
+        "producer": "ブランド",
+        "region": "カテゴリ",
+        "color": "?"
+      }
+    },
+    "picker": {
+      "title": "タイトル",
+      "search_placeholder": "Search by product name or スマートシステムコード",
+      "results_title": "タイトル",
+      "empty": "一致する商品はまだ見つかりません。"
+    },
+    "preview": {
+      "loading": "読み込み中...",
+      "no_image": "プレビュー画像を表示できません。",
+      "close": "プレビューを閉じる",
+      "toggle_info": "操作",
+      "previous": "前の画像",
+      "next": "次の画像",
+      "info_title": "タイトル",
+      "product_section": "商品情報",
+      "related_section": "同シリーズ商品",
+      "basic_section": "基本情報",
+      "details_section": "詳細",
+      "uploaded_at": "アップロード日時",
+      "updated_at": "最終編集日時",
+      "updated_by": "最終編集者",
+      "department": "部門",
+      "visibility": "公開設定",
+      "unsupported_title": "このドキュメント形式ではプレビューできません。",
+      "unsupported_body": "全文を表示するにはファイルをダウンロードしてください。"
+    },
+    "permission_modal": {
+      "title": "タイトル",
+      "department": "部門",
+      "visibility": "公開設定"
+    },
+    "delete_modal": {
+      "wine_label_title": "タイトル",
+      "wine_label_body": "この商品ラベルを削除すると元に戻せません。続行しますか？",
+      "image_title": "タイトル",
+      "image_body": "この操作は元に戻せません。続行しますか？",
+      "document_title": "タイトル",
+      "document_body": "この操作は元に戻せません。続行しますか？"
+    }
+  }
+}
