@@ -66,7 +66,10 @@ class CerpService:
         if not query and not criteria_enabled:
             return []
 
-        max_results = max(limit, page_size, 1)
+        requested_limit = max(int(limit or 1), 1)
+        # Fetch a full CERP page for ranking, but never let that internal page size
+        # leak through the public API's explicit result limit.
+        fetch_limit = max(requested_limit, page_size, 1)
         rows_by_code: Dict[str, Dict[str, Any]] = {}
 
         try:
@@ -74,7 +77,7 @@ class CerpService:
                 rows_by_code.update(
                     await self._collect_rows_by_code(
                         query,
-                        max_results=max_results,
+                        max_results=fetch_limit,
                         page_size=page_size,
                         max_pages=3,
                     )
@@ -82,7 +85,7 @@ class CerpService:
             rows_by_code.update(
                 await self._collect_rows_by_keyword(
                     query,
-                    max_results=max_results,
+                    max_results=fetch_limit,
                     page_size=page_size,
                     max_pages=3,
                 )
@@ -96,7 +99,7 @@ class CerpService:
                         rows_by_code.update(
                             await self._collect_rows_by_code(
                                 token,
-                                max_results=max_results,
+                                max_results=fetch_limit,
                                 page_size=page_size,
                                 max_pages=2,
                             )
@@ -104,12 +107,12 @@ class CerpService:
                     rows_by_code.update(
                         await self._collect_rows_by_keyword(
                             token,
-                            max_results=max_results,
+                            max_results=fetch_limit,
                             page_size=page_size,
                             max_pages=2,
                         )
                     )
-                    if len(rows_by_code) >= max_results:
+                    if len(rows_by_code) >= fetch_limit:
                         break
         except CERPClientError as exc:
             logger.warning("與 CERP 連線失敗, 請與系統管理者聯繫 (Connection failed: %s)", exc)
@@ -156,10 +159,10 @@ class CerpService:
 
         if scored_products:
             scored_products.sort(key=lambda item: (item[0], item[1]), reverse=True)
-            products = [item[2] for item in scored_products[:max_results]]
+            products = [item[2] for item in scored_products[:requested_limit]]
 
-        if len(products) < max_results and query:
-            fallback_rows = search_export_rows(query, limit=max(max_results * 2, max_results))
+        if len(products) < requested_limit and query:
+            fallback_rows = search_export_rows(query, limit=max(requested_limit * 2, fetch_limit))
             fallback_rows = await self._backfill_export_rows_with_live_stock(
                 fallback_rows,
                 raise_on_error=raise_on_error,
@@ -178,11 +181,11 @@ class CerpService:
                     if semantic_score <= 0:
                         continue
                 products.append(mapped)
-                if len(products) >= max_results:
+                if len(products) >= requested_limit:
                     break
 
         if products:
-            return products[:max_results]
+            return products[:requested_limit]
         return []
 
     async def search_quote_candidates(
