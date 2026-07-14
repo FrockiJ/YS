@@ -39,6 +39,11 @@ import { useFileUploader } from '../composables/useFileUploader'
 import { canAccessPermissionModule } from '../utils/accessControl'
 import { buildPrimaryNavItems, PRIMARY_NAV_ICON_IMAGES } from '../utils/appNavigation'
 import { writeClipboard } from '../utils/clipboard'
+import {
+  assertUsableChatResponse,
+  normalizeChatAnswerPayload,
+  resolveChatFlowErrorMessage,
+} from '../utils/chatFlow'
 import { buildUserAvatarLabel, normalizeAuthorField } from '../utils/userAvatarLabel'
 import { resolveCerpColor, resolveCerpStock } from '../utils/cerpFields'
 import {
@@ -2750,26 +2755,11 @@ const consumeQuoteChatUiReturnPayload = async () => {
 
 const applyChatResponse = (response, question) => {
   isHistoryPreview.value = false
-  const answer = response?.answer || {}
-  const metadata = answer.metadata || {}
-  const responseLang = normalizeQuoteLanguage(
-    metadata?.language || metadata?.lang || response?.language,
-    languagePreference.value
-  )
-  const normalizedMetadata = {
-    ...metadata,
-    answer_citations: Array.isArray(answer.citations)
-      ? answer.citations
-      : metadata?.answer_citations,
-    result_card_summary_points:
-      Array.isArray(answer.summary_points) && answer.summary_points.length
-        ? answer.summary_points
-        : metadata?.result_card_summary_points,
-    summary_generation: metadata?.summary_generation || answer.summary_generation,
-    language: metadata?.language || responseLang,
-    lang: metadata?.lang || responseLang,
-  }
-  const assistantText = answer.text || response?.content || ''
+  assertUsableChatResponse(response, t)
+  const { answer, metadata: normalizedMetadata, text: assistantText } = normalizeChatAnswerPayload(response, {
+    fallbackLanguage: languagePreference.value,
+    normalizeLanguage: normalizeQuoteLanguage,
+  })
   const references = buildContextReferences(collectResponseReferenceContext(response, answer))
   const assistantRecord = normalizeThreadMessage(
     {
@@ -2944,8 +2934,10 @@ const submitPrompt = async (prompt) => {
     applyChatResponse(response, value)
     clearComposerAttachments()
   } catch (error) {
-    removeMessageFromThread(pendingUserMessageId)
-    chatError.value = error?.message || t('home.errors.chat_busy')
+    if (error?.code !== 'openai_429') {
+      removeMessageFromThread(pendingUserMessageId)
+    }
+    chatError.value = resolveChatFlowErrorMessage(error, t) || t('home.errors.chat_busy')
     if (shouldHandleSessionExpired(error)) {
       handleSessionExpired()
     }

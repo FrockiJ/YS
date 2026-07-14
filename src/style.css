@@ -2545,6 +2545,13 @@ body:hover::-webkit-scrollbar-thumb,
   padding: 8px 12px;
 }
 
+.quote-thread__typing-hint {
+  margin: 0 12px 10px;
+  color: #637381;
+  font-size: 12px;
+  line-height: 18px;
+}
+
 .quote-thread__typing span {
   width: 6px;
   height: 6px;

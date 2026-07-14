@@ -997,7 +997,13 @@
       "title": "報價對話"
     },
     "loading": {
-      "conversation": "載入對話中..."
+      "conversation": "載入對話中...",
+      "progress": {
+        "analyzing_prompt": "分析問題需求中...",
+        "retrieving_sources": "整理可稽核來源...",
+        "reviewing_evidence": "比對證據與欄位...",
+        "composing_answer": "組合結果中..."
+      }
     },
     "placeholders": {
       "compose": "描述你的需求...",

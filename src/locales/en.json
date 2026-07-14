@@ -993,7 +993,13 @@
       "title": "Quote chat"
     },
     "loading": {
-      "conversation": "Loading conversation..."
+      "conversation": "Loading conversation...",
+      "progress": {
+        "analyzing_prompt": "Analyzing the request...",
+        "retrieving_sources": "Collecting verifiable sources...",
+        "reviewing_evidence": "Checking evidence and fields...",
+        "composing_answer": "Composing the answer..."
+      }
     },
     "placeholders": {
       "compose": "Describe your request...",

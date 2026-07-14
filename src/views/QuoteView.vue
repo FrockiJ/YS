@@ -29,6 +29,12 @@ import iconMoreVertical from '../assets/ic-more-vertical.svg'
 import iconShare from '../assets/ic-share.svg'
 import iconStar from '../assets/ic-star.svg'
 import { writeClipboard } from '../utils/clipboard'
+import {
+  assertUsableChatResponse,
+  normalizeChatAnswerPayload,
+  resolveChatFlowErrorMessage,
+} from '../utils/chatFlow'
+import { buildQuoteChatRequest } from '../utils/quoteChatRequest'
 import { extractRatingValue } from '../utils/rating'
 import { formatUsdInput, formatUsdPrice, parseUsdInput } from '../utils/currency'
 import AppSidebar from '../components/AppSidebar.vue'
@@ -100,6 +106,27 @@ const activeNavId = ref('')
 const searchQuery = ref('')
 const composerValue = ref('')
 const isSending = ref(false)
+const quoteProgressStageIndex = ref(0)
+const quoteProgressLanguage = ref(DEFAULT_QUOTE_LANG)
+let quoteProgressTimer = null
+const QUOTE_PROGRESS_STAGE_KEYS = ['analyzing_prompt', 'retrieving_sources', 'reviewing_evidence', 'composing_answer']
+const quoteProgressLocale = computed(() => (quoteProgressLanguage.value === 'en' ? 'en' : 'zh-TW'))
+const currentQuoteProgressHint = computed(() => {
+  const stageKey = QUOTE_PROGRESS_STAGE_KEYS[quoteProgressStageIndex.value] || QUOTE_PROGRESS_STAGE_KEYS[0]
+  return t(`quote.loading.progress.${stageKey}`, {}, { locale: quoteProgressLocale.value })
+})
+const stopQuoteProgressHints = () => {
+  if (quoteProgressTimer) clearInterval(quoteProgressTimer)
+  quoteProgressTimer = null
+  quoteProgressStageIndex.value = 0
+}
+const startQuoteProgressHints = (lang = DEFAULT_QUOTE_LANG) => {
+  stopQuoteProgressHints()
+  quoteProgressLanguage.value = normalizeQuoteLanguage(lang)
+  quoteProgressTimer = setInterval(() => {
+    quoteProgressStageIndex.value = Math.min(quoteProgressStageIndex.value + 1, QUOTE_PROGRESS_STAGE_KEYS.length - 1)
+  }, 9000)
+}
 const {
   accept: uploadAccept,
   attachments: uploadAttachments,
@@ -1769,20 +1796,16 @@ const pushUserMessage = (text, urlInputs = []) => {
 }
 
 const pushAssistantFromResponse = (response, question) => {
-  const answer = response?.answer || {}
-  const metadata = normalizeMetadata(answer.metadata)
-  const lang = persistQuoteLanguage(
-    metadata?.language || metadata?.lang || response?.language || resolveQuoteChatLanguage(question)
-  )
-  const normalizedMetadata = {
-    ...metadata,
-    language: metadata?.language || lang,
-    lang: metadata?.lang || lang,
-  }
+  assertUsableChatResponse(response, t)
+  const { answer, metadata: normalizedMetadata, text, language } = normalizeChatAnswerPayload(response, {
+    fallbackLanguage: resolveQuoteChatLanguage(question),
+    normalizeLanguage: normalizeQuoteLanguage,
+  })
+  const lang = persistQuoteLanguage(language)
   const assistant = {
     id: answer.message_id || `local-assistant-${Date.now()}`,
     role: 'assistant',
-    text: answer.text || response?.content || '',
+    text,
     timestamp: new Date().toISOString(),
     metadata: normalizedMetadata,
     quoteUi: normalizeMessageQuoteUi(normalizedMetadata, new Date().toISOString()),
@@ -1924,31 +1947,24 @@ const submitQuoteChat = async (options = {}) => {
     setActiveFilterTab(selectedQuoteOutput.id)
   }
   isSending.value = true
+  startQuoteProgressHints(lang)
   chatError.value = ''
   const urlInputs = Array.isArray(options.urlInputs) ? options.urlInputs.filter(Boolean) : collectComposerUrlInputs()
   pushUserMessage(options.displayMessage || value, urlInputs)
   await scrollQuoteThreadToBottom()
   try {
     const attachmentMeta = options.attachment || (await uploadAttachmentMetaIfNeeded())
-    const payload = {
+    const payload = buildQuoteChatRequest({
       message: value,
-      output_type: options.outputType || QUOTE_OUTPUT_TYPE_VALUE,
-      conversation_id: quoteContext.value?.conversation_id,
+      outputType: options.outputType || QUOTE_OUTPUT_TYPE_VALUE,
+      conversationId: quoteContext.value?.conversation_id,
       project: quoteContext.value?.project,
       lang,
-    }
-    if (options.followupAction) {
-      payload.followup_action = options.followupAction
-    }
-    if (options.followupActionSource) {
-      payload.followup_action_source = options.followupActionSource
-    }
-    if (attachmentMeta) {
-      payload.attachment = attachmentMeta
-    }
-    if (urlInputs.length) {
-      payload.url_inputs = urlInputs
-    }
+      followupAction: options.followupAction,
+      followupActionSource: options.followupActionSource,
+      attachment: attachmentMeta,
+      urlInputs,
+    })
     const response = await sendChatMessage(payload)
     if (!response?.ok) {
       throw new Error(response?.error || t('quote.errors.submit_failed'))
@@ -1974,8 +1990,9 @@ const submitQuoteChat = async (options = {}) => {
       await routeBackToHomeChatUi()
     }
   } catch (error) {
-    chatError.value = error?.message || t('quote.errors.submit_failed')
+    chatError.value = resolveChatFlowErrorMessage(error, t) || t('quote.errors.submit_failed')
   } finally {
+    stopQuoteProgressHints()
     isSending.value = false
   }
 }
@@ -2474,6 +2491,7 @@ onBeforeUnmount(() => {
   if (typeof window !== 'undefined') {
     window.removeEventListener('resize', updateWidth)
   }
+  stopQuoteProgressHints()
   disconnectReportViewportObserver()
   clearReportViewportAnimationFrame()
   if (appendRowsTimer) {
@@ -2610,6 +2628,7 @@ onBeforeUnmount(() => {
                         <span></span>
                         <span></span>
                       </div>
+                      <p class="quote-thread__typing-hint">{{ currentQuoteProgressHint }}</p>
                     </div>
                   </template>
                 </div>

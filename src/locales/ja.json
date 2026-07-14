@@ -993,7 +993,13 @@
       "title": "見積チャット"
     },
     "loading": {
-      "conversation": "会話を読み込み中..."
+      "conversation": "会話を読み込み中...",
+      "progress": {
+        "analyzing_prompt": "質問内容を分析中...",
+        "retrieving_sources": "検証可能な情報源を収集中...",
+        "reviewing_evidence": "根拠と項目を確認中...",
+        "composing_answer": "回答を作成中..."
+      }
     },
     "placeholders": {
       "compose": "要望を入力してください...",
