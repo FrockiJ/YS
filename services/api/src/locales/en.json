@@ -120,6 +120,7 @@
   "compose": {
     "missing_openai_key": "[Offline] OPENAI_API_KEY is not configured, unable to generate an answer.",
     "no_context": "No retrieval context is available.",
+    "no_rag_instruction": "This is a general question with no retrieved passages. Answer helpfully using general knowledge; do not claim a source or invent citations. For weather, roads, closures, safety, or other time-sensitive information, tell the user to verify the latest official notices.",
     "long_prompt": "You are a helpful assistant for an intelligent equipment knowledge base.\nYour primary goal is to answer the user's query based on the \"Context from Documents\" provided below.\nRetrieval confidence weight: {weight:.2f}. When this value is high (close to 1.0), rely almost entirely on the provided context, summary, and alias hints. Only fall back to your own knowledge if the context is clearly insufficient.\nIf you must use external knowledge, do not mention that the context was empty; just answer naturally.\nAlways respond in the language of the user's query.\nProvide a detailed and well-structured answer.\n\nContext Blocks:\n{context}\n\nUser Query:\n{query}\n",
     "compact_prompt": "You are a helpful assistant for an intelligent equipment knowledge base.\nYour primary goal is to answer the user's query based on the \"Context from Documents\" provided below.\nRetrieval confidence weight: {weight:.2f}. Treat the provided context, summary, and alias hints as the authoritative source; only add outside knowledge if absolutely necessary.\nIf you must use external knowledge, do so quietly without mentioning missing context.\nAlways respond in the language of the user's query.\nYour answer must be concise and to the point, ideally within 2-3 short paragraphs.\n\nContext Blocks:\n{context}\n\nUser Query:\n{query}\n"
   },
@@ -226,6 +227,7 @@
   "chat_templates": {
     "none_recorded": "none recorded",
     "generation_fallback": "I temporarily could not generate a complete answer because the model request failed. I will not turn raw source snippets into an answer. Please try again, or narrow the question to one brand, category, model year, or inventory condition.",
+    "generation_unavailable": "The AI service is temporarily unavailable. Please try again shortly.",
     "sections": {
       "verified": "## Verified from the system",
       "recommendation": "## Reasoned recommendation",
@@ -265,7 +267,7 @@
       "no_next_order": "- No next-order quantity is verified from the current Product Inventory response.",
       "next_data": "- Add authorized order history, depletion/sell-through, allocation, and supplier lead-time fields to Product Inventory or the business metrics source."
     },
-    "model_unavailable": "The configured AI model ({model}) is not available to this OpenAI project. Set OPENAI_CHAT_MODEL or OPENAI_FALLBACK_CHAT_MODEL to a model this project can access, then try again."
+    "model_unavailable": "The configured AI model ({model}) is not available to this OpenAI project. Verify the API key and OPENAI_CHAT_MODEL, then try again."
   },
   "source_hierarchy": {
     "rule": {

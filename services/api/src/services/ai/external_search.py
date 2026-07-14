@@ -122,14 +122,13 @@ class ExternalSearchService:
         self._openai_base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").strip().rstrip("/")
         self._openai_web_search_model = (
             os.getenv("OPENAI_WEB_SEARCH_MODEL", "").strip()
-            or os.getenv("OPENAI_FALLBACK_CHAT_MODEL", "").strip()
             or os.getenv("OPENAI_CHAT_MODEL", "").strip()
-            or "gpt-5.4-mini"
+            or "gpt-5.5"
         )
         self._openai_web_search_fallback_model = (
             os.getenv("OPENAI_WEB_SEARCH_FALLBACK_MODEL", "").strip()
             or os.getenv("OPENAI_FALLBACK_CHAT_MODEL", "").strip()
-            or "gpt-5.4-mini"
+            or None
         )
         self._openai_web_search_tool_type = os.getenv("OPENAI_WEB_SEARCH_TOOL_TYPE", "web_search").strip() or "web_search"
         self._google_api_key = os.getenv("GOOGLE_API_KEY", "").strip()
@@ -720,7 +719,7 @@ class ExternalSearchService:
             normalized = (model_name or "").strip()
             if normalized and normalized not in models:
                 models.append(normalized)
-        return models or ["gpt-5.4-mini"]
+        return models or [self._openai_web_search_model]
 
     def _run_openai_web_search_request(
         self,

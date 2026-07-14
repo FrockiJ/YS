@@ -132,7 +132,7 @@ class ChatOrchestrator:
             "GENERAL_REQUEST_DEADLINE_SECONDS",
             45.0,
         )
-        model_config = resolve_model_config(default_base_model="gpt-5.4-mini")
+        model_config = resolve_model_config(default_base_model="gpt-5.5")
         self._chat_model = str(model_config["primary_model"])
         self._external_search_model = (
             os.getenv("OPENAI_WEB_SEARCH_MODEL", "").strip()
@@ -693,7 +693,7 @@ class ChatOrchestrator:
                 retrieval_snapshot.setdefault("entity_resolution", analysis.entity_resolution)
                 retrieval_snapshot.setdefault("followup_context", analysis.followup_context)
                 retrieval_snapshot.setdefault("context_state", context_state)
-            model_config = resolve_model_config(default_base_model="gpt-5.4-mini")
+            model_config = resolve_model_config(default_base_model="gpt-5.5")
             metadata["generation_model"] = str(model_config["primary_model"])
             metadata["model_lane"] = model_config["model_lane"]
             metadata["base_model"] = model_config["base_model"]
@@ -702,7 +702,6 @@ class ChatOrchestrator:
             metadata.setdefault("model_generation_failed", False)
             metadata.setdefault("model_access_denied", False)
             metadata.setdefault("generation_error_status", None)
-            metadata.setdefault("generation_error_body", None)
             metadata.setdefault("generation_model_attempted", metadata["generation_model"])
             if model_config["requested_model_lane"] != model_config["model_lane"]:
                 metadata["requested_model_lane"] = model_config["requested_model_lane"]

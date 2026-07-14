@@ -20,7 +20,7 @@ class OpenAIChatHTTPError(RuntimeError):
 
 
 def _resolve_models() -> Tuple[str, Optional[str]]:
-    config = resolve_model_config(default_base_model="gpt-5.4-mini")
+    config = resolve_model_config(default_base_model="gpt-5.5")
     return str(config["primary_model"]), config["fallback_model"]  # type: ignore[return-value]
 
 

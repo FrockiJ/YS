@@ -17,17 +17,13 @@ def normalize_model_lane(value: Optional[str]) -> str:
 
 def resolve_model_config(
     *,
-    default_base_model: str = "gpt-5.4-mini",
+    default_base_model: str = "gpt-5.5",
     env: Optional[Mapping[str, str]] = None,
 ) -> Dict[str, object]:
     source = env or os.environ
     requested_lane = normalize_model_lane(_env_value(source, "AI_MODEL_LANE"))
-    base_model = (
-        _env_value(source, "OPENAI_CHAT_MODEL")
-        or _env_value(source, "OPENAI_FALLBACK_CHAT_MODEL")
-        or default_base_model
-    )
-    configured_fallback = _env_value(source, "OPENAI_FALLBACK_CHAT_MODEL") or default_base_model
+    base_model = _env_value(source, "OPENAI_CHAT_MODEL") or default_base_model
+    configured_fallback = _env_value(source, "OPENAI_FALLBACK_CHAT_MODEL") or None
     fine_tuned_model = _env_value(source, "OPENAI_FINE_TUNED_CHAT_MODEL") or None
 
     active_lane = requested_lane

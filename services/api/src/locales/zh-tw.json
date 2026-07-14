@@ -120,6 +120,7 @@
   "compose": {
     "missing_openai_key": "[離線] 尚未設定 OPENAI_API_KEY，無法產生回答。",
     "no_context": "目前沒有可用的檢索脈絡。",
+    "no_rag_instruction": "這是一般問題，沒有可用的檢索段落。請依你的通用知識直接且有幫助地回答；不要宣稱有來源，也不要編造引用。若內容涉及天候、道路、封路、安全或其他即時資訊，請提醒使用者以官方最新公告為準。",
     "long_prompt": "你是智慧裝備知識庫的助理。\n你的主要目標是依據下方提供的 Context Blocks 回答使用者問題。\n檢索信心權重：{weight:.2f}。當此值接近 1.0 時，幾乎完全依賴提供的脈絡、摘要與 alias hints；只有在脈絡明顯不足時才補充一般知識。\n若必須使用外部知識，請自然回答，不要特別提到脈絡為空。\n務必使用使用者問題的語言回答。\n請提供詳細且結構清楚的回答。\n\nContext Blocks:\n{context}\n\nUser Query:\n{query}\n",
     "compact_prompt": "你是智慧裝備知識庫的助理。\n你的主要目標是依據下方提供的 Context Blocks 回答使用者問題。\n檢索信心權重：{weight:.2f}。請把提供的脈絡、摘要與 alias hints 視為權威來源；只有在必要時才補充外部知識。\n若必須使用外部知識，請自然回答，不要特別提到缺少脈絡。\n務必使用使用者問題的語言回答。\n回答需精簡切中重點，最好控制在 2-3 個短段落內。\n\nContext Blocks:\n{context}\n\nUser Query:\n{query}\n"
   },
@@ -226,6 +227,7 @@
   "chat_templates": {
     "none_recorded": "未記錄",
     "generation_fallback": "模型暫時無法產生完整回答。請稍後再試，或把問題縮小成地點、季節、裝備、安全注意事項、產品或企業資料。",
+    "generation_unavailable": "AI 服務目前暫時無法使用，請稍後再試。",
     "sections": {
       "verified": "## 系統 已驗證",
       "recommendation": "## 推薦判斷",
@@ -265,7 +267,7 @@
       "no_next_order": "- 目前商品庫存回應未驗證下一次訂購量。",
       "next_data": "- 請在商品庫存或商務指標來源加入授權的訂單歷史、庫存消耗 / 銷售消化、配額與供應商交期欄位。"
     },
-    "model_unavailable": "目前設定的 AI 模型（{model}）無法使用。請在 OPENAI_CHAT_MODEL 或 OPENAI_FALLBACK_CHAT_MODEL 設定此 OpenAI project 有權限使用的模型後再試。"
+    "model_unavailable": "目前設定的 AI 模型（{model}）無法使用。請確認此 OpenAI project 的 API 金鑰與 OPENAI_CHAT_MODEL 設定後再試。"
   },
   "source_hierarchy": {
     "rule": {

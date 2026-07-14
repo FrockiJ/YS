@@ -23,6 +23,16 @@ class OpenAIClientTests(unittest.TestCase):
         self.assertEqual(primary, "gpt-5")
         self.assertEqual(fallback, "gpt-5.4-mini")
 
+    def test_model_resolution_does_not_use_an_implicit_fallback(self):
+        with mock.patch.dict(
+            os.environ,
+            {"OPENAI_CHAT_MODEL": "gpt-5.5", "OPENAI_FALLBACK_CHAT_MODEL": ""},
+            clear=False,
+        ):
+            primary, fallback = openai_client._resolve_models()
+        self.assertEqual(primary, "gpt-5.5")
+        self.assertIsNone(fallback)
+
     def test_model_resolution_uses_fine_tuned_canary_with_base_fallback(self):
         with mock.patch.dict(
             os.environ,
@@ -56,7 +66,7 @@ class OpenAIClientTests(unittest.TestCase):
     def test_sync_chat_complete_retries_with_fallback_model(self):
         attempted_models = []
 
-        def fake_request(payload):
+        def fake_request(payload, trace=None):
             attempted_models.append(payload["model"])
             if payload["model"] == "gpt-5":
                 raise urllib.error.HTTPError(
@@ -82,7 +92,7 @@ class OpenAIClientTests(unittest.TestCase):
     def test_sync_chat_complete_preserves_http_error_metadata_without_fallback(self):
         body = b'{"error":{"message":"model_not_found"}}'
 
-        def fake_request(payload):
+        def fake_request(payload, trace=None):
             raise urllib.error.HTTPError(
                 url="https://api.openai.com/v1/chat/completions",
                 code=403,

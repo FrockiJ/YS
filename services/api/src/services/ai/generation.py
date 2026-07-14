@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class GenerationService:
     def __init__(self) -> None:
-        self._chat_model = str(resolve_model_config(default_base_model="gpt-5.4-mini")["primary_model"])
+        self._chat_model = str(resolve_model_config(default_base_model="gpt-5.5")["primary_model"])
 
     async def generate(
         self,
@@ -117,7 +117,9 @@ class GenerationService:
     def _generation_failure_metadata(self, exc: Exception, *, language: Optional[str]) -> Dict[str, Any]:
         metadata: Dict[str, Any] = {
             "response_mode": "generation_fallback",
-            "generation_error": f"{type(exc).__name__}: {exc}",
+            # Keep a stable diagnostic category for clients without exposing a
+            # provider response (which may include configuration details).
+            "generation_error": type(exc).__name__,
             "language": language,
             "fallback_applied": True,
             "model_generation_failed": True,
@@ -126,9 +128,8 @@ class GenerationService:
             metadata.update(
                 {
                     "generation_error_status": exc.status,
-                    "generation_error_body": exc.body[:2000],
                     "generation_model_attempted": exc.model,
-                    "model_access_denied": exc.status == 403,
+                    "model_access_denied": exc.status in {401, 403},
                 }
             )
         return metadata
@@ -138,7 +139,7 @@ class GenerationService:
         if metadata.get("model_access_denied"):
             model = str(metadata.get("generation_model_attempted") or "").strip() or "configured model"
             return t("chat_templates.model_unavailable", language, model=model)
-        return GenerationService._build_generation_fallback_text(language)
+        return t("chat_templates.generation_unavailable", language)
 
     def generate_authoritative_fail_closed(
         self,

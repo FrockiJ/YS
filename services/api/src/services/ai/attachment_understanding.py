@@ -29,8 +29,7 @@ OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").rstr
 OPENAI_ATTACHMENT_MODEL = (
     os.getenv("OPENAI_ATTACHMENT_MODEL")
     or os.getenv("OPENAI_CHAT_MODEL")
-    or os.getenv("OPENAI_FALLBACK_CHAT_MODEL")
-    or "gpt-5.4-mini"
+    or "gpt-5.5"
 ).strip()
 
 _SELL_TOKENS = {

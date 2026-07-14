@@ -53,11 +53,11 @@ async def compose_answer(
         history_messages = history_messages[-10:]
 
     context_sections: List[str] = []
+    rag_lines: List[str] = []
     central_context = _format_context_package(context_package)
     if central_context:
         context_sections.append("## Central Context Package\n" + central_context)
     if hits:
-        rag_lines = []
         keyword_pool: List[str] = []
         for h in hits:
             meta = _ensure_meta(h)
@@ -111,6 +111,8 @@ async def compose_answer(
         if descriptor_parts:
             context_sections.append("## Project Context\n- " + " / ".join(descriptor_parts))
 
+    has_retrieved_passages = bool(rag_lines)
+    no_rag_general_chat = not has_retrieved_passages and str(prompt_category or "").strip() == "general_chat"
     context_from_docs = "\n\n".join(context_sections).strip() or t("compose.no_context", resolved_lang)
     
     # Choose the prompt template based on the compact flag
@@ -125,6 +127,8 @@ async def compose_answer(
         + "\n\n"
         + template.format(context=context_from_docs, query=query, weight=analysis_weight)
     )
+    if no_rag_general_chat:
+        system_prompt += "\n\n" + t("compose.no_rag_instruction", resolved_lang)
 
     # The user's current query should be the last message in the history for the LLM.
     # We pass the conversation history separately via the `history` parameter.
@@ -182,6 +186,11 @@ async def compose_answer(
             project_id=project_id,
             project_label=project_label,
         )
+        assistant_metadata = (
+            {"retrieval_mode": "llm_without_rag", "rag_used": False}
+            if no_rag_general_chat
+            else None
+        )
         _, assistant_message_id = await add_message_to_conversation(
             new_conv_id_uuid,
             "assistant",
@@ -189,17 +198,21 @@ async def compose_answer(
             user_id=user_id,
             project_id=project_id,
             project_label=project_label,
+            metadata=assistant_metadata,
             return_message_id=True,
         )
 
     # 返回給前端時，將 UUID 物件轉換回字串
     payload = {
         "text": response_text,
-        "citations": hits,
+        "citations": [] if no_rag_general_chat else hits,
         "conversation_id": str(new_conv_id_uuid) if new_conv_id_uuid else None,
     }
-    if trace_payload is not None:
-        payload["metadata"] = {"benchmark_trace": trace_payload}
+    if trace_payload is not None or no_rag_general_chat:
+        payload["metadata"] = {
+            **({"benchmark_trace": trace_payload} if trace_payload is not None else {}),
+            **({"retrieval_mode": "llm_without_rag", "rag_used": False} if no_rag_general_chat else {}),
+        }
     if assistant_message_id:
         payload["message_id"] = str(assistant_message_id)
     return payload
