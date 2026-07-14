@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 
 import {
   assertUsableChatResponse,
+  isOpenAiRateLimitPayload,
   normalizeChatAnswerPayload,
   resolveChatFlowErrorMessage,
 } from '../src/utils/chatFlow.js'
@@ -29,6 +30,25 @@ test('identifies a rate-limited chat response for the shared UI error', () => {
     (error) => error.code === 'openai_429',
   )
   assert.match(resolveChatFlowErrorMessage({ code: 'openai_429' }, (key) => key), /rate limit/i)
+})
+
+test('does not misclassify a model-access 403 as an OpenAI rate limit', () => {
+  const response = {
+    ok: true,
+    answer: {
+      text: 'AI service configuration is unavailable. Please contact an administrator.',
+      citations: [],
+      metadata: {
+        generation_error: 'OpenAIChatHTTPError',
+        generation_error_status: 403,
+        model_access_denied: true,
+      },
+    },
+  }
+
+  assert.equal(isOpenAiRateLimitPayload(response), false)
+  assert.doesNotThrow(() => assertUsableChatResponse(response))
+  assert.equal(normalizeChatAnswerPayload(response).text, response.answer.text)
 })
 
 test('preserves QuoteView quote_list and follow-up fields on the shared chat contract', () => {

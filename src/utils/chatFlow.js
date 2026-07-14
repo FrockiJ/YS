@@ -3,8 +3,6 @@ const OPENAI_RATE_LIMIT_PATTERNS = [
   /\bgeneration_error_status['"]?\s*[:=]\s*['"]?429\b/i,
   /\binsufficient_quota\b/i,
   /\brate_limit_exceeded\b/i,
-  /\bOpenAIChatHTTPError\b/i,
-  /\bRateLimitError\b/i,
 ]
 
 const normalizeMetadata = (raw) => {
