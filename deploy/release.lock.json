@@ -3,6 +3,6 @@
   "environment": "uat",
   "frontend": {
     "branch": "ys-vue-uat",
-    "commit": "4640ec652ad4520c4c20ddae3836bc6f849c076c"
+    "commit": "754f9d854fd1ff49539cd76b1f13c32f880a489f"
   }
 }
