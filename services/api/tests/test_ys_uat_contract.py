@@ -7,7 +7,7 @@ class YsUatContractTests(unittest.TestCase):
         repository_root = Path(__file__).resolve().parents[3]
         compose = (repository_root / "docker-compose.uat.yml").read_text(encoding="utf-8")
 
-        self.assertIn('"127.0.0.1::80"', compose)
+        self.assertIn('"${YS_UAT_WEB_BIND_ADDRESS:-127.0.0.1}::80"', compose)
         for service in ("api", "extract-worker", "postgres", "redis"):
             section = compose.split(f"  {service}:", 1)[1].split("\n  ", 1)[0]
             self.assertNotIn("ports:", section)

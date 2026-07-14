@@ -9,8 +9,8 @@ $composeText = Get-Content -LiteralPath $composeFile -Raw
 if ($composeText -match '(?m)^\s{2}(api|extract-worker|postgres|redis):[\s\S]*?^\s{4}ports:') {
     throw 'Only the web service may publish a host port.'
 }
-if ($composeText -notmatch '127\.0\.0\.1::80') {
-    throw 'The web service must use Docker-assigned loopback port mapping 127.0.0.1::80.'
+if ($composeText -notmatch '\$\{YS_UAT_WEB_BIND_ADDRESS:-127\.0\.0\.1\}::80') {
+    throw 'The web service must use the opt-in dynamic host bind mapping with a loopback default.'
 }
 
 $forbiddenPaths = @('F:\\Projects\\py', 'domaineAI', 'domaineVue')
