@@ -10,6 +10,7 @@ import iconChatProject from '../assets/ic_chat_p.svg'
 import emptyTableImage from '../assets/Table No data.svg'
 import AppSidebar from '../components/AppSidebar.vue'
 import AppTopBar from '../components/AppTopBar.vue'
+import PageHeader from '../components/PageHeader.vue'
 import { usePermissionSideMenu } from '../composables/usePermissionSideMenu'
 import { useAuth } from '../composables/useAuth'
 import { buildPrimaryNavItems, PRIMARY_NAV_ICON_IMAGES } from '../utils/appNavigation'
@@ -1234,9 +1235,8 @@ onBeforeUnmount(() => {
       </AppTopBar>
 
       <main class="stage-canvas">
-        <section class="project-page-header">
-          <div class="project-page-header__left">
-            <h1>{{ t('projects.common.projects') }}</h1>
+        <PageHeader :title="t('projects.common.projects')" class="project-page-header">
+          <template #meta>
             <div class="project-breadcrumb">
               <button
                 v-if="activeProject"
@@ -1250,12 +1250,14 @@ onBeforeUnmount(() => {
               <span v-if="activeProject" class="project-breadcrumb__separator">/</span>
               <span>{{ breadcrumbTitle }}</span>
             </div>
-          </div>
-          <button class="project-new-button" type="button" @click="openCreateModal">
-            <span v-html="glyphs.plus" aria-hidden="true" />
-            {{ t('projects.common.new_project') }}
-          </button>
-        </section>
+          </template>
+          <template #actions>
+            <button class="project-new-button page-header__primary-action" type="button" @click="openCreateModal">
+              <span v-html="glyphs.plus" aria-hidden="true" />
+              {{ t('projects.common.new_project') }}
+            </button>
+          </template>
+        </PageHeader>
 
         <section v-if="SHOW_PROJECT_PROFILE && mode === 'conversation' && activeProject" class="project-profile-card">
           <header class="project-profile-card__header">

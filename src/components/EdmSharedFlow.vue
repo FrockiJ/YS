@@ -32,6 +32,7 @@ const props = defineProps({
 })
 
 const currentStep = ref(1)
+const stepLabels = ['商品選擇', '報價確認', '完成與分享']
 const selectedItems = ref([])
 const pdfRef = ref(null)
 const isSubmitting = ref(false)
@@ -365,6 +366,17 @@ watch(
           </div>
         </div>
       </header>
+
+      <ol class="edm-v1__stepper" aria-label="報價流程">
+        <li
+          v-for="(label, index) in stepLabels"
+          :key="label"
+          :class="{ 'is-active': currentStep === index + 1, 'is-complete': currentStep > index + 1 }"
+        >
+          <span>{{ index + 1 }}</span>
+          <strong>{{ label }}</strong>
+        </li>
+      </ol>
 
       <section class="edm-v1__body">
         <template v-if="currentStep === 1">

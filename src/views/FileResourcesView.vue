@@ -23,6 +23,7 @@ import emptyIllustration from '../assets/Table No data.svg'
 import AppSidebar from '../components/AppSidebar.vue'
 import FileResourceSortControls from '../components/FileResourceSortControls.vue'
 import AppTopBar from '../components/AppTopBar.vue'
+import PageHeader from '../components/PageHeader.vue'
 import { usePermissionSideMenu } from '../composables/usePermissionSideMenu'
 import { useAuth } from '../composables/useAuth'
 import { useFileUploader } from '../composables/useFileUploader'
@@ -1615,11 +1616,8 @@ onBeforeUnmount(() => {
 
       <main class="stage-canvas file-resource-stage">
         <div class="file-resource-page">
-          <header class="file-resource-page__header">
-            <div class="file-resource-page__title-block">
-              <h1>{{ t('fileResources.title') }}</h1>
-            </div>
-
+          <PageHeader :title="t('fileResources.title')" class="file-resource-page__header">
+            <template #actions>
             <div class="file-upload-menu-anchor file-resource-page__upload-anchor">
               <button
                 ref="uploadMenuButtonRef"
@@ -1646,7 +1644,8 @@ onBeforeUnmount(() => {
                 </button>
               </div>
             </div>
-          </header>
+            </template>
+          </PageHeader>
 
           <section class="file-resource-card">
             <div class="file-resource-tabs">

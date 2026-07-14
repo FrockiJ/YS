@@ -9,6 +9,7 @@ import iconArrowIndicator from '../assets/ic-arrow.svg'
 import emptyIllustration from '../assets/label_illustration_empty_content.svg'
 import AppSidebar from '../components/AppSidebar.vue'
 import AppTopBar from '../components/AppTopBar.vue'
+import PageHeader from '../components/PageHeader.vue'
 import { usePermissionSideMenu } from '../composables/usePermissionSideMenu'
 import { buildPrimaryNavItems, PRIMARY_NAV_ICON_IMAGES } from '../utils/appNavigation'
 import { renderPrintDocumentHtml as renderLabelPrintDocumentHtml } from '../print/labelPrintTemplate'
@@ -41,6 +42,7 @@ const labelSearchQuery = ref('')
 const searchResults = ref([])
 const isSearchOpen = ref(false)
 const isSearchLoading = ref(false)
+const searchError = ref('')
 const hasSearchAttempted = ref(false)
 const lastSubmittedQuery = ref('')
 const selectedProduct = ref(null)
@@ -102,6 +104,8 @@ const resetSizePriceOverrides = () => {
 let activeSearchController = null
 let suppressSearch = false
 let snackbarTimer = null
+let searchDebounceTimer = null
+const SEARCH_DEBOUNCE_MS = 250
 let printIframeRef = null
 let printCleanupTimer = null
 
@@ -547,6 +551,10 @@ const closeSearch = () => {
 }
 
 const clearSearch = () => {
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer)
+    searchDebounceTimer = null
+  }
   if (activeSearchController) {
     activeSearchController.abort()
     activeSearchController = null
@@ -555,6 +563,7 @@ const clearSearch = () => {
   searchResults.value = []
   isSearchOpen.value = false
   isSearchLoading.value = false
+  searchError.value = ''
   hasSearchAttempted.value = false
   lastSubmittedQuery.value = ''
   selectedProduct.value = null
@@ -578,6 +587,7 @@ const selectProduct = (product) => {
   searchResults.value = []
   isSearchOpen.value = false
   hasSearchAttempted.value = false
+  searchError.value = ''
   lastSubmittedQuery.value = ''
 }
 
@@ -598,6 +608,7 @@ const performSearch = async (query) => {
   isSearchLoading.value = true
   isSearchOpen.value = true
   searchResults.value = []
+  searchError.value = ''
 
   try {
     const response = await searchCerpProducts({
@@ -612,6 +623,8 @@ const performSearch = async (query) => {
   } catch (error) {
     if (error?.name !== 'AbortError') {
       console.error('Label search failed', error)
+      searchError.value = '目前無法搜尋產品，請稍後再試'
+      isSearchOpen.value = true
     }
   } finally {
     if (activeSearchController === controller) {
@@ -622,11 +635,16 @@ const performSearch = async (query) => {
 }
 
 const handleSearchSubmit = () => {
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer)
+    searchDebounceTimer = null
+  }
   const trimmed = labelSearchQuery.value.trim()
   if (!trimmed) {
     searchResults.value = []
     isSearchOpen.value = false
     isSearchLoading.value = false
+    searchError.value = ''
     hasSearchAttempted.value = false
     lastSubmittedQuery.value = ''
     return
@@ -661,9 +679,18 @@ watch(labelSearchQuery, (value) => {
   }
   const trimmed = value.trim()
   if (!trimmed) {
+    if (activeSearchController) {
+      activeSearchController.abort()
+      activeSearchController = null
+    }
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer)
+      searchDebounceTimer = null
+    }
     searchResults.value = []
     isSearchOpen.value = false
     isSearchLoading.value = false
+    searchError.value = ''
     hasSearchAttempted.value = false
     lastSubmittedQuery.value = ''
     return
@@ -672,9 +699,27 @@ watch(labelSearchQuery, (value) => {
     activeSearchController.abort()
     activeSearchController = null
   }
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer)
+    searchDebounceTimer = null
+  }
   searchResults.value = []
-  isSearchOpen.value = false
-  isSearchLoading.value = false
+  searchError.value = ''
+  if (trimmed.length < 2) {
+    isSearchOpen.value = false
+    isSearchLoading.value = false
+    return
+  }
+  isSearchOpen.value = true
+  isSearchLoading.value = true
+  hasSearchAttempted.value = true
+  lastSubmittedQuery.value = trimmed
+  searchDebounceTimer = setTimeout(() => {
+    searchDebounceTimer = null
+    if (labelSearchQuery.value.trim() === trimmed) {
+      performSearch(trimmed)
+    }
+  }, SEARCH_DEBOUNCE_MS)
 })
 
 watch(selectedProduct, async (product) => {
@@ -1057,6 +1102,10 @@ onBeforeUnmount(() => {
     activeSearchController.abort()
     activeSearchController = null
   }
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer)
+    searchDebounceTimer = null
+  }
   if (snackbarTimer) {
     clearTimeout(snackbarTimer)
   }
@@ -1115,9 +1164,7 @@ onBeforeUnmount(() => {
 
       <main class="stage-canvas label-settings-stage">
         <div class="label-settings__content">
-          <header class="label-settings__header">
-            <h1>{{ t('labelSettings.title') }}</h1>
-          </header>
+          <PageHeader :title="t('labelSettings.title')" class="label-settings__header" />
 
           <section class="label-card label-card--s1">
             <div class="label-card__header">
@@ -1154,6 +1201,15 @@ onBeforeUnmount(() => {
                 >
                   ×
                 </button>
+                <button
+                  class="label-search__submit"
+                  type="button"
+                  :disabled="labelSearchQuery.trim().length < 2 || isSearchLoading"
+                  :aria-label="t('labelSettings.searchPlaceholder')"
+                  @click.stop="handleSearchSubmit"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 12 3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </button>
                 <div v-if="isSearchOpen" class="label-search__dropdown" @click.stop>
                   <div v-if="isSearchLoading" class="label-search__status">
                     {{ t('labelSettings.searchLoading') }}
@@ -1173,7 +1229,13 @@ onBeforeUnmount(() => {
                     </span>
                   </button>
                   <div
-                    v-if="!isSearchLoading && hasSearchAttempted && !searchResults.length"
+                    v-if="!isSearchLoading && searchError"
+                    class="label-search__status label-search__status--error"
+                  >
+                    {{ searchError }}
+                  </div>
+                  <div
+                    v-else-if="!isSearchLoading && hasSearchAttempted && !searchResults.length"
                     class="label-search__status"
                   >
                     {{ t('labelSettings.searchEmpty') }}
@@ -1853,6 +1915,22 @@ onBeforeUnmount(() => {
   padding: 0 4px;
 }
 
+.label-search__submit {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 8px;
+  background: #e7f2eb;
+  color: #1c6a43;
+  cursor: pointer;
+}
+
+.label-search__submit:disabled { opacity: .45; cursor: not-allowed; }
+.label-search__submit svg { width: 17px; height: 17px; }
+
 .label-search__dropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -1904,6 +1982,8 @@ onBeforeUnmount(() => {
   line-height: 20px;
   color: #919eab;
 }
+
+.label-search__status--error { color: #b42318; }
 
 .label-card__footer-actions {
   display: flex;
@@ -3300,5 +3380,15 @@ onBeforeUnmount(() => {
     padding: 16px 20px 20px;
     gap: 10px;
   }
+}
+
+@media (max-width: 720px) {
+  .label-settings-stage { padding: 20px 12px 72px; }
+  .label-card { border: 1px solid #dbe7df; border-radius: 14px; }
+  .label-card__row { align-items: stretch; flex-direction: column; }
+  .label-search { max-width: none; width: 100%; flex-basis: auto; }
+  .label-card__footer-actions { width: 100%; margin-left: 0; justify-content: stretch; }
+  .label-card__footer-actions .label-button { flex: 1; }
+  .label-search__dropdown { max-height: min(280px, 45vh); }
 }
 </style>

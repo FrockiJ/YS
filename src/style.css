@@ -5389,14 +5389,12 @@ body {
 .edm-page__header,
 .email-hero {
   position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(27, 45, 41, 0.1);
-  border-radius: 28px;
-  background:
-    linear-gradient(115deg, rgba(16, 36, 31, 0.94), rgba(31, 75, 57, 0.7), rgba(70, 103, 121, 0.5)),
-    url('./assets/outdoor-dashboard-texture.png') center/cover;
-  color: #fff;
-  box-shadow: 0 10px 30px rgba(27, 45, 41, 0.12);
+  overflow: visible;
+  border: 1px solid #dbe7df;
+  border-radius: 18px;
+  background: #fff;
+  color: #173c2e;
+  box-shadow: 0 10px 28px rgba(22, 73, 50, 0.07);
 }
 
 .project-page-header *,
@@ -5410,7 +5408,7 @@ body {
 .edm-page__header *,
 .email-hero * {
   position: relative;
-  z-index: 1;
+  z-index: auto;
 }
 
 .project-page-header h1,
@@ -5423,7 +5421,7 @@ body {
 .quote-summary-shell__hero h1,
 .edm-page__header h1,
 .email-hero h1 {
-  color: #fff;
+  color: #173c2e;
 }
 
 .project-page-header p,
@@ -5436,8 +5434,49 @@ body {
 .quote-summary-shell__hero p,
 .edm-page__header p,
 .email-hero p {
-  color: rgba(255, 255, 255, 0.78);
+  color: #62776b;
 }
+
+.project-page-header::before,
+.project-page-header::after,
+.file-resource-page__header::before,
+.file-resource-page__header::after,
+.account-dev-hero::before,
+.account-dev-hero::after,
+.settings-stage__hero::before,
+.settings-stage__hero::after,
+.return-page__header::before,
+.return-page__header::after,
+.label-settings-hero::before,
+.label-settings-hero::after,
+.label-print-hero::before,
+.label-print-hero::after,
+.quote-summary-shell__hero::before,
+.quote-summary-shell__hero::after,
+.edm-page__header::before,
+.edm-page__header::after,
+.email-hero::before,
+.email-hero::after { display: none !important; }
+
+.page-header__primary-action,
+.project-new-button,
+.file-upload-trigger {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  border: 1px solid #1f7a4d;
+  border-radius: 10px;
+  background: #1f7a4d;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 7px 14px rgba(31, 122, 77, .18);
+}
+
+.page-header__primary-action:hover,
+.project-new-button:hover,
+.file-upload-trigger:hover { background: #17643e; border-color: #17643e; }
 
 .table-card__toolbar,
 .file-resource-card__toolbar,
