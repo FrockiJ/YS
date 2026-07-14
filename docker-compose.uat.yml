@@ -1,0 +1,78 @@
+name: ys-uat
+
+services:
+  web:
+    build:
+      context: ${YS_VUE_DIR:?Set YS_VUE_DIR to the ys-vue-uat checkout}
+      dockerfile: Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1::80"
+
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    env_file:
+      - ${YS_BACKEND_ENV_FILE:?Set YS_BACKEND_ENV_FILE to the local backend.env file}
+    environment:
+      PYTHONPATH: /app/src
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ../runtime/uat/data:/data
+      - ../runtime/uat/uploads:/app/py/S3
+      - ${YS_BACKEND_ENV_FILE}:/run/config/backend.env:ro
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import json, urllib.request; assert json.load(urllib.request.urlopen('http://127.0.0.1:8000/debug/health', timeout=3)).get('ok')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  extract-worker:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    command: python -m src.worker.extract_worker
+    env_file:
+      - ${YS_BACKEND_ENV_FILE:?Set YS_BACKEND_ENV_FILE to the local backend.env file}
+    environment:
+      PYTHONPATH: /app/src
+    depends_on:
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ../runtime/uat/data:/data
+      - ../runtime/uat/uploads:/app/py/S3
+      - ${YS_BACKEND_ENV_FILE}:/run/config/backend.env:ro
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    env_file:
+      - ${YS_BACKEND_ENV_FILE:?Set YS_BACKEND_ENV_FILE to the local backend.env file}
+    volumes:
+      - ys_uat_pgdata:/var/lib/postgresql/data
+      - ./services/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - ys_uat_redisdata:/data
+
+volumes:
+  ys_uat_pgdata:
+  ys_uat_redisdata:

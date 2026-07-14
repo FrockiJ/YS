@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.uat.example
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+runtime/
+data/
+py/S3/
+backups/
+tmp/
+*.dump
+*.tar
+*.tar.gz
+*.log
+

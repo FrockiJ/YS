@@ -1,0 +1,47 @@
+# 這個 GitHub Actions 工作流程會在程式碼推送到 main 分支時自動執行
+# 它的主要工作是為 api 和 nginx 服務建置新的 Docker 映像，並推送到 Docker Hub
+
+name: Docker Publish
+
+on:
+  # 當有 push 事件到 main 分支時觸發
+  push:
+    branches: [ "main" ]
+  # 允許手動從 Actions 頁面觸發此工作流程
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      # 步驟 1: 取得您的原始碼
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 步驟 2: 登入 Docker Hub
+      # 使用您在 GitHub Secrets 中設定的帳號和權杖
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 步驟 3: 建置並推送 API 服務的 Docker 映像
+      # 請將 'your-dockerhub-username/ys-api' 換成您自己的映像名稱
+      - name: Build and push API image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/api
+          file: ./services/api/Dockerfile
+          push: true
+          tags: your-dockerhub-username/ys-api:latest
+
+      # 步驟 4: 建置並推送 Nginx 服務的 Docker 映像
+      # 請將 'your-dockerhub-username/ys-nginx' 換成您自己的映像名稱
+      - name: Build and push Nginx image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/nginx
+          file: ./services/nginx/Dockerfile
+          push: true
+          tags: your-dockerhub-username/ys-nginx:latest

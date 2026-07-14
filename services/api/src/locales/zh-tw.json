@@ -1,0 +1,286 @@
+{
+  "admin": {
+    "profile": {
+      "auth_flow": "POST /api/auth/login -> 複製 bearer token，並送出 Authorization header",
+      "notes": "所有 admin endpoint 都需要 admin/SAdmin 角色。"
+    },
+    "resources": {
+      "common": {
+        "id": "ID"
+      },
+      "users": {
+        "label": "使用者",
+        "description": "管理系統操作帳號。",
+        "fields": {
+          "username": "帳號",
+          "password": "密碼",
+          "role": "角色"
+        },
+        "placeholders": {
+          "username": "ops-lead"
+        }
+      },
+      "roles": {
+        "label": "角色",
+        "description": "定義 RBAC 角色與描述。",
+        "fields": {
+          "name": "名稱",
+          "description": "描述",
+          "permissions": "權限"
+        },
+        "placeholders": {
+          "name": "SAdmin",
+          "description": "完整系統存取"
+        },
+        "helpers": {
+          "permissions": "選擇一個或多個權限代碼。"
+        }
+      },
+      "permissions": {
+        "label": "權限",
+        "description": "管理細部權限代碼。",
+        "fields": {
+          "code": "代碼",
+          "scope": "範圍",
+          "description": "描述"
+        },
+        "placeholders": {
+          "code": "admin.users.read",
+          "scope": "Console",
+          "description": "允許讀取使用者清單"
+        }
+      }
+    },
+    "commands": {
+      "login": {
+        "label": "登入提示",
+        "description": "顯示 AdminETL Secure Gateway 表單。"
+      },
+      "logout": {
+        "label": "登出",
+        "description": "結束目前 admin session。"
+      },
+      "backend": {
+        "label": "後端面板",
+        "description": "顯示 CRUD/intent guide（限 admin）。"
+      },
+      "compact": {
+        "label": "介面切換",
+        "description": "使用側欄核取方塊取得精簡回答。"
+      }
+    },
+    "categories": {
+      "management": "管理"
+    }
+  },
+  "cerp": {
+    "direct_notice": "我在商品庫存找到這項商品。摘要：",
+    "recommendation": {
+      "title": "我找到 {count} 筆符合「{query}」的商品庫存推薦：",
+      "no_results": "目前找不到符合「{query}」與指定條件的商品庫存庫存。"
+    },
+    "top_stock_empty": "目前找不到有庫存商品。",
+    "top_stock_header": "目前庫存較高的商品：",
+    "producer_top_stock_header": "{producer} 目前庫存較高的商品：",
+    "producer_profile_empty": "{producer} 目前沒有符合條件的庫存。",
+    "producer_profile_header": "{producer} 目前商品組合：",
+    "producer_profile_line": "{index}. {name} / {vintage}（庫存 {stock}）",
+    "producer_profile_tail": "如果你提供用途或預算，我可以再篩出更適合的選項。",
+    "out_of_stock_header": "{producer} 目前沒有正庫存；以下是相關商品：",
+    "out_of_stock_header_generic": "目前沒有正庫存；以下是相關商品：",
+    "out_of_stock_line": "{index}. {name} / {vintage}（庫存 0）",
+    "out_of_stock_pivot": "要我改列相近且有庫存的商品，或改用網路資料補充嗎？",
+    "labels": {
+      "producer": "品牌",
+      "rating": "評分",
+      "color": "顏色",
+      "stock": "庫存",
+      "stock_on_hand": "現有庫存",
+      "price": "價格",
+      "vintage": "型號年份",
+      "standard_price": "標準價",
+      "vip_price": "VIP 價",
+      "fb_price": "F&B 價",
+      "promo": "促銷",
+      "gift": "贈品：含 1+1",
+      "warehouses": "倉庫",
+      "warehouse": "倉庫",
+      "qty": "數量",
+      "reserved": "保留",
+      "barcode": "條碼",
+      "spec": "規格"
+    },
+    "business": {
+      "title": "商品庫存回傳 {count} 筆商品資料，包含指定欄位：{fields}",
+      "missing_fields": "商品庫存回傳資料未包含這些指定欄位：{fields}"
+    },
+    "generic_listing_empty": "商品庫存目前沒有可列出的庫存商品。",
+    "generic_listing_header": "我在商品庫存找到 {count} 筆目前有庫存商品："
+  },
+  "compose": {
+    "missing_openai_key": "[離線] 尚未設定 OPENAI_API_KEY，無法產生回答。",
+    "no_context": "目前沒有可用的檢索脈絡。",
+    "long_prompt": "你是智慧裝備知識庫的助理。\n你的主要目標是依據下方提供的 Context Blocks 回答使用者問題。\n檢索信心權重：{weight:.2f}。當此值接近 1.0 時，幾乎完全依賴提供的脈絡、摘要與 alias hints；只有在脈絡明顯不足時才補充一般知識。\n若必須使用外部知識，請自然回答，不要特別提到脈絡為空。\n務必使用使用者問題的語言回答。\n請提供詳細且結構清楚的回答。\n\nContext Blocks:\n{context}\n\nUser Query:\n{query}\n",
+    "compact_prompt": "你是智慧裝備知識庫的助理。\n你的主要目標是依據下方提供的 Context Blocks 回答使用者問題。\n檢索信心權重：{weight:.2f}。請把提供的脈絡、摘要與 alias hints 視為權威來源；只有在必要時才補充外部知識。\n若必須使用外部知識，請自然回答，不要特別提到缺少脈絡。\n務必使用使用者問題的語言回答。\n回答需精簡切中重點，最好控制在 2-3 個短段落內。\n\nContext Blocks:\n{context}\n\nUser Query:\n{query}\n"
+  },
+  "errors": {
+    "login_required": "需要登入",
+    "conversation_not_found": "找不到對話",
+    "conversation_unavailable": "對話不可用",
+    "invalid_conversation_id": "conversation_id 無效",
+    "label_required": "label 為必填",
+    "visibility_invalid": "visibility 必須是 private 或 public",
+    "rename_failed": "無法重新命名對話",
+    "visibility_update_failed": "無法更新可見性",
+    "delete_failed": "無法刪除對話",
+    "restore_failed": "無法還原對話",
+    "super_admin_required": "需要最高管理員權限",
+    "empty_message": "訊息不可為空",
+    "openai_http_error": "OpenAI API 呼叫失敗（HTTP {code}）。請檢查 API key 與帳務狀態。",
+    "openai_reason": "原因：{reason}",
+    "compose_failed": "RAG/Composer 失敗（{error}）。請檢查設定。"
+  },
+  "quote": {
+    "found": "以下是 {count} 筆符合「{query}」的報價項目。",
+    "found_in_stock": "以下是 {count} 筆符合「{query}」且有庫存的報價項目。",
+    "shortage_in_stock": "我找到 {count} 筆符合「{query}」且有庫存的報價項目，少於你要求的 {requested} 筆。",
+    "shortage_fill_similar": "我已找到 {exact_count} 筆符合「{query}」的精準商品。要不要加入 {remaining} 筆相近商品，讓清單補到 {target} 筆？你可以直接回覆「補到 {target} 筆」。",
+    "suggest_similar_in_stock": "你也可以考慮這些相近且有庫存的商品：{suggestions}。",
+    "ask_include_similar": "要我也把它們加入候選清單嗎？你可以直接回覆「加入有庫存相近品」。",
+    "ask_more_similar_in_stock": "如果需要，我可以繼續推薦其他相近且有庫存的商品供你評估。",
+    "alternative_found": "我找不到「{query}」的精準符合項目，但已準備 {count} 筆相近的內部推薦供你檢視。",
+    "followup_relax_constraints": "我已放寬上一輪條件的一個層級，重新整理 {count} 筆更接近「{query}」方向的內部推薦。",
+    "followup_fill_to_target": "我保留上一輪 {exact_count} 筆精準商品，並加入 {similar_count} 筆相近商品，讓清單達到 {count}/{target} 筆供你檢視。",
+    "followup_show_alternatives": "我延續上一輪報價脈絡，為「{query}」擴充 {count} 筆相近的內部推薦供你直接檢視。",
+    "followup_include_similar": "我保留上一輪報價脈絡，並加入仍符合「{query}」需求的相近商品。目前已有 {count} 筆商品可比較。",
+    "expert_profile": "我也參考了 RAG 專業知識，並以 {details} 作為推薦方向；實際商品清單仍嚴格來自內部商品庫存資料。",
+    "no_results": "目前找不到符合「{query}」的報價結果。你可以調整品類、品牌、型號年份或風格，我可以重新產生。",
+    "ui_default_query": "這次報價需求",
+    "ui_status_ready": "已準備",
+    "ui_status_warning": "部分符合",
+    "ui_status_empty": "無結果",
+    "ui_success_title": "我已準備 {count} 筆與「{query}」相關的報價建議",
+    "ui_success_intro": "針對「{query}」，我整理了一組可直接進入報價流程的推薦清單，包含：",
+    "ui_success_bullet_count": "{count} 筆可直接比較的商品",
+    "ui_bullet_quote_info": "每項商品的品號、品名、庫存與報價資訊",
+    "ui_bullet_wine_details": "顏色、評分、型號年份與品牌資訊，方便快速檢視",
+    "ui_bullet_compare": "便於並排比較商品的結構化資料",
+    "ui_profile_bullet": "推薦方向已納入 {details} 相關的 RAG 專業指引",
+    "ui_success_closing": "這份清單已整理成結構化格式，方便你快速確認哪些商品應優先進入報價。",
+    "ui_closing_bullet_filter": "依品類、品牌或型號年份進一步縮小範圍",
+    "ui_closing_bullet_save": "保留目前結果，稍後再細修",
+    "ui_closing_bullet_more": "要求更多相近商品以擴充候選清單",
+    "ui_shortage_title": "我已準備 {count}/{requested} 筆符合「{query}」的報價建議",
+    "ui_shortage_intro": "你要求 {requested} 筆符合「{query}」且有庫存的商品。我找到 {count} 個可立即供應的選項：",
+    "ui_shortage_bullet_count": "{count} 筆商品目前符合條件且可供應",
+    "ui_shortage_bullet_alternatives": "{count} 筆相近且有庫存的替代商品也可檢視",
+    "ui_shortage_closing": "如果需要，我可以在下一版報價候選清單中加入這些相近且有庫存的替代商品。",
+    "ui_fill_shortage_title": "我目前為「{query}」準備了 {exact_count}/{target} 筆報價建議",
+    "ui_fill_shortage_intro": "你要求 {target} 筆符合「{query}」方向的商品。我先保留 {exact_count} 筆完全符合原條件的商品：",
+    "ui_fill_shortage_bullet_exact": "已保留上一輪 {exact_count} 筆精準符合的商品",
+    "ui_fill_shortage_bullet_remaining": "可再加入 {remaining} 筆相近商品，補足到 {target} 筆",
+    "ui_fill_shortage_closing": "要我加入 {remaining} 筆相近商品，讓清單補到 {target} 筆嗎？你可以回覆「補到 {target} 筆」或點選下方動作。",
+    "ui_alternative_title": "目前沒有「{query}」的精準符合項目，但已有 {count} 筆相近推薦可用",
+    "ui_alternative_intro": "我先依型號年份、顏色、品牌與品類條件比對你的需求。內部目前沒有完全符合項目，因此改為準備最接近的企業內部推薦：",
+    "ui_alternative_bullet_exact": "目前沒有任何報價項目完全符合原始條件",
+    "ui_alternative_bullet_count": "{count} 筆相近企業推薦已可檢視",
+    "ui_alternative_closing": "如果需要，我可以放寬型號年份、顏色或品類條件，下一步重新整理更接近的候選清單。",
+    "ui_followup_relax_title": "我已放寬一層條件，重新整理 {count} 筆更接近「{query}」的內部推薦",
+    "ui_followup_relax_intro": "你確認要延續上一輪報價方向並放寬條件，因此我重新整理了一組更接近的內部候選清單：",
+    "ui_followup_relax_closing": "如果需要，我可以接著把這份候選清單再收斂得更精準。",
+    "ui_followup_fill_title": "我保留「{query}」原清單並擴充到 {count}/{target} 筆商品",
+    "ui_followup_fill_intro": "你確認要延續上一輪報價方向並補足數量，因此我保留原本 {exact_count} 筆精準商品，並加入 {similar_count} 筆相近推薦：",
+    "ui_followup_fill_bullet_exact": "保留上一輪 {exact_count} 筆精準符合的商品",
+    "ui_followup_fill_bullet_similar": "新增 {similar_count} 筆依 RAG 推薦方向排序的相近商品",
+    "ui_followup_fill_closing": "這份清單會先保留精準符合項目，再用可報價的內部相近品補足缺口。若需要，我可以下一步依型號年份、品類或價格帶再縮小範圍。",
+    "ui_followup_alternative_title": "我依上一輪「{query}」方向，擴充 {count} 筆相近內部推薦",
+    "ui_followup_alternative_intro": "你確認要延續上一輪報價方向，因此我擴充了最接近的內部推薦供你直接比較：",
+    "ui_followup_alternative_closing": "如果需要，我可以下一步依型號年份、品類、顏色或價格帶再縮小範圍。",
+    "ui_followup_include_title": "我已加入可延續「{query}」方向的相近商品，清單目前有 {count} 筆",
+    "ui_followup_include_intro": "你確認要延續上一輪報價方向，因此我把原清單與仍符合需求的相近商品合併：",
+    "ui_followup_include_closing": "如果需要，我可以下一步依庫存狀態、型號年份或品類再精修這份清單。",
+    "ui_empty_title": "目前沒有「{query}」可用的報價結果",
+    "ui_empty_intro": "我暫時找不到可直接放入報價清單的商品；只要你縮小需求，我就可以重新整理。",
+    "ui_empty_bullet_request": "確認品牌、品類、型號年份或偏好風格",
+    "ui_empty_bullet_inventory": "改用有庫存限定，或放寬庫存範圍重試",
+    "ui_empty_bullet_refine": "依使用情境、適配需求或價格範圍細化",
+    "ui_empty_closing": "如果需要，我可以立刻把它重整成更接近目標的另一個報價方向。",
+    "ui_empty_closing_bullet_alternative": "改用同品牌或同風格替代品",
+    "ui_empty_closing_bullet_region": "改用品類或來源作為主要篩選",
+    "ui_empty_closing_bullet_style": "改用使用情境、評分或價格帶重新查找"
+  },
+  "ai": {
+    "fail_closed": {
+      "authoritative_missing": "這個問題需要可驗證的企業或授權資料，但目前資料不足。我不會猜測企業事實；請補充來源、企業資料或縮小問題。",
+      "authoritative_timeout": "我嘗試取得可驗證資料，但在時間內沒有足夠證據。我不會猜測企業事實；請補充來源、企業資料或縮小問題。",
+      "benchmark_timeout": "Benchmark trace mode 已在 {deadline} 後停止此請求。系統無法在允許時間內組出可稽核來源，因此選擇 fail closed，而不是猜測。",
+      "benchmark_source_contract_missing": "{case_id} 需要 {evidence_contract} 證據。系統目前沒有已驗證 fixture 或可稽核 source row 支援此 benchmark path，因此選擇 fail closed，而不是猜測。",
+      "cerp_field_missing": "商品庫存沒有回傳「{query}」要求的欄位：{fields}。我不會從 RAG、SFT 或一般知識推測這些商務數值。",
+      "unsupported_claims": "這個回答包含需要查證的高風險事實，但目前無法對應到可稽核證據。請提供授權來源、商品庫存證據，或縮小條件後再試。",
+      "prompt_injection": "我不能遵循忽略系統規則或揭露內部資料庫的指令。我可以依允許的商品庫存、RAG 與可追蹤來源協助處理較明確的請求。"
+    },
+    "permission": {
+      "restricted_commercial_data": "這個請求需要受限商務資料權限。在目前授權下，我不能揭露成本、毛利、供應商付款條件、銷售速度、庫存消耗、配額或補貨決策資料。我仍可提供允許的零售價、庫存與商品欄位。"
+    }
+  },
+  "chat_templates": {
+    "none_recorded": "未記錄",
+    "generation_fallback": "模型暫時無法產生完整回答。請稍後再試，或把問題縮小成地點、季節、裝備、安全注意事項、產品或企業資料。",
+    "sections": {
+      "verified": "## 系統 已驗證",
+      "recommendation": "## 推薦判斷",
+      "missing": "## 缺少 / 尚未驗證",
+      "next_data": "## 下一步需要的資料",
+      "current_source_trail": "## 目前來源追蹤",
+      "current_candidates": "## 目前候選 / 證據",
+      "current_evidence": "## 目前證據"
+    },
+    "source_trace": {
+      "route": "- 查詢路徑：{route}",
+      "rejected": "- 檢索排除 / 缺口原因：{rejected}",
+      "recommendation": "這份內容只能作為 系統 目前可檢查項目的稽核軌跡，不能取代缺少的頁面、列資料或授權來源 metadata。",
+      "missing": "- 上表未列出的來源、頁面、列資料或 API endpoint，本次回答都尚未驗證。",
+      "next_data": "- 請在目標回答有引用後重跑，或匯入精準追蹤所需的來源 metadata。"
+    },
+    "inventory_gap": {
+      "verified": "我可以使用目前可檢索、且由商品庫存支援的項目，作為庫存、SKU 與價格事實的驗證層。",
+      "recommendation": "若要組合戶外裝備包，建議優先兼顧品牌、品類、使用情境與適配度；庫存事實與推薦判斷會分開處理。",
+      "no_candidate_row": "| 這條檢索路徑沒有商品庫存支援的候選商品 | - | 請改走商品庫存推薦路徑取得即時庫存。 |",
+      "missing": "- 未由商品庫存證據支持的項目，不應視為目前可銷售庫存。",
+      "next_data": "- 若需要固定數量、價格上限或庫存政策，請透過商品庫存推薦路徑重新查詢。"
+    },
+    "general_gap": {
+      "verified": "系統 目前沒有足夠精準證據可完整驗證所有主張，但仍可提供目前證據軌跡與有限度的建議。",
+      "recommendation": "事實主張請以上方已驗證層為準；較廣的商務建議只應視為推理，不是已驗證資料庫事實。",
+      "reason": "- 缺口原因：{reason}",
+      "next_data": "- 若需要精準驗證，請補上缺少的授權來源列、商品庫存欄位或來源追蹤。"
+    },
+    "business_framework": {
+      "verified": "-商品庫存未回傳 {subject} 的指定商務指標欄位：{missing}。",
+      "no_invent": "- 我不會推測銷售速度、庫存消耗、配額、訂單歷史、成本或毛利。",
+      "recommendation_maintain": "- 在取得銷售消化或訂單歷史證據前，建議採保守維持 / 觀察策略。",
+      "recommendation_increase": "- 只有在現有庫存偏低、評價品質強且近期消耗能證明需求時，才考慮有條件增加。",
+      "recommendation_decrease": "- 若庫存偏高，且促銷或客戶觸達後銷售消化仍弱，才考慮降低。",
+      "requested_missing": "- 尚未驗證的指定欄位：{requested}。",
+      "no_next_order": "- 目前商品庫存回應未驗證下一次訂購量。",
+      "next_data": "- 請在商品庫存或商務指標來源加入授權的訂單歷史、庫存消耗 / 銷售消化、配額與供應商交期欄位。"
+    },
+    "model_unavailable": "目前設定的 AI 模型（{model}）無法使用。請在 OPENAI_CHAT_MODEL 或 OPENAI_FALLBACK_CHAT_MODEL 設定此 OpenAI project 有權限使用的模型後再試。"
+  },
+  "source_hierarchy": {
+    "rule": {
+      "current_product": "- 目前商品事實以最新 ERP/CERP 商品資料為準，優先於舊參考資料、一般市場頁面與非營運評論。",
+      "official_product": "- 品牌自己發布的最新官方事實，以較新的品牌官網或官方素材為準，優先於舊參考資料。",
+      "review_conflict": "- 若不同評論來源有衝突，不要合併成單一分數；應優先使用具完整授權 metadata 的來源，若雙方皆授權則並列呈現。",
+      "reference_context": "- 舊參考資料仍可作為歷史與背景脈絡，但不可覆蓋即時 SKU、庫存、價格、可用性、包裝或目前商品命名。",
+      "recommendation": "可銷售商品事實先採最新營運來源，再把參考資料、評論列或公開市場脈絡作為第二層背景。若商品庫存與品牌官方素材衝突，請同時呈現兩邊 trace；庫存/價格以商品庫存為營運來源，描述性事實以品牌官方來源為準。",
+      "missing": "- 此回答只提供來源優先規則；除非提供目前商品庫存row、品牌頁面、授權評論列、市場來源或參考資料 trace，否則不主張特定 SKU、市場價格、評論分數或頁面例子。",
+      "next_data": "- 請提供或擷取互相衝突的商品庫存row、品牌 URL、授權評論列、公開市場來源與參考資料 trace，才能產生個案稽核範例。"
+    }
+  },
+  "system": {
+    "already_logged_in": "已登入。使用 {lo} 登出。",
+    "not_logged_in": "你尚未登入。使用 {l} 登入。",
+    "admin_required": "需要 admin 角色才能查看此面板。"
+  }
+}

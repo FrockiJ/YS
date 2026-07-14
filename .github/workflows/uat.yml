@@ -1,0 +1,20 @@
+name: YS AI UAT
+
+on:
+  push:
+    branches: [ys-ai-uat]
+  pull_request:
+    branches: [ys-ai-uat]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Compose isolation
+        shell: pwsh
+        run: ./scripts/verify-isolation.ps1
+      - name: Run UAT contract tests
+        run: python -m unittest services/api/tests/test_ys_uat_contract.py
+      - name: Build API image
+        run: docker build -t ys-ai-uat-api -f services/api/Dockerfile .

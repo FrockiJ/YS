@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ys Console</title>
+  <link rel="stylesheet" href="/console/style.css"/>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Console</h1>
+    <div class="auth">
+      <input id="email" placeholder="jopasck" value="jopasck"/>
+      <input id="password" type="password" placeholder="123456789" value="123456789"/>
+      <button id="login">登入</button>
+      <span id="who"></span>
+    </div>
+    <section>
+      <h2>Summary</h2>
+      <select id="group"><option>village</option><option>region</option><option>vineyard</option><option>classification</option></select>
+      <button id="load-sum">載入</button>
+      <button id="exp-sum">匯出</button>
+      <table id="sum"><thead><tr><th>key</th><th>chunks</th></tr></thead><tbody></tbody></table>
+    </section>
+    <section>
+      <h2>Aliases</h2>
+      <button id="load-ali">載入</button>
+      <button id="exp-ali">匯出</button>
+      <table id="ali"><thead><tr><th>canonical</th><th>variant</th><th>type</th><th>lang</th><th>source</th><th>confidence</th></tr></thead><tbody></tbody></table>
+    </section>
+    <section>
+      <h2>Chunk Extractor</h2>
+      <p>Runs <code>POST /api/extract</code> to chunk the PDFs under <code>DATA_DIR</code>.</p>
+      <button id="run-extract">Run Extract Job</button>
+      <span id="extract-status"></span>
+    </section>
+    <section>
+      <h2>Chunks</h2>
+      <button id="load-ch">載入</button>
+      <table id="ch"><thead><tr><th>id</th><th>filename</th><th>page</th><th>chunk_idx</th><th>meta</th><th>preview</th></tr></thead><tbody></tbody></table>
+    </section>
+  </div>
+  <script src="/console/app.js"></script>
+</body>
+</html>

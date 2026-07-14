@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "environment": "uat",
+  "frontend": {
+    "branch": "ys-vue-uat",
+    "commit": "a3db6b5be9e4a50628624217ea07d5e712618254"
+  }
+}

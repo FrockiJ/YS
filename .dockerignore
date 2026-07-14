@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+__pycache__
+.pytest_cache
+data
+py/S3
+backups
+tmp
+*.dump
+

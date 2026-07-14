@@ -1,0 +1,286 @@
+{
+  "admin": {
+    "profile": {
+      "auth_flow": "POST /api/auth/login -> bearer token をコピーし、Authorization header に設定します",
+      "notes": "すべての admin endpoint には admin/SAdmin ロールが必要です。"
+    },
+    "resources": {
+      "common": {
+        "id": "ID"
+      },
+      "users": {
+        "label": "ユーザー",
+        "description": "システム操作アカウントを管理します。",
+        "fields": {
+          "username": "ユーザー名",
+          "password": "パスワード",
+          "role": "ロール"
+        },
+        "placeholders": {
+          "username": "ops-lead"
+        }
+      },
+      "roles": {
+        "label": "ロール",
+        "description": "RBAC ロールと説明を定義します。",
+        "fields": {
+          "name": "名前",
+          "description": "説明",
+          "permissions": "権限"
+        },
+        "placeholders": {
+          "name": "SAdmin",
+          "description": "システム全体のアクセス"
+        },
+        "helpers": {
+          "permissions": "1 つ以上の権限コードを選択してください。"
+        }
+      },
+      "permissions": {
+        "label": "権限",
+        "description": "細かな権限コードを管理します。",
+        "fields": {
+          "code": "コード",
+          "scope": "範囲",
+          "description": "説明"
+        },
+        "placeholders": {
+          "code": "admin.users.read",
+          "scope": "Console",
+          "description": "ユーザー一覧の読み取りを許可"
+        }
+      }
+    },
+    "commands": {
+      "login": {
+        "label": "ログインプロンプト",
+        "description": "AdminETL Secure Gateway フォームを表示します。"
+      },
+      "logout": {
+        "label": "ログアウト",
+        "description": "現在の admin session を終了します。"
+      },
+      "backend": {
+        "label": "バックエンドボード",
+        "description": "CRUD/intent guide を表示します（admin のみ）。"
+      },
+      "compact": {
+        "label": "UI 切替",
+        "description": "サイドバーのチェックボックスで簡潔な回答にします。"
+      }
+    },
+    "categories": {
+      "management": "管理"
+    }
+  },
+  "cerp": {
+    "direct_notice": "商品在庫でこの商品を見つけました。概要：",
+    "recommendation": {
+      "title": "「{query}」に対して、商品在庫に基づくおすすめを {count} 件見つけました：",
+      "no_results": "「{query}」と指定条件に一致する商品在庫の在庫は現在見つかりません。"
+    },
+    "top_stock_empty": "現在、在庫のある商品は見つかりません。",
+    "top_stock_header": "現在在庫が多い商品：",
+    "producer_top_stock_header": "{producer} の現在在庫が多い商品：",
+    "producer_profile_empty": "{producer} に一致する在庫は現在ありません。",
+    "producer_profile_header": "{producer} の現在の商品構成：",
+    "producer_profile_line": "{index}. {name} / {vintage}（在庫 {stock}）",
+    "producer_profile_tail": "用途や予算を教えていただければ、より合う候補に絞り込めます。",
+    "out_of_stock_header": "{producer} は現在正味在庫がありません。関連商品はこちらです：",
+    "out_of_stock_header_generic": "現在正味在庫がありません。関連商品はこちらです：",
+    "out_of_stock_line": "{index}. {name} / {vintage}（在庫 0）",
+    "out_of_stock_pivot": "在庫のある類似商品を提案しますか、それとも Web 情報で補足しますか？",
+    "labels": {
+      "producer": "ブランド",
+      "rating": "評価",
+      "color": "色",
+      "stock": "在庫",
+      "stock_on_hand": "手持ち在庫",
+      "price": "価格",
+      "vintage": "モデル年",
+      "standard_price": "標準価格",
+      "vip_price": "VIP 価格",
+      "fb_price": "F&B 価格",
+      "promo": "プロモーション",
+      "gift": "特典：1+1 を含む",
+      "warehouses": "倉庫",
+      "warehouse": "倉庫",
+      "qty": "数量",
+      "reserved": "引当",
+      "barcode": "バーコード",
+      "spec": "仕様"
+    },
+    "business": {
+      "title": "商品在庫は、指定フィールド（{fields}）を含む商品レコードを {count} 件返しました。",
+      "missing_fields": "商品在庫の返却データには、次の指定フィールドが含まれていません：{fields}"
+    },
+    "generic_listing_empty": "商品在庫には現在一覧表示できる在庫商品がありません。",
+    "generic_listing_header": "商品在庫で現在在庫のある商品を {count} 件見つけました："
+  },
+  "compose": {
+    "missing_openai_key": "[オフライン] OPENAI_API_KEY が設定されていないため、回答を生成できません。",
+    "no_context": "利用可能な検索コンテキストがありません。",
+    "long_prompt": "あなたはインテリジェントな装備ナレッジベースのアシスタントです。\n主な目的は、下記の Context Blocks に基づいてユーザーの質問に回答することです。\n検索信頼度の重み：{weight:.2f}。この値が 1.0 に近い場合は、提供されたコンテキスト、要約、alias hints をほぼ全面的に優先してください。コンテキストが明らかに不足している場合のみ一般知識を補足してください。\n外部知識を使う必要がある場合でも、コンテキストが空であることを強調せず自然に回答してください。\n必ずユーザーの質問と同じ言語で回答してください。\n詳細で構造化された回答にしてください。\n\nContext Blocks:\n{context}\n\nUser Query:\n{query}\n",
+    "compact_prompt": "あなたはインテリジェントな装備ナレッジベースのアシスタントです。\n主な目的は、下記の Context Blocks に基づいてユーザーの質問に回答することです。\n検索信頼度の重み：{weight:.2f}。提供されたコンテキスト、要約、alias hints を権威ある情報として扱い、必要な場合のみ外部知識を補足してください。\n外部知識を使う必要がある場合でも、コンテキスト不足には触れず自然に回答してください。\n必ずユーザーの質問と同じ言語で回答してください。\n回答は簡潔に、できれば 2-3 個の短い段落にまとめてください。\n\nContext Blocks:\n{context}\n\nUser Query:\n{query}\n"
+  },
+  "errors": {
+    "login_required": "ログインが必要です",
+    "conversation_not_found": "会話が見つかりません",
+    "conversation_unavailable": "会話を利用できません",
+    "invalid_conversation_id": "conversation_id が無効です",
+    "label_required": "label は必須です",
+    "visibility_invalid": "visibility は private または public である必要があります",
+    "rename_failed": "会話名を変更できません",
+    "visibility_update_failed": "公開範囲を更新できません",
+    "delete_failed": "会話を削除できません",
+    "restore_failed": "会話を復元できません",
+    "super_admin_required": "最高管理者権限が必要です",
+    "empty_message": "メッセージが空です",
+    "openai_http_error": "OpenAI API 呼び出しに失敗しました（HTTP {code}）。API key と請求状態を確認してください。",
+    "openai_reason": "理由：{reason}",
+    "compose_failed": "RAG/Composer が失敗しました（{error}）。設定を確認してください。"
+  },
+  "quote": {
+    "found": "「{query}」に一致する見積項目を {count} 件用意しました。",
+    "found_in_stock": "「{query}」に一致し、在庫のある見積項目を {count} 件用意しました。",
+    "shortage_in_stock": "「{query}」に一致し、在庫のある見積項目は {count} 件でした。要求数 {requested} 件には足りません。",
+    "shortage_fill_similar": "「{query}」に完全一致する商品を {exact_count} 件見つけました。類似商品を {remaining} 件追加し、候補を {target} 件まで増やしますか？「{target} 件まで追加」と返信できます。",
+    "suggest_similar_in_stock": "在庫のある類似商品として、こちらも検討できます：{suggestions}。",
+    "ask_include_similar": "これらも候補リストに追加しますか？「在庫あり類似品を追加」と返信できます。",
+    "ask_more_similar_in_stock": "必要であれば、検討用に他の在庫あり類似商品も続けて提案できます。",
+    "alternative_found": "「{query}」の完全一致は見つかりませんでしたが、確認用に近い社内おすすめを {count} 件用意しました。",
+    "followup_relax_constraints": "前回条件を 1 段階緩和し、「{query}」の方向に近い社内おすすめを {count} 件再構成しました。",
+    "followup_fill_to_target": "前回の完全一致 {exact_count} 件を残し、類似商品 {similar_count} 件を追加して、確認用リストを {count}/{target} 件にしました。",
+    "followup_show_alternatives": "前回の見積コンテキストを引き継ぎ、「{query}」に近い社内おすすめを {count} 件拡張しました。",
+    "followup_include_similar": "前回の見積コンテキストを維持し、「{query}」のニーズに合う類似商品を追加しました。現在 {count} 件を比較できます。",
+    "expert_profile": "RAG の専門知識も参照し、{details} を推薦方針に反映しました。ただし実際の商品リストは内部商品在庫のデータに限定しています。",
+    "no_results": "現在「{query}」に一致する見積結果は見つかりません。カテゴリ、ブランド、モデル年、またはスタイルを調整すれば再生成できます。",
+    "ui_default_query": "今回の見積依頼",
+    "ui_status_ready": "準備完了",
+    "ui_status_warning": "一部一致",
+    "ui_status_empty": "結果なし",
+    "ui_success_title": "「{query}」に関連する見積候補を {count} 件用意しました",
+    "ui_success_intro": "「{query}」に対して、見積に使える推薦セットを用意しました。内容は次の通りです：",
+    "ui_success_bullet_count": "直接比較できる商品 {count} 件",
+    "ui_bullet_quote_info": "各商品の品番、商品名、在庫、見積情報",
+    "ui_bullet_wine_details": "色、評価、モデル年、ブランド情報を確認しやすく整理",
+    "ui_bullet_compare": "商品を横並びで比較しやすい構造",
+    "ui_profile_bullet": "推薦方針には {details} に関する RAG 専門ガイダンスを反映済み",
+    "ui_success_closing": "このリストは、見積で優先すべき商品をすばやく確認できるよう構造化しています。",
+    "ui_closing_bullet_filter": "カテゴリ、ブランド、モデル年でさらに絞り込む",
+    "ui_closing_bullet_save": "現在の結果を残して後で調整する",
+    "ui_closing_bullet_more": "類似商品を追加して候補を拡張する",
+    "ui_shortage_title": "「{query}」に一致する見積候補を {count}/{requested} 件用意しました",
+    "ui_shortage_intro": "「{query}」に一致し、在庫のある商品を {requested} 件求められました。現在すぐに提供可能な候補は {count} 件です：",
+    "ui_shortage_bullet_count": "現在条件に一致し、供給可能な商品 {count} 件",
+    "ui_shortage_bullet_alternatives": "在庫ありの類似代替品 {count} 件も確認できます",
+    "ui_shortage_closing": "必要であれば、次の見積候補リストにこれらの在庫あり類似代替品を追加できます。",
+    "ui_fill_shortage_title": "「{query}」について、現在 {exact_count}/{target} 件の見積候補を用意しています",
+    "ui_fill_shortage_intro": "「{query}」の方向に合う商品を {target} 件求められました。まず元条件に完全一致する {exact_count} 件を残しました：",
+    "ui_fill_shortage_bullet_exact": "前回の完全一致商品 {exact_count} 件を維持",
+    "ui_fill_shortage_bullet_remaining": "{target} 件まで補うために、類似商品をあと {remaining} 件追加可能",
+    "ui_fill_shortage_closing": "類似商品を {remaining} 件追加して、この候補リストを {target} 件まで増やしますか？「{target} 件まで追加」と返信するか、下のアクションを選べます。",
+    "ui_alternative_title": "「{query}」の完全一致はまだありませんが、近いおすすめを {count} 件用意しました",
+    "ui_alternative_intro": "モデル年、色、ブランド、カテゴリ条件を先に照合しました。社内に完全一致がないため、最も近い社内おすすめを用意しました：",
+    "ui_alternative_bullet_exact": "現在、元条件を完全に満たす見積項目はありません",
+    "ui_alternative_bullet_count": "確認可能な近い社内おすすめ {count} 件",
+    "ui_alternative_closing": "必要であれば、モデル年、色、カテゴリ条件を緩和して、次により近い候補を再構成できます。",
+    "ui_followup_relax_title": "条件を 1 段階緩和し、「{query}」に近い社内おすすめを {count} 件再構成しました",
+    "ui_followup_relax_intro": "前回の見積方向を継続し、条件を緩和することが確認されたため、近い社内候補を再構成しました：",
+    "ui_followup_relax_closing": "必要であれば、この候補リストをさらに絞り込めます。",
+    "ui_followup_fill_title": "「{query}」の元リストを維持し、{count}/{target} 件まで拡張しました",
+    "ui_followup_fill_intro": "前回の見積方向を継続し、数量を補うことが確認されたため、元の完全一致 {exact_count} 件を残し、類似おすすめ {similar_count} 件を追加しました：",
+    "ui_followup_fill_bullet_exact": "前回の完全一致商品 {exact_count} 件を維持",
+    "ui_followup_fill_bullet_similar": "RAG 推薦方針で順位付けした類似商品 {similar_count} 件を追加",
+    "ui_followup_fill_closing": "このリストは完全一致を先に残し、見積可能な社内類似品で不足分を補います。必要であれば、モデル年、カテゴリ、価格帯でさらに絞れます。",
+    "ui_followup_alternative_title": "前回の「{query}」方向に基づき、近い社内おすすめを {count} 件拡張しました",
+    "ui_followup_alternative_intro": "前回の見積方向を継続することが確認されたため、直接比較できる近い社内おすすめを拡張しました：",
+    "ui_followup_alternative_closing": "必要であれば、モデル年、カテゴリ、色、価格帯で次に絞り込めます。",
+    "ui_followup_include_title": "「{query}」の方向を継続できる類似商品を追加し、候補は現在 {count} 件です",
+    "ui_followup_include_intro": "前回の見積方向を継続することが確認されたため、元リストとニーズに合う類似商品を統合しました：",
+    "ui_followup_include_closing": "必要であれば、在庫状態、モデル年、カテゴリで次に調整できます。",
+    "ui_empty_title": "「{query}」に利用できる見積結果は現在ありません",
+    "ui_empty_intro": "見積リストに直接入れられる商品はまだ見つかりません。条件を絞れば再構成できます。",
+    "ui_empty_bullet_request": "ブランド、カテゴリ、モデル年、または好みのスタイルを確認する",
+    "ui_empty_bullet_inventory": "在庫あり限定で再試行するか、在庫条件を広げる",
+    "ui_empty_bullet_refine": "用途、適合性、価格範囲で細かく指定する",
+    "ui_empty_closing": "必要であれば、すぐにより近い別の見積方向へ組み替えられます。",
+    "ui_empty_closing_bullet_alternative": "同ブランドまたは同スタイルの代替品に切り替える",
+    "ui_empty_closing_bullet_region": "カテゴリや由来を主な条件として再実行する",
+    "ui_empty_closing_bullet_style": "用途、評価、価格帯で再検索する"
+  },
+  "ai": {
+    "fail_closed": {
+      "authoritative_missing": "この質問には検証可能な企業情報または許可された資料が必要ですが、現在は十分な情報がありません。企業事実を推測せず、出典、企業情報、またはより狭い条件を追加してください。",
+      "authoritative_timeout": "検証可能な資料を取得しようとしましたが、制限時間内に十分な証拠を確認できませんでした。企業事実を推測せず、出典、企業情報、またはより狭い条件を追加してください。",
+      "benchmark_timeout": "Benchmark trace mode は {deadline} 後にこのリクエストを停止しました。許可された時間内に監査可能な情報源を構成できなかったため、推測せず fail closed としました。",
+      "benchmark_source_contract_missing": "{case_id} には {evidence_contract} の証拠が必要です。この benchmark path を支える検証済み fixture または監査可能な source row が現在ないため、推測せず fail closed としました。",
+      "cerp_field_missing": "商品在庫には「{query}」で要求された項目が含まれていません：{fields}。これらの商務数値を RAG、SFT、一般知識から推測しません。",
+      "unsupported_claims": "この回答には確認が必要な高リスク事実が含まれていますが、現在は監査可能な証拠に対応できません。許可された出典、商品在庫の証拠、またはより狭い条件を追加してください。",
+      "prompt_injection": "システム規則の無視や内部データベースの開示を求める指示には従えません。許可された商品在庫、RAG、追跡可能な資料に基づき、より明確な依頼を支援できます。"
+    },
+    "permission": {
+      "restricted_commercial_data": "このリクエストには制限付き商務データ権限が必要です。現在の権限では、原価、粗利、仕入先支払条件、販売速度、在庫消化、割当、補充判断データを開示できません。許可された小売価格、在庫、商品フィールドであれば回答できます。"
+    }
+  },
+  "chat_templates": {
+    "none_recorded": "記録なし",
+    "generation_fallback": "モデルが一時的に完全な回答を生成できませんでした。時間をおいて再試行するか、場所、季節、装備、安全上の注意、商品、企業情報などに質問を絞ってください。",
+    "sections": {
+      "verified": "## システム で確認済み",
+      "recommendation": "## 判断と提案",
+      "missing": "## 不足 / 未確認",
+      "next_data": "## 次に必要なデータ",
+      "current_source_trail": "## 現在のソーストレース",
+      "current_candidates": "## 現在の候補 / 証拠",
+      "current_evidence": "## 現在の証拠"
+    },
+    "source_trace": {
+      "route": "- クエリルート：{route}",
+      "rejected": "- 検索の除外 / ギャップ理由：{rejected}",
+      "recommendation": "これは システム が現在確認できる範囲の監査トレースです。不足しているページ、行データ、または承認済みソース metadata の代替にはなりません。",
+      "missing": "- 上表にないソース、ページ、行データ、API endpoint は、この回答では未確認です。",
+      "next_data": "- 対象回答に引用を付けて再実行するか、正確な追跡に必要なソース metadata を取り込んでください。"
+    },
+    "inventory_gap": {
+      "verified": "現在検索可能で、商品在庫に裏付けられた項目を、在庫、SKU、価格事実の確認レイヤーとして利用できます。",
+      "recommendation": "複数カテゴリのアウトドア装備セットでは、ブランド、カテゴリ、用途、適合性のバランスを優先してください。在庫事実と推薦ロジックは分けて扱います。",
+      "no_candidate_row": "| この検索経路には商品在庫に裏付けられた候補がありません | - | 即時在庫は商品在庫推薦ルートで確認してください。 |",
+      "missing": "-商品在庫の証拠に裏付けられていない項目は、現在販売可能な在庫として扱うべきではありません。",
+      "next_data": "- 固定件数、価格上限、在庫ポリシーが必要な場合は、商品在庫推薦ルートで再実行してください。"
+    },
+    "general_gap": {
+      "verified": "システム には、要求されたすべての主張を完全に検証するだけの正確な証拠がまだありません。ただし、現在の証拠トレースと範囲を限定した提案は提示できます。",
+      "recommendation": "事実主張には上記の確認済みレイヤーを使用してください。より広い業務上の助言は推論であり、検証済みデータベース事実ではありません。",
+      "reason": "- ギャップ理由：{reason}",
+      "next_data": "- 正確な検証が必要な場合は、不足している承認済みソース行、商品在庫フィールド、またはソーストレースを追加してください。"
+    },
+    "business_framework": {
+      "verified": "-商品在庫は {subject} について、要求された業務指標フィールドを返しませんでした：{missing}。",
+      "no_invent": "- 販売速度、在庫消化、割当、注文履歴、原価、粗利は推測しません。",
+      "recommendation_maintain": "- 販売消化または注文履歴の証拠が得られるまでは、保守的に維持 / 監視する方針を推奨します。",
+      "recommendation_increase": "- 現在庫が少なく、評価品質が高く、直近の消化が需要を裏付ける場合のみ、条件付きで増加を検討してください。",
+      "recommendation_decrease": "- 在庫が多く、プロモーションや顧客接点後も消化が弱い場合のみ、削減を検討してください。",
+      "requested_missing": "- 未確認の要求フィールド：{requested}。",
+      "no_next_order": "- 現在の商品在庫レスポンスでは、次回注文数量は確認されていません。",
+      "next_data": "-商品在庫または業務指標ソースに、承認済みの注文履歴、在庫消化 / 販売消化、割当、仕入先リードタイムのフィールドを追加してください。"
+    },
+    "model_unavailable": "現在設定されている AI モデル（{model}）は、この OpenAI project では利用できません。OPENAI_CHAT_MODEL または OPENAI_FALLBACK_CHAT_MODEL に利用可能なモデルを設定してから再試行してください。"
+  },
+  "source_hierarchy": {
+    "rule": {
+      "current_product": "- 現在の商品事実は、最新の ERP/CERP 商品データを優先し、古い参考資料、一般的な市場ページ、非運用上のコメントよりも優先します。",
+      "official_product": "- ブランドが所有する現在の事実は、より新しいブランド公式サイトまたは公式資料を、古い参考資料より優先します。",
+      "review_conflict": "- レビューソース間に矛盾がある場合、2 つの内容を 1 つのスコアにまとめません。要求された主張に対して完全な承認済み metadata を持つソースを優先し、双方が承認済みであれば並べて示します。",
+      "reference_context": "- 古い参考資料は歴史や背景の文脈として有用ですが、ライブ SKU、在庫、価格、提供可否、包装、現在の商品名を上書きしてはいけません。",
+      "recommendation": "販売可能な商品事実には最新の運用ソースを使い、その後で参考資料、レビュー行、公開市場の文脈を二次情報として扱います。商品在庫とブランド公式資料が矛盾する場合は両方の trace を示し、在庫/価格は商品在庫、説明的事実はブランド公式ソースを基準にしてください。",
+      "missing": "- この回答はソース優先順位のルールを示すものです。現在の商品在庫row、ブランドページ、承認済みレビュー行、市場ソース、参考資料 trace がない限り、特定 SKU、市場価格、レビュースコア、ページ例は主張しません。",
+      "next_data": "- 個別ケースの監査例を作るには、矛盾する商品在庫row、ブランド URL、承認済みレビュー行、公開市場ソース、参考資料 trace を提供または取得してください。"
+    }
+  },
+  "system": {
+    "already_logged_in": "すでにログインしています。{lo} でログアウトできます。",
+    "not_logged_in": "まだログインしていません。{l} でログインしてください。",
+    "admin_required": "このパネルを表示するには admin ロールが必要です。"
+  }
+}

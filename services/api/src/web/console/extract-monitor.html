@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Extract Monitor</title>
+  <link rel="stylesheet" href="/console/extract-monitor.css"/>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <h1>Extract Job Monitor</h1>
+      <p>Monitor file-level and current-file progress using the existing extract job API.</p>
+    </header>
+
+    <section class="panel">
+      <div class="row">
+        <label>Active jobs</label>
+        <select id="job-select"></select>
+      </div>
+      <div class="actions">
+        <button id="refresh-jobs">Refresh Jobs</button>
+        <button id="load-job">Start Monitor</button>
+        <button id="stop-job" class="secondary">Stop</button>
+        <span id="status-line">Idle</span>
+      </div>
+      <div class="hint" id="job-hint">Auto-selects the current running extract job when available.</div>
+    </section>
+
+    <section class="panel">
+      <h2>Files Progress</h2>
+      <div class="metric-line">
+        <span id="files-label">Files: 0 / 0</span>
+        <span id="job-status" class="pill">queued</span>
+      </div>
+      <div class="progress"><div id="files-bar" class="progress-bar"></div></div>
+    </section>
+
+    <section class="split-grid">
+      <div class="panel">
+        <h2>Current File Progress</h2>
+        <div class="metric-grid">
+          <div><span class="label">Current file</span><span id="current-file">-</span></div>
+          <div><span class="label">Phase</span><span id="current-phase">-</span></div>
+          <div><span class="label">Source kind</span><span id="current-source-kind">-</span></div>
+          <div><span class="label">Rows/Chunks</span><span id="current-items">-</span></div>
+          <div><span class="label">Chunks indexed</span><span id="chunks-done">-</span></div>
+          <div><span class="label">Records written</span><span id="records-done">-</span></div>
+        </div>
+        <div class="progress"><div id="current-bar" class="progress-bar accent"></div></div>
+      </div>
+
+      <div class="panel">
+        <h2>Job State</h2>
+        <div class="metric-grid">
+          <div><span class="label">Heartbeat</span><span id="heartbeat-at">-</span></div>
+          <div><span class="label">Lease expires</span><span id="lease-expires-at">-</span></div>
+          <div><span class="label">Attempt</span><span id="attempt-count">-</span></div>
+          <div><span class="label">Success / Failed</span><span id="success-failed">-</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Last Result</h2>
+      <pre id="last-result">-</pre>
+    </section>
+
+    <section class="panel">
+      <h2>Error</h2>
+      <pre id="job-error">-</pre>
+    </section>
+  </main>
+  <script src="/console/extract-monitor.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "YS Outdoor",
+  "english_name": "YS Outdoor",
+  "contact": {
+    "address": "",
+    "phone": "",
+    "booking": {
+      "online": {
+        "label": "",
+        "url": ""
+      },
+      "phone": ""
+    }
+  },
+  "business_hours": [],
+  "preferred_brands": ["YS Outdoor"],
+  "notes": "Complete this profile with approved YS business information before production use."
+}

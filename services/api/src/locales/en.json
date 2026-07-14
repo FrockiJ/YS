@@ -1,0 +1,286 @@
+{
+  "admin": {
+    "profile": {
+      "auth_flow": "POST /api/auth/login -> copy bearer token, send Authorization header",
+      "notes": "All admin endpoints require admin/SAdmin role."
+    },
+    "resources": {
+      "common": {
+        "id": "ID"
+      },
+      "users": {
+        "label": "Users",
+        "description": "Manage operator accounts for the console.",
+        "fields": {
+          "username": "Username",
+          "password": "Password",
+          "role": "Role"
+        },
+        "placeholders": {
+          "username": "ops-lead"
+        }
+      },
+      "roles": {
+        "label": "Roles",
+        "description": "Define RBAC roles and descriptions.",
+        "fields": {
+          "name": "Name",
+          "description": "Description",
+          "permissions": "Permissions"
+        },
+        "placeholders": {
+          "name": "SAdmin",
+          "description": "Full console access"
+        },
+        "helpers": {
+          "permissions": "Select one or more permission codes."
+        }
+      },
+      "permissions": {
+        "label": "Permissions",
+        "description": "Track fine-grained permission codes.",
+        "fields": {
+          "code": "Code",
+          "scope": "Scope",
+          "description": "Description"
+        },
+        "placeholders": {
+          "code": "admin.users.read",
+          "scope": "Console",
+          "description": "Allows reading user roster"
+        }
+      }
+    },
+    "commands": {
+      "login": {
+        "label": "Login prompt",
+        "description": "Shows AdminETL Secure Gateway form."
+      },
+      "logout": {
+        "label": "Logout",
+        "description": "Terminates the current admin session."
+      },
+      "backend": {
+        "label": "Backend board",
+        "description": "Displays the CRUD/intent guide (admin only)."
+      },
+      "compact": {
+        "label": "UI switch",
+        "description": "Use sidebar checkbox for concise answers."
+      }
+    },
+    "categories": {
+      "management": "Management"
+    }
+  },
+  "cerp": {
+    "direct_notice": "I found this product in Product Inventory. Summary:",
+    "recommendation": {
+      "title": "I found {count} Product Inventory-backed recommendation(s) for \"{query}\":",
+      "no_results": "I could not find product inventory matching \"{query}\" with the requested filters."
+    },
+    "top_stock_empty": "No in-stock products found right now.",
+    "top_stock_header": "Top products by stock:",
+    "producer_top_stock_header": "Top stock for {producer}:",
+    "producer_profile_empty": "{producer} has no matching inventory right now.",
+    "producer_profile_header": "{producer} current portfolio:",
+    "producer_profile_line": "{index}. {name} / {vintage} (stock {stock})",
+    "producer_profile_tail": "Tell me style/budget if you want better-fit picks.",
+    "out_of_stock_header": "{producer} has no stock; here are the products:",
+    "out_of_stock_header_generic": "No stock found; here are the products:",
+    "out_of_stock_line": "{index}. {name} / {vintage} (stock 0)",
+    "out_of_stock_pivot": "Do you want suggestions for similar in-stock products or let me search the web?",
+    "labels": {
+      "producer": "Brand",
+      "rating": "Rating",
+      "color": "Color",
+      "stock": "Stock",
+      "stock_on_hand": "Stock on hand",
+      "price": "Price",
+      "vintage": "Model Year",
+      "standard_price": "Standard price",
+      "vip_price": "VIP price",
+      "fb_price": "F&B price",
+      "promo": "Promo",
+      "gift": "Gift: includes 1+1",
+      "warehouses": "Warehouses",
+      "warehouse": "warehouse",
+      "qty": "qty",
+      "reserved": "reserved",
+      "barcode": "Barcode",
+      "spec": "Spec"
+    },
+    "business": {
+      "title": "Product Inventory returned {count} product record(s) with requested field(s): {fields}",
+      "missing_fields": "Product Inventory did not include these requested field(s) in the returned records: {fields}"
+    },
+    "generic_listing_empty": "Product Inventory currently has no inventory products to list.",
+    "generic_listing_header": "I found {count} current in-stock item(s) in Product Inventory:"
+  },
+  "compose": {
+    "missing_openai_key": "[Offline] OPENAI_API_KEY is not configured, unable to generate an answer.",
+    "no_context": "No retrieval context is available.",
+    "long_prompt": "You are a helpful assistant for an intelligent equipment knowledge base.\nYour primary goal is to answer the user's query based on the \"Context from Documents\" provided below.\nRetrieval confidence weight: {weight:.2f}. When this value is high (close to 1.0), rely almost entirely on the provided context, summary, and alias hints. Only fall back to your own knowledge if the context is clearly insufficient.\nIf you must use external knowledge, do not mention that the context was empty; just answer naturally.\nAlways respond in the language of the user's query.\nProvide a detailed and well-structured answer.\n\nContext Blocks:\n{context}\n\nUser Query:\n{query}\n",
+    "compact_prompt": "You are a helpful assistant for an intelligent equipment knowledge base.\nYour primary goal is to answer the user's query based on the \"Context from Documents\" provided below.\nRetrieval confidence weight: {weight:.2f}. Treat the provided context, summary, and alias hints as the authoritative source; only add outside knowledge if absolutely necessary.\nIf you must use external knowledge, do so quietly without mentioning missing context.\nAlways respond in the language of the user's query.\nYour answer must be concise and to the point, ideally within 2-3 short paragraphs.\n\nContext Blocks:\n{context}\n\nUser Query:\n{query}\n"
+  },
+  "errors": {
+    "login_required": "Login required",
+    "conversation_not_found": "Conversation not found",
+    "conversation_unavailable": "Conversation unavailable",
+    "invalid_conversation_id": "Invalid conversation_id",
+    "label_required": "label is required",
+    "visibility_invalid": "visibility must be private or public",
+    "rename_failed": "Unable to rename conversation",
+    "visibility_update_failed": "Unable to update visibility",
+    "delete_failed": "Unable to delete conversation",
+    "restore_failed": "Unable to restore conversation",
+    "super_admin_required": "Super admin required",
+    "empty_message": "Empty message",
+    "openai_http_error": "OpenAI API call failed (HTTP {code}). Please check API key and billing.",
+    "openai_reason": "Reason: {reason}",
+    "compose_failed": "RAG/Composer failed ({error}). Please check configuration."
+  },
+  "quote": {
+    "found": "Here are {count} quote items matching \"{query}\".",
+    "found_in_stock": "Here are {count} in-stock quote items matching \"{query}\".",
+    "shortage_in_stock": "I found {count} in-stock quote items matching \"{query}\", which is fewer than the requested {requested}.",
+    "shortage_fill_similar": "I already found {exact_count} exact products for \"{query}\". Should I add {remaining} similar similar products and bring the shortlist up to {target}? You can simply reply \"Bring it to {target}\".",
+    "suggest_similar_in_stock": "You may also consider these similar in-stock products: {suggestions}.",
+    "ask_include_similar": "Should I add them into the shortlist as well? You can simply reply \"Include in-stock similars\".",
+    "ask_more_similar_in_stock": "If you want, I can continue recommending other similar in-stock products for consideration.",
+    "alternative_found": "I could not find an exact match for \"{query}\", but I prepared {count} close in-house recommendations for review.",
+    "followup_relax_constraints": "I relaxed one layer of the previous constraints and rebuilt {count} in-house recommendations that are closer to the \"{query}\" direction.",
+    "followup_fill_to_target": "I kept the previous {exact_count} exact products and added {similar_count} similar products, bringing the shortlist to {count}/{target} products for review.",
+    "followup_show_alternatives": "I continued the previous quote context and expanded {count} close in-house recommendations for \"{query}\" for direct review.",
+    "followup_include_similar": "I kept the previous quote context and added similar products that can still support \"{query}\". There are now {count} products ready for comparison.",
+    "expert_profile": "I also referenced RAG professional knowledge and used {details} as recommendation guidance, while keeping the actual product list strictly sourced from internal Product Inventory data.",
+    "no_results": "I couldn't find a quote result matching \"{query}\" right now. You can refine the category, brand, model year, or style and I can regenerate it.",
+    "ui_default_query": "this quote request",
+    "ui_status_ready": "Ready",
+    "ui_status_warning": "Partial match",
+    "ui_status_empty": "No result",
+    "ui_success_title": "I prepared {count} quote suggestions related to \"{query}\"",
+    "ui_success_intro": "In response to \"{query}\", I prepared a quote-ready recommendation set that includes:",
+    "ui_success_bullet_count": "{count} products ready for direct comparison",
+    "ui_bullet_quote_info": "item code, product name, stock, and quote information for each product",
+    "ui_bullet_wine_details": "color, rating, model year, and brand details for faster review",
+    "ui_bullet_compare": "a structure that makes it easier to compare products side by side",
+    "ui_profile_bullet": "the recommendation direction already incorporates RAG professional guidance around {details}",
+    "ui_success_closing": "This list is organized in a structured way so you can quickly confirm which products should be prioritized for the quote.",
+    "ui_closing_bullet_filter": "narrow further by category, brand, or model year",
+    "ui_closing_bullet_save": "keep the current result and refine it later",
+    "ui_closing_bullet_more": "ask for more similar products to expand the shortlist",
+    "ui_shortage_title": "I prepared {count}/{requested} quote suggestions matching \"{query}\"",
+    "ui_shortage_intro": "You asked for {requested} in-stock products matching \"{query}\". I found {count} options that are immediately available:",
+    "ui_shortage_bullet_count": "{count} products currently match and are available now",
+    "ui_shortage_bullet_alternatives": "{count} similar in-stock alternatives are also ready for review",
+    "ui_shortage_closing": "If you want, I can include these similar in-stock alternatives in the next version of the quote shortlist.",
+    "ui_fill_shortage_title": "I currently prepared {exact_count}/{target} quote suggestions for \"{query}\"",
+    "ui_fill_shortage_intro": "You asked for {target} products matching the \"{query}\" direction. I first kept {exact_count} products that satisfy the original criteria exactly:",
+    "ui_fill_shortage_bullet_exact": "{exact_count} products already remain as exact matches",
+    "ui_fill_shortage_bullet_remaining": "{remaining} more similar products can be added to bring the shortlist to {target}",
+    "ui_fill_shortage_closing": "Should I add {remaining} similar products and bring this shortlist up to {target} products? You can reply \"Bring it to {target}\" or tap an action below.",
+    "ui_alternative_title": "No exact match for \"{query}\" yet, but {count} close recommendations are ready",
+    "ui_alternative_intro": "I matched your request against model year, color, brand, and category constraints first. There is no exact in-house match right now, so I prepared the closest enterprise recommendations instead:",
+    "ui_alternative_bullet_exact": "No quote item currently satisfies the full original criteria",
+    "ui_alternative_bullet_count": "{count} close enterprise recommendations are ready for review",
+    "ui_alternative_closing": "If you want, I can relax the model year, color, or category constraints and rebuild a closer shortlist next.",
+    "ui_followup_relax_title": "I relaxed one layer of constraints and rebuilt {count} in-house recommendations closer to \"{query}\"",
+    "ui_followup_relax_intro": "You confirmed that we should continue from the previous quote direction and relax the constraints, so I rebuilt a closer internal shortlist:",
+    "ui_followup_relax_closing": "If you want, I can keep refining this shortlist into something even tighter from here.",
+    "ui_followup_fill_title": "I kept the original shortlist for \"{query}\" and expanded it to {count}/{target} products",
+    "ui_followup_fill_intro": "You confirmed that we should continue from the previous quote direction and fill the missing quantity, so I kept the original {exact_count} exact products and added {similar_count} similar recommendations:",
+    "ui_followup_fill_bullet_exact": "kept the original {exact_count} exact products from the previous shortlist",
+    "ui_followup_fill_bullet_similar": "added {similar_count} similar products ranked with RAG recommendation guidance",
+    "ui_followup_fill_closing": "This shortlist keeps the exact matches first, then uses quoteable in-house similar products to fill the remaining slots. If you want, I can narrow it further by model year, category, or price band.",
+    "ui_followup_alternative_title": "I expanded {count} close in-house recommendations based on the previous \"{query}\" direction",
+    "ui_followup_alternative_intro": "You confirmed that we should continue from the previous quote direction, so I expanded the closest internal recommendations for direct comparison:",
+    "ui_followup_alternative_closing": "If you want, I can narrow this further by model year, category, color, or price band in the next step.",
+    "ui_followup_include_title": "I added similar products that can continue the \"{query}\" direction, bringing the shortlist to {count} products",
+    "ui_followup_include_intro": "You confirmed that we should continue from the previous quote direction, so I combined the original shortlist with similar products that still fit the need:",
+    "ui_followup_include_closing": "If you want, I can refine this shortlist further by stock status, model year, or category next.",
+    "ui_empty_title": "No quote result is currently available for \"{query}\"",
+    "ui_empty_intro": "I couldn't find a product to place directly into the quote list yet, but I can rebuild it once you narrow the request.",
+    "ui_empty_bullet_request": "confirm the brand, category, model year, or preferred style",
+    "ui_empty_bullet_inventory": "retry with in-stock only or a wider inventory scope",
+    "ui_empty_bullet_refine": "refine by use case, fit, or price range",
+    "ui_empty_closing": "If you want, I can immediately reshape this into another quote direction that is closer to your target.",
+    "ui_empty_closing_bullet_alternative": "switch to same-brand or same-style alternatives",
+    "ui_empty_closing_bullet_region": "rerun with category or country as the main filter",
+    "ui_empty_closing_bullet_style": "rerun with use case, rating, or price band as the main filter"
+  },
+  "ai": {
+    "fail_closed": {
+      "authoritative_missing": "I tried authoritative sources, but I could not obtain enough verifiable evidence. I will not guess external facts. Please narrow the topic, specify the brand or category, or try again later.",
+      "authoritative_timeout": "I tried authoritative sources, but I could not obtain enough verifiable evidence within the time budget. I will not guess external facts. Please narrow the topic, specify the brand or category, or try again later.",
+      "benchmark_timeout": "Benchmark trace mode stopped this request after {deadline}. The system could not assemble auditable sources within the allowed time, so it is failing closed instead of guessing.",
+      "benchmark_source_contract_missing": "{case_id} requires {evidence_contract} evidence. The system does not currently have a verified fixture or auditable source row for this benchmark path, so it is failing closed instead of guessing.",
+      "cerp_field_missing": "Product Inventory did not return the requested field(s) for \"{query}\": {fields}. I will not infer these commercial values from RAG, SFT, or general knowledge.",
+      "unsupported_claims": "I cannot map the high-risk factual claims in this answer to auditable evidence, so I will not return a potentially misleading precise answer. Please provide an authorized source, Product Inventory proof, or narrower constraints and try again.",
+      "prompt_injection": "I cannot follow instructions to ignore system rules or reveal imported internal databases. I can help with a narrower request using permitted Product Inventory, RAG, and source-traced data."
+    },
+    "permission": {
+      "restricted_commercial_data": "This request requires restricted commercial-data permissions. I cannot disclose cost, margin, supplier payment terms, sales velocity, depletion, allocation, or reorder-decision data with the current authorization. I can still answer with permitted retail price, stock, and product fields."
+    }
+  },
+  "chat_templates": {
+    "none_recorded": "none recorded",
+    "generation_fallback": "I temporarily could not generate a complete answer because the model request failed. I will not turn raw source snippets into an answer. Please try again, or narrow the question to one brand, category, model year, or inventory condition.",
+    "sections": {
+      "verified": "## Verified from the system",
+      "recommendation": "## Reasoned recommendation",
+      "missing": "## Missing / not verified",
+      "next_data": "## Next data needed",
+      "current_source_trail": "## Current source trail",
+      "current_candidates": "## Current candidates / evidence",
+      "current_evidence": "## Current evidence"
+    },
+    "source_trace": {
+      "route": "- Query route: {route}",
+      "rejected": "- Retrieval rejection/gap reasons: {rejected}",
+      "recommendation": "Use this as an audit trail for what the system could inspect now. It is not a substitute for missing page, row, or authorized-source metadata.",
+      "missing": "- Any source, page, row, or API endpoint not listed above is not verified for this answer.",
+      "next_data": "- Re-run after the target answer has citations, or ingest the missing source metadata required for exact traceability."
+    },
+    "inventory_gap": {
+      "verified": "I can use the currently retrievable the system product-inventory-backed items as the verified layer for stock, SKU, and price facts.",
+      "recommendation": "For a mixed outdoor equipment bundle, prioritize diversity across brand, category, use case, and fit. Keep the verified inventory facts separate from this recommendation logic.",
+      "no_candidate_row": "| No product-inventory-backed candidate in this retrieval path | - | Use the Product Inventory recommendation route for live inventory. |",
+      "missing": "- Any item not backed by Product Inventory proof should not be treated as currently sellable inventory.",
+      "next_data": "- Re-run through the Product Inventory recommendation route if a fixed item count, price ceiling, or stock policy is required."
+    },
+    "general_gap": {
+      "verified": "the system does not have enough exact evidence to fully verify every requested claim, but it can still provide the current evidence trail and a bounded recommendation.",
+      "recommendation": "Use the verified layer above for factual claims. Treat broader business guidance as reasoning, not as a verified database fact.",
+      "reason": "- Gap reason: {reason}",
+      "next_data": "- Add the missing authorized source rows, Product Inventory fields, or source traces if exact verification is required."
+    },
+    "business_framework": {
+      "verified": "- Product Inventory did not return the requested business metric fields for {subject}: {missing}.",
+      "no_invent": "- I will not invent sales velocity, depletion, allocation, order history, cost, or margin.",
+      "recommendation_maintain": "- Use a conservative maintain / monitor stance until sell-through or order-history evidence is available.",
+      "recommendation_increase": "- Consider a conditional increase only when current stock is low, review quality is strong, and recent depletion confirms demand.",
+      "recommendation_decrease": "- Consider decrease only when stock is high and sell-through remains weak after promotion or client outreach.",
+      "requested_missing": "- Requested fields not verified: {requested}.",
+      "no_next_order": "- No next-order quantity is verified from the current Product Inventory response.",
+      "next_data": "- Add authorized order history, depletion/sell-through, allocation, and supplier lead-time fields to Product Inventory or the business metrics source."
+    },
+    "model_unavailable": "The configured AI model ({model}) is not available to this OpenAI project. Set OPENAI_CHAT_MODEL or OPENAI_FALLBACK_CHAT_MODEL to a model this project can access, then try again."
+  },
+  "source_hierarchy": {
+    "rule": {
+      "current_product": "- For current product facts, current ERP/CERP product data controls over older references, generic market pages, and non-operational commentary.",
+      "official_product": "- For brand-owned current facts, a newer brand website or official brand material controls over older references.",
+      "review_conflict": "- For review conflicts, do not collapse two notes into one score. Prefer the source with complete authorized metadata for the requested claim, and show both if both are authorized.",
+      "reference_context": "- Older references remain useful for historical and background context, but should not override live SKU, stock, price, availability, packaging, or current product naming.",
+      "recommendation": "Use the newest operational source for sellable product facts, then use references, review rows, or public market context as secondary context. If Product Inventory and official brand material conflict, show both traces and treat Product Inventory as the operational source for inventory/price while treating the brand source as the descriptive source.",
+      "missing": "- This response gives the source hierarchy rule. It does not assert a specific SKU, public market price, review score, or page example unless a current Product Inventory row, brand page, licensed review row, market source, or reference trace is supplied.",
+      "next_data": "- Provide or retrieve the conflicting Product Inventory row, brand URL, licensed review row, public market source, and reference trace to produce a case-specific audit example."
+    }
+  },
+  "system": {
+    "already_logged_in": "Already logged in. Use {lo} to sign out.",
+    "not_logged_in": "You are not logged in yet. Use {l} to log in.",
+    "admin_required": "Admin role required to view this panel."
+  }
+}
