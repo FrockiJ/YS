@@ -91,11 +91,23 @@ def _normalize_username(value: str | None) -> str:
     return str(value or "").strip().lower()
 
 
+def _normalize_email(value: str | None) -> str:
+    return str(value or "").strip().lower()
+
+
 async def _get_user_by_username_ci(session, username: str):
     normalized = _normalize_username(username)
     if not normalized:
         return None
     result = await session.execute(select(User).where(func.lower(User.username) == normalized))
+    return result.scalar_one_or_none()
+
+
+async def _get_user_by_email_ci(session, email: str):
+    normalized = _normalize_email(email)
+    if not normalized:
+        return None
+    result = await session.execute(select(User).where(func.lower(User.email) == normalized))
     return result.scalar_one_or_none()
 
 
@@ -106,8 +118,12 @@ async def _ensure_seed_user(*, username: str, password: str, role: str, email: s
         return
 
     async with SessionLocal() as session:
+        normalized_email = _normalize_email(email) or None
         existing = await _get_user_by_username_ci(session, username)
-        normalized_email = str(email or "").strip().lower() or None
+        if existing is None and normalized_email:
+            # The local UAT admin can be renamed through backend.env while
+            # retaining its unique email and all existing relationships.
+            existing = await _get_user_by_email_ci(session, normalized_email)
         if existing:
             changed = False
             if existing.username != username:
