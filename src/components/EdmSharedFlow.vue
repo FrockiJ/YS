@@ -675,11 +675,14 @@ watch(
 
     <footer class="edm-v1__disclaimer">
       <div class="edm-v1__disclaimer-row">
-        <img
-          class="edm-v1__disclaimer-image"
-          src="@/assets/edm-Disclaimer.svg"
-          alt=""
-        />
+        <svg class="edm-v1__disclaimer-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m3 19 5.2-8.2L12 16l2.7-4.2L21 19H3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          <path d="m8.2 10.8 2-3.2 1.8 2.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div>
+          <strong>登山安全提醒</strong>
+          <p>登山前請確認官方天氣、步道及道路公告；依天候、路況與個人能力準備裝備，並告知同行者行程。</p>
+        </div>
       </div>
     </footer>
   </main>

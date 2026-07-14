@@ -3,12 +3,11 @@ const appendIfPresent = (payload, key, value) => {
 }
 
 /**
- * Keep QuoteView on the shared /chat HTTP contract while explicitly retaining
- * the quote-specific backend route and its continuity/action payload.
+ * Keep QuoteView on the shared /chat HTTP contract while retaining its
+ * continuity/action payload.
  */
 export const buildQuoteChatRequest = ({
   message,
-  outputType = 'quote_list',
   conversationId,
   project,
   lang,
@@ -19,7 +18,6 @@ export const buildQuoteChatRequest = ({
 }) => {
   const payload = {
     message,
-    output_type: outputType,
     conversation_id: conversationId,
     project,
     lang,

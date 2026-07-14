@@ -51,7 +51,7 @@ test('does not misclassify a model-access 403 as an OpenAI rate limit', () => {
   assert.equal(normalizeChatAnswerPayload(response).text, response.answer.text)
 })
 
-test('preserves QuoteView quote_list and follow-up fields on the shared chat contract', () => {
+test('keeps QuoteView on the shared general chat contract with follow-up fields', () => {
   const payload = buildQuoteChatRequest({
     message: '請產生報價單',
     conversationId: 'conversation-1',
@@ -62,7 +62,7 @@ test('preserves QuoteView quote_list and follow-up fields on the shared chat con
     urlInputs: ['https://example.test/item'],
   })
 
-  assert.equal(payload.output_type, 'quote_list')
+  assert.equal(Object.hasOwn(payload, 'output_type'), false)
   assert.equal(payload.followup_action, 'create_quote')
   assert.equal(payload.followup_action_source, 'quote_action')
   assert.deepEqual(payload.url_inputs, ['https://example.test/item'])

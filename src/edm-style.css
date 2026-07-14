@@ -313,7 +313,8 @@
 .edm-v1__disclaimer-row {
   display: flex;
   align-items: center;
-  gap: 18px;
+  width: 100%;
+  gap: 12px;
 }
 
 .edm-v1__dot {
@@ -323,10 +324,9 @@
   background: #ffffff;
 }
 
-.edm-v1__disclaimer-image {
-  max-width: 100%;
-  height: auto;
-}
+.edm-v1__disclaimer-icon { width: 28px; height: 28px; flex: 0 0 auto; color: #1f7a4d; }
+.edm-v1__disclaimer strong { display: block; color: #1b5e3d; font-size: 13px; letter-spacing: 0; }
+.edm-v1__disclaimer p { margin: 3px 0 0; color: #5e7567; font-size: 12px; font-weight: 400; letter-spacing: 0; line-height: 1.55; }
 
 .edm-confirm-top {
   display: flex;

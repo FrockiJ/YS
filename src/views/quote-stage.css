@@ -202,10 +202,6 @@
   gap: 8px;
 }
 
-.quote-view-shell .quote-stage .quote-chat > .chat-composer .chat-dropdown {
-  min-width: 0;
-}
-
 .quote-view-shell .quote-stage .quote-chat > .chat-composer .chat-composer__send {
   margin-left: auto;
 }

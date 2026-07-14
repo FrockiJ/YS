@@ -86,8 +86,6 @@ const QUOTE_PENDING_COMPOSE_KEY = 'ys-quote-pending-compose'
 const QUOTE_CHAT_HANDOFF_KEY = 'ys-quote-chat-handoff'
 const QUOTE_CHATUI_RETURN_KEY = 'ys-quote-chatui-return'
 const QUOTE_SHOW_GENERATED_KEY = 'ys-quote-show-generated'
-const CHAT_SELECTED_OUTPUT_TAB_KEY = 'ys-chat-selected-output-tab'
-const QUOTE_OUTPUT_TYPE_VALUE = 'quote_list'
 const QUOTE_TAB_IDS = ['report', 'gallery', 'slides', 'social']
 const EDM_ITEMS_KEY = 'ys-edm-items'
 const EDM_CONTEXT_KEY = 'ys-edm-context'
@@ -584,8 +582,6 @@ const filterTabs = computed(() => [
 ])
 const activeFilterTab = ref('report')
 const isSlidesTab = computed(() => activeFilterTab.value === 'slides')
-const composerOutputTypes = computed(() => filterTabs.value.map((tab) => tab.label))
-const selectedOutputType = ref('')
 const isConsumingPendingCompose = ref(false)
 
 const activeRowMenu = ref(null)
@@ -1153,26 +1149,6 @@ const normalizeQuoteTab = (value) => {
   return QUOTE_TAB_IDS.includes(tab) ? tab : 'report'
 }
 
-const loadSelectedOutputTabId = () => {
-  if (typeof window === 'undefined') return 'report'
-  try {
-    const raw = window.sessionStorage.getItem(CHAT_SELECTED_OUTPUT_TAB_KEY)
-    return normalizeQuoteTab(raw)
-  } catch (error) {
-    console.warn('Unable to load selected output tab', error)
-    return 'report'
-  }
-}
-
-const persistSelectedOutputTabId = (tabId) => {
-  if (typeof window === 'undefined') return
-  try {
-    window.sessionStorage.setItem(CHAT_SELECTED_OUTPUT_TAB_KEY, normalizeQuoteTab(tabId))
-  } catch (error) {
-    console.warn('Unable to persist selected output tab', error)
-  }
-}
-
 const persistQuoteChatUiReturnPayload = (payload) => {
   if (typeof window === 'undefined') return
   try {
@@ -1201,17 +1177,6 @@ const persistQuoteChatUiReturnPayload = (payload) => {
     console.warn('Unable to persist quote ChatUI return payload', error)
   }
 }
-
-const findQuoteTabById = (tabId) =>
-  filterTabs.value.find((tab) => tab.id === normalizeQuoteTab(tabId)) || filterTabs.value[0] || null
-
-const syncSelectedOutputTypeFromTab = (tabId) => {
-  const tab = findQuoteTabById(tabId)
-  selectedOutputType.value = tab?.label || ''
-}
-
-const resolveQuoteTabIdFromLabel = (label) =>
-  filterTabs.value.find((tab) => tab.label === label)?.id || null
 
 const syncFilterTabFromRoute = () => {
   activeFilterTab.value = normalizeQuoteTab(route.query.tab)
@@ -1252,20 +1217,6 @@ const setActiveFilterTab = (value) => {
   }
 }
 
-const resolveSelectedQuoteOutput = () => {
-  const selectedTabId =
-    resolveQuoteTabIdFromLabel(selectedOutputType.value) || loadSelectedOutputTabId()
-  return filterTabs.value.find((tab) => tab.id === normalizeQuoteTab(selectedTabId)) || null
-}
-
-const handleComposerOutputTypeSelect = (label) => {
-  selectedOutputType.value = label
-  const tabId = resolveQuoteTabIdFromLabel(label)
-  if (tabId) {
-    persistSelectedOutputTabId(tabId)
-  }
-}
-
 const loadPendingQuoteCompose = () => {
   if (typeof window === 'undefined') return null
   try {
@@ -1295,7 +1246,6 @@ const loadPendingQuoteCompose = () => {
             surfaceOrigin: parsed?.surface_origin || 'chat-ui',
           })
         : null,
-      output_type: parsed.output_type || QUOTE_OUTPUT_TYPE_VALUE,
     }
   } catch (error) {
     console.warn('Unable to load pending quote compose payload', error)
@@ -1315,8 +1265,6 @@ const consumePendingQuoteCompose = async () => {
   isConsumingPendingCompose.value = true
   try {
     activeFilterTab.value = pending.tab
-    syncSelectedOutputTypeFromTab(pending.tab)
-    persistSelectedOutputTabId(pending.tab)
     composerValue.value = pending.message
     quoteContext.value = {
       ...quoteContext.value,
@@ -1331,7 +1279,6 @@ const consumePendingQuoteCompose = async () => {
       message: pending.message,
       displayMessage: pending.display_message,
       lang: pending.lang,
-      outputType: pending.output_type,
       attachment: pending.attachment,
       urlInputs: pending.url_inputs,
       followupAction: pending.followup_action,
@@ -1655,8 +1602,6 @@ const fetchQuoteConversation = async (context, options = {}) => {
 const applyQuoteChatHandoff = (handoff) => {
   if (!handoff) return false
   activeFilterTab.value = handoff.tab
-  syncSelectedOutputTypeFromTab(handoff.tab)
-  persistSelectedOutputTabId(handoff.tab)
   quoteContext.value = {
     ...(handoff.project ? { project: handoff.project } : {}),
     ...(handoff.conversation_id ? { conversation_id: handoff.conversation_id } : {}),
@@ -1876,7 +1821,6 @@ const handleQuoteFollowupAction = async (message, action) => {
   await submitQuoteChat({
     message: prompt,
     lang: quoteContext.value?.lang || DEFAULT_QUOTE_LANG,
-    outputType: QUOTE_OUTPUT_TYPE_VALUE,
     followupAction: actionId,
     followupActionSource: 'button',
   })
@@ -1936,16 +1880,12 @@ watch(
 const submitQuoteChat = async (options = {}) => {
   const value = (options.message ?? composerValue.value ?? '').trim()
   if (!value || isSending.value) return
-  const selectedQuoteOutput = resolveSelectedQuoteOutput()
   const lang = persistQuoteLanguage(resolveQuoteChatLanguage(value, options.lang))
   persistQuoteContext({
     ...quoteContext.value,
     surface_origin: quoteContext.value?.surface_origin || 'quote-chat',
     lang,
   })
-  if (selectedQuoteOutput) {
-    setActiveFilterTab(selectedQuoteOutput.id)
-  }
   isSending.value = true
   startQuoteProgressHints(lang)
   chatError.value = ''
@@ -1956,7 +1896,6 @@ const submitQuoteChat = async (options = {}) => {
     const attachmentMeta = options.attachment || (await uploadAttachmentMetaIfNeeded())
     const payload = buildQuoteChatRequest({
       message: value,
-      outputType: options.outputType || QUOTE_OUTPUT_TYPE_VALUE,
       conversationId: quoteContext.value?.conversation_id,
       project: quoteContext.value?.project,
       lang,
@@ -2475,7 +2414,6 @@ onMounted(() => {
     window.addEventListener('resize', updateWidth)
   }
   resetQuoteDestinationPreference()
-  syncSelectedOutputTypeFromTab(loadSelectedOutputTabId())
   syncFilterTabFromRoute()
   syncBundleColumn()
   bootstrapQuoteView()
@@ -2635,9 +2573,6 @@ onBeforeUnmount(() => {
 
                 <ChatComposer
                   v-model="composerValue"
-                  :output-types="composerOutputTypes"
-                  :selected-output-type="selectedOutputType"
-                  :output-placeholder="t('quote.filters.output_type')"
                   :attachments="uploadAttachments"
                   :upload-warning="uploadWarning"
                   :show-attachments="true"
@@ -2646,7 +2581,6 @@ onBeforeUnmount(() => {
                   :placeholder="t('quote.placeholders.compose')"
                   :send-aria-label="t('quote.aria.send_message')"
                   @submit="submitQuoteChat"
-                  @select-output-type="handleComposerOutputTypeSelect"
                   @upload-click="handleComposerUploadClick"
                   @add-urls="handleComposerUrlsAdded"
                   @remove-attachment="removeComposerAttachment"

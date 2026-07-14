@@ -757,21 +757,8 @@ const QUOTE_PENDING_COMPOSE_KEY = 'ys-quote-pending-compose'
 const QUOTE_CHAT_HANDOFF_KEY = 'ys-quote-chat-handoff'
 const QUOTE_CHATUI_RETURN_KEY = 'ys-quote-chatui-return'
 const QUOTE_SHOW_GENERATED_KEY = 'ys-quote-show-generated'
-const OUTPUT_TYPE_QUOTE_VALUE = 'quote_list'
 const QUOTE_DEFAULT_TAB = 'report'
 const SIDEBAR_DESKTOP_WIDTH = 104
-const quoteOutputDefinitions = computed(() => [
-  { value: OUTPUT_TYPE_QUOTE_VALUE, label: t('home.output_types.quote_list'), tab: 'report' },
-  { value: 'gallery', label: t('home.output_types.guide_list'), tab: 'gallery' },
-  { value: 'slides', label: t('home.output_types.text_message'), tab: 'slides' },
-  { value: 'social', label: t('home.output_types.store_recommendation'), tab: 'social' },
-])
-const outputTypes = computed(() => quoteOutputDefinitions.value.map((item) => item.label))
-const selectedOutputValue = ref('')
-const selectedOutputType = computed(
-  () => quoteOutputDefinitions.value.find((item) => item.value === selectedOutputValue.value)?.label || ''
-)
-const chatOutputPlaceholder = computed(() => t('home.output_types.placeholder'))
 const QUOTE_STORAGE_KEY = 'ys-quote-items'
 const QUOTE_CONTEXT_KEY = 'ys-quote-context'
 const isChatActive = ref(false)
@@ -2811,75 +2798,7 @@ const ensureConversationLabelForNewChat = (question) => {
 const submitPrompt = async (prompt) => {
   const value = (prompt || '').trim()
   if (!value || isSending.value) return
-  const selectedQuoteOutput = resolveSelectedQuoteOutput()
   const lang = (languagePreference.value = detectQuoteLanguage(value))
-  const quoteContinuity = activeQuoteContinuity.value
-  if (selectedQuoteOutput) {
-    const attachmentMeta = await uploadAttachmentMetaIfNeeded()
-    const urlInputs = collectComposerUrlInputs()
-    const pendingPayload = buildQuotePendingPayload(value, urlInputs)
-    const projectPayload = activeProjectPayload.value?.id
-      ? {
-          ...activeProjectPayload.value,
-          label:
-            activeProjectPayload.value.label ||
-            conversationTitle.value ||
-            t('home.defaults.project_fallback'),
-        }
-      : null
-    clearStoredQuoteState()
-    persistQuoteChatHandoff({
-      conversation_id: activeConversationId.value || null,
-      project: projectPayload,
-      thread: buildQuoteThreadSnapshot(),
-      pending_message: pendingPayload.displayMessage,
-      raw_message: pendingPayload.rawMessage,
-      lang,
-      surface_origin: 'chat-ui',
-      attachment: attachmentMeta,
-      url_inputs: pendingPayload.urlInputs,
-      quote_continuity:
-        quoteContinuity ||
-        extractQuoteContinuityPayload(
-          { intent: 'QUOTE_LIST' },
-          {
-            conversationId: activeConversationId.value || null,
-            project: projectPayload,
-            lang,
-            surfaceOrigin: 'chat-ui',
-          }
-        ),
-      tab: selectedQuoteOutput.tab,
-    })
-    persistPendingQuoteCompose({
-      message: pendingPayload.rawMessage,
-      display_message: pendingPayload.displayMessage,
-      tab: selectedQuoteOutput.tab,
-      project: projectPayload,
-      conversation_id: activeConversationId.value || null,
-      lang,
-      surface_origin: 'chat-ui',
-      attachment: attachmentMeta,
-      url_inputs: pendingPayload.urlInputs,
-      quote_continuity:
-        quoteContinuity ||
-        extractQuoteContinuityPayload(
-          { intent: 'QUOTE_LIST' },
-          {
-            conversationId: activeConversationId.value || null,
-            project: projectPayload,
-            lang,
-            surfaceOrigin: 'chat-ui',
-          }
-        ),
-    })
-    clearComposerAttachments()
-    selectedOutputValue.value = ''
-    messageInput.value = ''
-    composerValue.value = ''
-    router.push({ name: 'quote', query: { tab: selectedQuoteOutput.tab } }).catch(() => {})
-    return
-  }
   isHistoryPreview.value = false
   isChatActive.value = true
   isSending.value = true
@@ -2897,7 +2816,6 @@ const submitPrompt = async (prompt) => {
       create_new_conversation: !activeConversationId.value,
       lang,
       ignore_history_before_today: ignoreHistoryBeforeToday.value,
-      output_type: selectedQuoteOutput ? OUTPUT_TYPE_QUOTE_VALUE : undefined,
     }
     if (activeProjectPayload.value?.id) {
       payload.project = {
@@ -3880,11 +3798,6 @@ const confirmPermissionModal = async () => {
   }
 }
 
-const resolveSelectedQuoteOutput = () => {
-  const selected = quoteOutputDefinitions.value.find((item) => item.value === selectedOutputValue.value) || null
-  return selected?.value === OUTPUT_TYPE_QUOTE_VALUE ? selected : null
-}
-
 const persistPendingQuoteCompose = (payload) => {
   if (typeof window === 'undefined') return
   try {
@@ -3910,7 +3823,6 @@ const persistPendingQuoteCompose = (payload) => {
               surfaceOrigin: payload?.surface_origin || 'chat-ui',
             })
           : null,
-        output_type: OUTPUT_TYPE_QUOTE_VALUE,
         created_at: new Date().toISOString(),
       })
     )
@@ -4004,11 +3916,6 @@ const handleModalConfirm = async () => {
 }
 
 const avatarColor = (initial) => avatarPalette[initial] || '#263847'
-
-const selectOutputType = (type) => {
-  const selected = quoteOutputDefinitions.value.find((item) => item.label === type) || null
-  selectedOutputValue.value = selected?.value || ''
-}
 
 const triggerSnackbar = () => {
   if (snackbarTimer.value) {
@@ -4672,9 +4579,6 @@ onBeforeUnmount(() => {
               :class="['action-rail__composer']"
               v-model="messageInput"
               :placeholder="CHAT_COMPOSER_PLACEHOLDER"
-              :output-types="outputTypes"
-              :selected-output-type="selectedOutputType"
-              :output-placeholder="chatOutputPlaceholder"
               :attachments="uploadAttachments"
               :upload-warning="uploadWarning"
               :show-attachments="true"
@@ -4684,7 +4588,6 @@ onBeforeUnmount(() => {
               :upload-aria-label="t('home.aria.upload_file')"
               :send-aria-label="t('home.aria.send_message')"
               @submit="handleTaskSubmit"
-              @select-output-type="selectOutputType"
               @upload-click="handleComposerUploadClick"
               @add-urls="handleComposerUrlsAdded"
               @remove-attachment="removeComposerAttachment"
@@ -5404,9 +5307,6 @@ onBeforeUnmount(() => {
             <ChatComposer
               v-model="composerValue"
               :placeholder="CHAT_COMPOSER_PLACEHOLDER"
-              :output-types="outputTypes"
-              :selected-output-type="selectedOutputType"
-              :output-placeholder="chatOutputPlaceholder"
               :attachments="uploadAttachments"
               :upload-warning="uploadWarning"
               :show-attachments="true"
@@ -5416,7 +5316,6 @@ onBeforeUnmount(() => {
               :upload-aria-label="t('home.aria.upload_file')"
               :send-aria-label="t('home.aria.send_message')"
               @submit="handleComposerSubmit"
-              @select-output-type="selectOutputType"
               @upload-click="handleComposerUploadClick"
               @add-urls="handleComposerUrlsAdded"
               @remove-attachment="removeComposerAttachment"
@@ -6274,10 +6173,6 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.chat-dropdown {
-  margin-left: 0;
 }
 
 .chat-composer__field {

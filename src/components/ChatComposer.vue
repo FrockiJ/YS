@@ -1,7 +1,7 @@
 ﻿<script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ChevronDown, Link2, Paperclip, SendHorizontal, UploadCloud } from 'lucide-vue-next'
+import { Link2, Paperclip, SendHorizontal, UploadCloud } from 'lucide-vue-next'
 
 const { t } = useI18n()
 
@@ -11,18 +11,6 @@ const props = defineProps({
     default: '',
   },
   placeholder: {
-    type: String,
-    default: '',
-  },
-  outputTypes: {
-    type: Array,
-    default: () => [],
-  },
-  selectedOutputType: {
-    type: String,
-    default: '',
-  },
-  outputPlaceholder: {
     type: String,
     default: '',
   },
@@ -63,7 +51,6 @@ const props = defineProps({
 const emit = defineEmits([
   'update:modelValue',
   'submit',
-  'selectOutputType',
   'uploadClick',
   'removeAttachment',
   'addUrls',
@@ -75,26 +62,18 @@ const localeText = (key) => {
 }
 
 const internalValue = ref(props.modelValue || '')
-const isOutputDropdownOpen = ref(false)
-const isOutputDropdownOpenUpward = ref(false)
 const isSourceMenuOpen = ref(false)
 const isInputComposing = ref(false)
 const urlDraft = ref('')
 const textareaRef = ref(null)
-const outputDropdownRef = ref(null)
-const outputDropdownMenuRef = ref(null)
 const sourceMenuRef = ref(null)
 const urlInputRef = ref(null)
-const DROPDOWN_VIEWPORT_GAP = 12
 
 const resolvedUploadAriaLabel = computed(
   () => props.uploadAriaLabel || localeText('chat_composer.aria.upload')
 )
 const resolvedSendAriaLabel = computed(
   () => props.sendAriaLabel || localeText('chat_composer.aria.send')
-)
-const resolvedOutputPlaceholder = computed(
-  () => props.outputPlaceholder || localeText('chat_composer.output_placeholder')
 )
 const addFileLabel = computed(() => localeText('chat_composer.actions.add_file'))
 const addUrlLabel = computed(() => localeText('chat_composer.actions.add_url'))
@@ -163,44 +142,9 @@ const handleTextareaKeydown = (event) => {
   handleSubmit()
 }
 
-const handleSelectOutputType = (type) => {
-  emit('selectOutputType', type)
-  isOutputDropdownOpen.value = false
-}
-
-const updateDropdownDirection = () => {
-  if (typeof window === 'undefined') return
-  const dropdownEl = outputDropdownRef.value
-  const menuEl = outputDropdownMenuRef.value
-  if (!dropdownEl || !menuEl) {
-    isOutputDropdownOpenUpward.value = false
-    return
-  }
-
-  const dropdownRect = dropdownEl.getBoundingClientRect()
-  const menuRect = menuEl.getBoundingClientRect()
-  const spaceAbove = dropdownRect.top
-  const spaceBelow = window.innerHeight - dropdownRect.bottom
-
-  isOutputDropdownOpenUpward.value =
-    spaceBelow < menuRect.height + DROPDOWN_VIEWPORT_GAP && spaceAbove > spaceBelow
-}
-
-const toggleOutputDropdown = () => {
-  isOutputDropdownOpen.value = !isOutputDropdownOpen.value
-  if (isOutputDropdownOpen.value) {
-    isSourceMenuOpen.value = false
-  }
-}
-
-const closeOutputDropdown = () => {
-  isOutputDropdownOpen.value = false
-}
-
 const toggleSourceMenu = async () => {
   isSourceMenuOpen.value = !isSourceMenuOpen.value
   if (isSourceMenuOpen.value) {
-    closeOutputDropdown()
     await nextTick()
     urlInputRef.value?.focus()
   }
@@ -230,19 +174,10 @@ const handleRemoveAttachment = (id) => {
 
 const handleViewportChange = () => {
   resizeTextarea()
-  if (!isOutputDropdownOpen.value) return
-  updateDropdownDirection()
 }
 
 const handleDocumentPointerDown = (event) => {
   const target = event?.target
-  if (
-    isOutputDropdownOpen.value &&
-    outputDropdownRef.value &&
-    !outputDropdownRef.value.contains(target)
-  ) {
-    closeOutputDropdown()
-  }
   if (
     isSourceMenuOpen.value &&
     sourceMenuRef.value &&
@@ -251,15 +186,6 @@ const handleDocumentPointerDown = (event) => {
     closeSourceMenu()
   }
 }
-
-watch(isOutputDropdownOpen, async (open) => {
-  if (!open) {
-    isOutputDropdownOpenUpward.value = false
-    return
-  }
-  await nextTick()
-  updateDropdownDirection()
-})
 
 onMounted(() => {
   nextTick(() => {
@@ -396,26 +322,6 @@ onBeforeUnmount(() => {
             </div>
           </div>
         </div>
-        <div
-          ref="outputDropdownRef"
-          class="dropdown chat-dropdown"
-          :class="{ 'is-open': isOutputDropdownOpen, 'is-open-upward': isOutputDropdownOpenUpward }"
-        >
-          <button type="button" @click="toggleOutputDropdown">
-            <span class="dropdown-value">{{ selectedOutputType || resolvedOutputPlaceholder }}</span>
-            <ChevronDown :size="16" :stroke-width="2" aria-hidden="true" />
-          </button>
-          <div v-if="isOutputDropdownOpen" ref="outputDropdownMenuRef" class="dropdown-menu">
-            <button
-              v-for="type in outputTypes"
-              :key="`chat-${type}`"
-              type="button"
-              @click="handleSelectOutputType(type)"
-            >
-              {{ type }}
-            </button>
-          </div>
-        </div>
       </div>
       <button
         :class="['chat-composer__send', { 'is-enabled': canSubmit }]"
@@ -466,12 +372,8 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 
-.chat-composer.action-rail__composer .chat-dropdown {
-  order: 3;
-}
-
 .chat-composer.action-rail__composer .chat-composer__send {
-  order: 4;
+  order: 3;
   margin-left: 0;
 }
 
@@ -622,15 +524,6 @@ onBeforeUnmount(() => {
 .chat-composer__url-actions .primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.chat-dropdown {
-  margin-left: 0;
-}
-
-.chat-dropdown.is-open-upward .dropdown-menu {
-  top: auto;
-  bottom: calc(100% + 8px);
 }
 
 .chat-composer__field {

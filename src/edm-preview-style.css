@@ -687,3 +687,100 @@
     height: 64px;
   }
 }
+
+/* Internal /edm preview: match the UAT green-and-white management workspace. */
+.edm-preview-page {
+  min-height: 100vh;
+  padding: 24px 0 40px;
+  background: #f3f8f4;
+  color: #173c2e;
+}
+
+.edm-preview-page__topbar {
+  width: min(1320px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 16px 20px;
+  box-sizing: border-box;
+  border: 1px solid #dbe7df;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(22, 73, 50, .07);
+}
+
+.edm-preview-page__title { color: #173c2e; }
+.edm-preview-page__actions { flex-wrap: wrap; }
+.edm-preview-page__button { min-height: 42px; border-radius: 10px; font-weight: 700; }
+.edm-preview-page__button--ghost { border-color: #c8dbce; color: #1b5e3d; background: #fff; }
+.edm-preview-page__button--primary { width: auto; min-width: 116px; height: 42px; border: 1px solid #1f7a4d; background: #1f7a4d; box-shadow: 0 7px 14px rgba(31, 122, 77, .18); }
+.edm-preview-page__close { border: 1px solid #dbe7df; background: #f8fbf8; color: #4a7058; }
+
+.edm-preview-page__canvas {
+  width: min(1320px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 20px 0 0;
+  box-sizing: border-box;
+}
+
+.edm-preview-shell, .edm-state-card { width: 100%; }
+.edm-preview-shell {
+  overflow: hidden;
+  border: 1px solid #dbe7df;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 16px 32px -10px rgba(22, 73, 50, .15);
+}
+
+.edm-state-card { border-color: #dbe7df; box-shadow: 0 12px 26px rgba(22, 73, 50, .08); }
+.edm-state-card h2 { color: #173c2e; }
+.edm-state-card p { color: #62776b; }
+.edm-state-card__button { background: #1f7a4d; }
+
+.edm-banner {
+  min-height: 88px;
+  padding: 18px 32px;
+  border-radius: 0;
+  background: #1b5e3d;
+}
+.edm-banner__meta-item { border-color: rgba(255, 255, 255, .25); }
+.edm-hero { margin: 28px 32px 18px; color: #173c2e; }
+
+.edm-table-card {
+  margin: 0 32px 32px;
+  border-color: #dbe7df;
+  box-shadow: 0 10px 22px rgba(22, 73, 50, .06);
+}
+.edm-table thead th { background: #eff8f1; color: #466b55; border-bottom-color: #dbe7df; }
+.edm-table tbody td { color: #3f5b4a; border-bottom-color: #e5eee7; }
+.edm-table tbody tr:hover { background: #fbfdfb; }
+.edm-table__product a, .edm-table__product-text { color: #1b6c45; }
+.edm-table .is-quote { color: #173c2e; }
+.edm-table__bundle-toggle, .edm-table__bundle-status { border-color: #c8dbce; background: #eff8f1; color: #1b5e3d; }
+.edm-table__bundle-toggle:hover { border-color: #89b89a; background: #e3f2e7; }
+.edm-table__quote-action { border-color: #c8dbce; color: #1b5e3d; }
+.edm-table__quote-action:hover { border-color: #89b89a; background: #eff8f1; }
+
+.edm-share-modal__card { border: 1px solid #dbe7df; box-shadow: 0 18px 40px rgba(22, 73, 50, .18); }
+.edm-share-modal__header { border-bottom-color: #dbe7df; }
+.edm-share-modal__header h3, .edm-share-modal__link-title { color: #173c2e; }
+.edm-share-modal__token-input { border-color: #7fa58c; }
+.edm-share-modal__token { background: #e3f2e7; color: #1b5e3d; }
+.edm-share-modal__token button { background: rgba(31, 122, 77, .45); }
+.edm-share-modal__send { background: #1f7a4d; }
+.edm-share-modal__link-row { background: #f3f8f4; }
+.edm-share-modal__copy { color: #1b6c45; }
+.edm-snackbar { background: #173c2e; box-shadow: 0 8px 22px rgba(22, 73, 50, .22); }
+
+@media (max-width: 720px) {
+  .edm-preview-page { padding: 12px 0 24px; }
+  .edm-preview-page__topbar, .edm-preview-page__canvas { width: calc(100% - 24px); }
+  .edm-preview-page__topbar { align-items: stretch; flex-direction: column; padding: 14px; }
+  .edm-preview-page__actions { width: 100%; }
+  .edm-preview-page__button { flex: 1 1 auto; justify-content: center; }
+  .edm-preview-page__close { flex: 0 0 42px; }
+  .edm-banner { padding: 16px 18px; }
+  .edm-hero { margin: 22px 18px 16px; }
+  .edm-table-card { margin: 0 12px 18px; }
+  .edm-share-modal__card { width: calc(100vw - 24px); height: auto; min-height: 278px; left: 12px; top: 50%; transform: translateY(-50%); }
+  .edm-share-modal__compose { grid-template-columns: 1fr; }
+  .edm-share-modal__send { width: 100%; }
+}

@@ -1705,10 +1705,6 @@ body:hover::-webkit-scrollbar-thumb,
   flex: 0 0 auto;
 }
 
-.chat-dropdown {
-  min-width: 160px;
-}
-
 .chat-composer__send {
   border: none;
   background: none;
