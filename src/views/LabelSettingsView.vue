@@ -10,9 +10,10 @@ import emptyIllustration from '../assets/label_illustration_empty_content.svg'
 import AppSidebar from '../components/AppSidebar.vue'
 import AppTopBar from '../components/AppTopBar.vue'
 import PageHeader from '../components/PageHeader.vue'
+import LabelPreview from '../components/LabelPreview.vue'
 import { usePermissionSideMenu } from '../composables/usePermissionSideMenu'
 import { buildPrimaryNavItems, PRIMARY_NAV_ICON_IMAGES } from '../utils/appNavigation'
-import { renderPrintDocumentHtml as renderLabelPrintDocumentHtml } from '../print/labelPrintTemplate'
+import { renderLabelPrintDocumentHtml } from '../print/labelPrintTemplate'
 import {
   fetchLabelDescription,
   addPrintListItem,
@@ -343,17 +344,7 @@ const resolvePrintPriceText = (item) => {
 const buildPrintTemplatePanels = () =>
   printPanelsBySize.value.map((section) => ({
     size: section.size,
-    panels: section.panels.map((panelItems) =>
-      panelItems.map((item) => ({
-        brand: resolvePrintBrand(item),
-        name: resolvePrintName(item),
-        price: resolvePrintPriceText(item),
-        feature: resolvePrintFeature(item) || '-',
-        specification: resolvePrintSpecification(item),
-        category: resolvePrintCategory(item) || '-',
-        description: (item.description || '').slice(0, MAX_DESC),
-      }))
-    ),
+    panels: section.panels,
   }))
 
 const cleanupPrintIframe = (resetPrinting = true) => {
@@ -1290,18 +1281,7 @@ onBeforeUnmount(() => {
                   <span class="label-radio__label">{{ t('labelSettings.sizeSmall') }}</span>
                 </div>
                 <div class="label-size__preview" :class="{ 'has-preview': selectedProduct }">
-                  <div v-if="selectedProduct" class="label-preview label-preview--small">
-                    <div class="label-preview__bar"></div>
-                    <div class="label-preview__body">
-                      <div class="label-preview__brand">{{ resolveBrand(selectedProduct) }}</div>
-                      <div class="label-preview__name">{{ resolveProductName(selectedProduct) }}</div>
-                    </div>
-                    <div class="label-preview__meta">
-                      <div>• {{ resolveSpecification(selectedProduct) }}</div>
-                      <div>• {{ resolveCategory(selectedProduct) || '-' }}</div>
-                    </div>
-                    <div class="label-preview__price">{{ resolvePriceText(selectedProduct, 'small') }}</div>
-                  </div>
+                  <LabelPreview v-if="selectedProduct" :source="selectedProduct" size="small" :price-override="resolveSizePriceOverride('small')" />
                   <div v-else class="label-size__text">
                     <div class="label-size__value">{{ t('labelSettings.sizeSmallValue') }}</div>
                     <div class="label-size__desc">{{ t('labelSettings.sizeSmall') }}</div>
@@ -1327,19 +1307,7 @@ onBeforeUnmount(() => {
                   <span class="label-radio__label">{{ t('labelSettings.sizeMedium') }}</span>
                 </div>
                 <div class="label-size__preview" :class="{ 'has-preview': selectedProduct }">
-                  <div v-if="selectedProduct" class="label-preview label-preview--medium">
-                    <div class="label-preview__bar"></div>
-                    <div class="label-preview__body">
-                      <div class="label-preview__brand">{{ resolveBrand(selectedProduct) }}</div>
-                      <div class="label-preview__name">{{ resolveProductName(selectedProduct) }}</div>
-                    </div>
-                    <div class="label-preview__meta">
-                      <div>• {{ resolveFeature(selectedProduct) || '-' }}</div>
-                      <div>• {{ resolveSpecification(selectedProduct) }}</div>
-                      <div>• {{ resolveCategory(selectedProduct) || '-' }}</div>
-                    </div>
-                    <div class="label-preview__price">{{ resolvePriceText(selectedProduct, 'medium') }}</div>
-                  </div>
+                  <LabelPreview v-if="selectedProduct" :source="selectedProduct" size="medium" :price-override="resolveSizePriceOverride('medium')" />
                   <div v-else class="label-size__text">
                     <div class="label-size__value">{{ t('labelSettings.sizeMediumValue') }}</div>
                     <div class="label-size__desc">{{ t('labelSettings.sizeMedium') }}</div>
@@ -1365,40 +1333,7 @@ onBeforeUnmount(() => {
                   <span class="label-radio__label">{{ t('labelSettings.sizeLarge') }}</span>
                 </div>
                 <div class="label-size__preview" :class="{ 'has-preview': selectedProduct }">
-                  <div v-if="selectedProduct" class="label-preview label-preview--large">
-                    <div class="label-preview__bar"></div>
-                    <div class="label-preview__price">{{ resolvePriceText(selectedProduct, 'large') }}</div>
-                    <div class="label-preview__body">
-                      <div class="label-preview__brand">{{ resolveBrand(selectedProduct) }}</div>
-                      <div class="label-preview__name">{{ resolveProductName(selectedProduct) }}</div>
-                    </div>
-                    <div class="label-preview__details">
-                      <span class="label-preview__detail label-preview__detail--feature">
-                        {{ resolveFeature(selectedProduct) || '-' }}
-                      </span>
-                      <div class="label-preview__details-group">
-                        <span class="label-preview__divider"></span>
-                        <span class="label-preview__detail label-preview__detail--specification">
-                          {{ resolveSpecification(selectedProduct) }}
-                        </span>
-                        <span class="label-preview__divider"></span>
-                        <span class="label-preview__detail label-preview__detail--category">
-                          {{ resolveCategory(selectedProduct) || '-' }}
-                        </span>
-                      </div>
-                    </div>
-                    <div class="label-preview__description">
-                      <span v-if="isDescriptionLoading">
-                        {{ t('labelSettings.descriptionLoading') }}
-                      </span>
-                      <span v-else-if="descriptionText">
-                        {{ descriptionText }}
-                      </span>
-                      <span v-else>
-                        {{ t('labelSettings.descriptionEmpty') }}
-                      </span>
-                    </div>
-                  </div>
+                  <LabelPreview v-if="selectedProduct" :source="selectedProduct" size="large" :price-override="resolveSizePriceOverride('large')" :description="descriptionText" />
                   <div v-else class="label-size__text">
                     <div class="label-size__value">{{ t('labelSettings.sizeLargeValue') }}</div>
                     <div class="label-size__desc">{{ t('labelSettings.sizeLarge') }}</div>
@@ -1494,41 +1429,7 @@ onBeforeUnmount(() => {
                             </div>
                           </div>
                           <div class="label-print-card__preview">
-                            <div class="label-preview" :class="`label-preview--${item.size}`">
-                              <div class="label-preview__bar"></div>
-                              <div class="label-preview__price">{{ resolvePrintPriceText(item) }}</div>
-                              <div class="label-preview__body">
-                                <div class="label-preview__brand">{{ resolvePrintBrand(item) }}</div>
-                                <div class="label-preview__name">{{ resolvePrintName(item) }}</div>
-                              </div>
-                              <div v-if="item.size === 'small'" class="label-preview__meta">
-                                <div>• {{ resolvePrintSpecification(item) }}</div>
-                                <div>• {{ resolvePrintCategory(item) || '-' }}</div>
-                              </div>
-                              <div v-else-if="item.size === 'medium'" class="label-preview__meta">
-                                <div>• {{ resolvePrintFeature(item) || '-' }}</div>
-                                <div>• {{ resolvePrintSpecification(item) }}</div>
-                                <div>• {{ resolvePrintCategory(item) || '-' }}</div>
-                              </div>
-                              <div v-else class="label-preview__details">
-                                <span class="label-preview__detail label-preview__detail--feature">
-                                  {{ resolvePrintFeature(item) || '-' }}
-                                </span>
-                                <div class="label-preview__details-group">
-                                  <span class="label-preview__divider"></span>
-                                  <span class="label-preview__detail label-preview__detail--specification">
-                                    {{ resolvePrintSpecification(item) }}
-                                  </span>
-                                  <span class="label-preview__divider"></span>
-                                  <span class="label-preview__detail label-preview__detail--category">
-                                    {{ resolvePrintCategory(item) || '-' }}
-                                  </span>
-                                </div>
-                              </div>
-                              <div v-if="item.size === 'large'" class="label-preview__description">
-                                {{ (item.description || '').slice(0, MAX_DESC) }}
-                              </div>
-                            </div>
+                            <LabelPreview :source="item" :size="item.size" />
                           </div>
                         </article>
                       </div>
@@ -2619,6 +2520,21 @@ onBeforeUnmount(() => {
   align-items: flex-start;
 }
 
+.label-print-card__preview :deep(.label-preview-v2--small) {
+  width: 304px;
+  height: 206px;
+}
+
+.label-print-card__preview :deep(.label-preview-v2--medium) {
+  width: 390px;
+  height: 278px;
+}
+
+.label-print-card__preview :deep(.label-preview-v2--large) {
+  width: 600px;
+  height: 402px;
+}
+
 .label-print-card__preview .label-preview {
   border: 1px dashed rgba(145, 158, 171, 0.48);
   margin: 0;
@@ -3344,6 +3260,25 @@ onBeforeUnmount(() => {
   }
 
   .label-print-card__preview .label-preview--large {
+    min-height: 402px;
+  }
+
+  .label-print-card__preview :deep(.label-preview-v2--small),
+  .label-print-card__preview :deep(.label-preview-v2--medium),
+  .label-print-card__preview :deep(.label-preview-v2--large) {
+    width: 100%;
+    height: auto;
+  }
+
+  .label-print-card__preview :deep(.label-preview-v2--small) {
+    min-height: 206px;
+  }
+
+  .label-print-card__preview :deep(.label-preview-v2--medium) {
+    min-height: 278px;
+  }
+
+  .label-print-card__preview :deep(.label-preview-v2--large) {
     min-height: 402px;
   }
 

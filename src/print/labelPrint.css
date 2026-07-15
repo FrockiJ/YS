@@ -1,328 +1,41 @@
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-  background: #ffffff;
-  color: #102d47;
-  font-family: "Inter", "Noto Sans TC", sans-serif;
-}
-
-.print-sheet {
-  margin: 0 auto;
-  background: #ffffff;
-  overflow: hidden;
-  page-break-after: always;
-  break-after: page;
-}
-
-.print-sheet:last-child {
-  page-break-after: auto;
-  break-after: auto;
-}
-
-.print-sheet--small {
-  width: 148mm;
-  height: 210mm;
-  padding: 9.333mm 3.033mm 9.1mm 3.267mm;
-}
-
-.print-sheet--medium {
-  width: 210mm;
-  height: 148mm;
-  padding: 9.333mm 14.233mm 9.1mm 14mm;
-}
-
-.print-sheet--large {
-  width: 148mm;
-  height: 210mm;
-  padding: 11.2mm 3.967mm 11.433mm;
-}
-
-.print-grid {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  justify-content: start;
-  align-content: start;
-  gap: 0;
-}
-
-.print-grid--small {
-  grid-template-columns: repeat(2, 71mm);
-  grid-template-rows: repeat(4, 48mm);
-}
-
-.print-grid--medium {
-  grid-template-columns: repeat(2, 91mm);
-  grid-template-rows: repeat(2, 65mm);
-}
-
-.print-grid--large {
-  grid-template-columns: 140mm;
-  grid-template-rows: repeat(2, 94mm);
-}
-
-.print-card {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: #ffffff;
-  border: 1px dashed rgba(145, 158, 171, 0.48);
-  color: #102d47;
-  overflow: hidden;
-}
-
-.print-card__bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1.4mm;
-  background: #55b77f;
-}
-
-.print-card__content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.print-card__brand {
-  margin: 0;
-  color: #102d47;
-  font-style: normal;
-  font-weight: 700;
-}
-
-.print-card__name {
-  margin: 1.4mm 0 0;
-  color: #102d47;
-  font-style: normal;
-  font-weight: 400;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-}
-
-.print-card__small-row {
-  margin-top: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 2.333mm;
-}
-
-.print-card__meta {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.467mm;
-}
-
-.print-card__meta-line {
-  display: inline-flex;
-  align-items: flex-start;
-  gap: 0.933mm;
-  color: #102d47;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 3.5mm;
-  line-height: 4.667mm;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.print-card__meta-dot {
-  flex: 0 0 auto;
-  width: 2.1mm;
-  height: 2.1mm;
-  margin-top: 1.25mm;
-  color: #102d47;
-}
-
-.print-card__meta-dot svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.print-card__meta-text {
-  min-width: 0;
-}
-
-.print-card__price {
-  margin-left: auto;
-  color: #102d47;
-  font-style: normal;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  text-align: right;
-  white-space: nowrap;
-}
-
-.print-card--small .print-card__content {
-  padding: 6.067mm 4.667mm 4.667mm;
-}
-
-.print-card--small .print-card__brand {
-  font-size: 5.6mm;
-  line-height: 6.767mm;
-}
-
-.print-card--small .print-card__name {
-  font-size: 3.967mm;
-  line-height: 5.6mm;
-  -webkit-line-clamp: 2;
-  max-height: 11.2mm;
-}
-
-.print-card--small .print-card__price {
-  font-size: 4.667mm;
-  line-height: 5.6mm;
-}
-
-.print-card--medium .print-card__content {
-  padding: 6.533mm 5.6mm 5.6mm;
-}
-
-.print-card--medium .print-card__brand {
-  font-size: 6.067mm;
-  line-height: 7.233mm;
-}
-
-.print-card--medium .print-card__name {
-  font-size: 4.433mm;
-  line-height: 6.067mm;
-  -webkit-line-clamp: 2;
-  max-height: 12.133mm;
-}
-
-.print-card--medium .print-card__price {
-  font-size: 5.133mm;
-  line-height: 6.3mm;
-}
-
-.print-card--large .print-card__content {
-  padding: 6.533mm 5.6mm 5.6mm;
-  gap: 4.667mm;
-}
-
-.print-card--large .print-card__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 5.6mm;
-}
-
-.print-card--large .print-card__name-group {
-  min-width: 0;
-  max-width: 90.066mm;
-}
-
-.print-card--large .print-card__brand {
-  font-size: 6.067mm;
-  line-height: 7.233mm;
-}
-
-.print-card--large .print-card__name {
-  font-size: 4.433mm;
-  line-height: 6.067mm;
-  -webkit-line-clamp: 2;
-  max-height: 12.133mm;
-}
-
-.print-card--large .print-card__price {
-  margin-top: 0;
-  font-size: 5.6mm;
-  line-height: 6.767mm;
-}
-
-.print-card__details {
-  box-sizing: border-box;
-  height: 12.133mm;
-  display: flex;
-  align-items: center;
-  gap: 3.733mm;
-  padding: 3.733mm 0;
-  border-top: 0.467mm solid #102d47;
-  border-bottom: 0.467mm solid #102d47;
-}
-
-.print-card__detail {
-  color: #102d47;
-  font-style: normal;
-  font-weight: 700;
-  font-size: 3.5mm;
-  line-height: 4.667mm;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.print-card__detail--feature {
-  flex: 1;
-  min-width: 0;
-}
-
-.print-card__detail--specification {
-  width: 14mm;
-  text-align: center;
-}
-
-.print-card__detail--region {
-  width: 16.8mm;
-  text-align: center;
-}
-
-.print-card__divider {
-  width: 0.233mm;
-  height: 3.733mm;
-  background: rgba(22, 62, 97, 0.32);
-}
-
-.print-card__description {
-  margin: 0;
-  color: #102d47;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 3.733mm;
-  line-height: 6.067mm;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 6;
-  -webkit-box-orient: vertical;
-}
-
-@page a5-portrait {
-  size: A5 portrait;
-  margin: 0;
-}
-
-@page a5-landscape {
-  size: A5 landscape;
-  margin: 0;
-}
-
-.print-sheet--small {
-  page: a5-portrait;
-}
-
-.print-sheet--medium {
-  page: a5-landscape;
-}
-
-.print-sheet--large {
-  page: a5-portrait;
-}
-
-@media print {
-  .print-sheet {
-    margin: 0;
-    box-shadow: none;
-  }
-}
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; color:#102d47; background:#fff; font-family:Inter,'Noto Sans TC',sans-serif; }
+.print-sheet { margin:0 auto; overflow:hidden; background:#fff; page-break-after:always; break-after:page; }
+.print-sheet:last-child { page-break-after:auto; break-after:auto; }
+.print-sheet--small { width:148mm; height:210mm; padding:9.333mm 3.033mm 9.1mm 3.267mm; }
+.print-sheet--medium { width:210mm; height:148mm; padding:9.333mm 14.233mm 9.1mm 14mm; }
+.print-sheet--large { width:148mm; height:210mm; padding:11.2mm 3.967mm 11.433mm; }
+.print-grid { display:grid; width:100%; height:100%; justify-content:start; align-content:start; gap:0; }
+.print-grid--small { grid-template-columns:repeat(2,71mm); grid-template-rows:repeat(4,48mm); }
+.print-grid--medium { grid-template-columns:repeat(2,91mm); grid-template-rows:repeat(2,65mm); }
+.print-grid--large { grid-template-columns:140mm; grid-template-rows:repeat(2,94mm); }
+.print-card { position:relative; display:flex; min-height:0; flex-direction:column; gap:2.2mm; overflow:hidden; padding:5.8mm 4.7mm 4.4mm; border:1px dashed rgba(145,158,171,.48); color:#102d47; background:#fff; }
+.print-card__bar { position:absolute; inset:0 0 auto; height:1.4mm; background:#55b77f; }
+.print-card__top { display:flex; min-height:0; justify-content:space-between; gap:3mm; }
+.print-card__identity { min-width:0; display:flex; flex-direction:column; gap:1.2mm; }
+.print-card__brand { font-size:5.6mm; line-height:6.6mm; font-weight:700; }
+.print-card__name { display:-webkit-box; overflow:hidden; font-size:3.97mm; line-height:5.1mm; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+.print-card__qr { flex:0 0 var(--qr-size); width:var(--qr-size); color:#102d47; text-align:center; }
+.print-card__qr-art { width:100%; aspect-ratio:1; background:#fff; line-height:0; }
+.print-card__qr-art svg { display:block; width:100%; height:100%; }
+.print-card__qr span { display:block; margin-top:.5mm; overflow:hidden; font-size:1.65mm; font-weight:700; line-height:1.9mm; text-overflow:ellipsis; white-space:nowrap; }
+.print-card__bottom { display:flex; align-items:flex-end; justify-content:space-between; gap:2.5mm; margin-top:auto; }
+.print-card__meta { min-width:0; display:flex; flex-direction:column; gap:.55mm; font-size:3.15mm; line-height:3.85mm; }
+.print-card__meta span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.print-card__price { flex:0 0 auto; font-size:4.67mm; line-height:5.6mm; text-align:right; }
+.print-card--medium { padding:6.5mm 5.6mm 5.2mm; }
+.print-card--medium .print-card__brand, .print-card--large .print-card__brand { font-size:6.07mm; line-height:7.2mm; }
+.print-card--medium .print-card__name, .print-card--large .print-card__name { font-size:4.43mm; line-height:5.9mm; }
+.print-card--medium .print-card__price { font-size:5.13mm; line-height:6.3mm; }
+.print-card--large { padding:6.5mm 5.6mm 5.2mm; gap:3.2mm; }
+.print-card--large .print-card__bottom { align-items:center; padding:2.5mm 0; border-block:.47mm solid #102d47; }
+.print-card--large .print-card__meta { flex:1; flex-direction:row; gap:0; font-size:3.3mm; font-weight:700; }
+.print-card--large .print-card__meta span { flex:1; padding:0 2mm; text-align:center; }
+.print-card--large .print-card__meta span + span { border-left:.23mm solid rgba(22,62,97,.32); }
+.print-card--large .print-card__price { font-size:5.6mm; line-height:6.7mm; }
+.print-card__description { display:-webkit-box; margin:0; overflow:hidden; font-size:3.5mm; line-height:5.3mm; -webkit-box-orient:vertical; -webkit-line-clamp:3; white-space:pre-line; }
+@page a5-portrait { size:A5 portrait; margin:0; }
+@page a5-landscape { size:A5 landscape; margin:0; }
+.print-sheet--small,.print-sheet--large { page:a5-portrait; }
+.print-sheet--medium { page:a5-landscape; }
+@media print { .print-sheet { margin:0; box-shadow:none; } }

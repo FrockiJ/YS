@@ -1,110 +1,55 @@
 import labelPrintCss from './labelPrint.css?raw'
+import { buildLabelPreviewModel } from '../utils/labelPreviewModel.js'
 
 const escapeHtml = (value) =>
   String(value ?? '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/\"/g, '&quot;')
+    .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
 
-const renderMetaLine = (text) =>
-  text
-    ? `<div class="print-card__meta-line"><span class="print-card__meta-dot" aria-hidden="true"><svg viewBox="0 0 8 8" focusable="false"><circle cx="4" cy="4" r="3.2" fill="currentColor" /></svg></span><span class="print-card__meta-text">${escapeHtml(text)}</span></div>`
+const renderQr = (label) =>
+  label.qrSvg
+    ? `<div class="print-card__qr" style="--qr-size:${label.qrSizeMm}mm"><div class="print-card__qr-art">${label.qrSvg}</div><span>${escapeHtml(label.code)}</span></div>`
     : ''
 
-const renderSmallMeta = (item) => {
-  const rows = []
-  rows.push(renderMetaLine(item.specification || '-'))
-  rows.push(renderMetaLine(item.category || '-'))
-  return rows.join('')
-}
-
-const renderMediumMeta = (item) => {
-  const rows = []
-  if (item.feature && item.feature !== '-') rows.push(renderMetaLine(item.feature))
-  rows.push(renderMetaLine(item.specification || '-'))
-  rows.push(renderMetaLine(item.category || '-'))
-  return rows.join('')
+const renderMeta = (label) => {
+  if (label.size === 'small') return `<span>${escapeHtml(label.specification)}</span><span>${escapeHtml(label.category)}</span>`
+  if (label.size === 'medium') return `<span>${escapeHtml(label.feature)}</span><span>${escapeHtml(label.specification)}</span><span>${escapeHtml(label.category)}</span>`
+  return `<span>${escapeHtml(label.feature)}</span><span>${escapeHtml(label.specification)}</span><span>${escapeHtml(label.category)}</span>`
 }
 
 const renderPrintCardHtml = (item, size) => {
-  const brand = escapeHtml(item.brand || '')
-  const name = escapeHtml(item.name || '')
-  const price = escapeHtml(item.price || '')
-  const feature = escapeHtml(item.feature || '-')
-  const specification = escapeHtml(item.specification || '-')
-  const category = escapeHtml(item.category || '-')
-  const description = escapeHtml(item.description || '')
-
-  if (size === 'small') {
-    return `
-      <article class="print-card print-card--small">
-        <div class="print-card__bar"></div>
-        <div class="print-card__content">
-          <div class="print-card__brand">${brand}</div>
-          <div class="print-card__name">${name}</div>
-          <div class="print-card__small-row">
-            <div class="print-card__meta">${renderSmallMeta(item)}</div>
-            <div class="print-card__price">${price}</div>
-          </div>
-        </div>
-      </article>
-    `
-  }
-
-  if (size === 'medium') {
-    return `
-      <article class="print-card print-card--medium">
-        <div class="print-card__bar"></div>
-        <div class="print-card__content">
-          <div class="print-card__brand">${brand}</div>
-          <div class="print-card__name">${name}</div>
-          <div class="print-card__small-row">
-            <div class="print-card__meta">${renderMediumMeta(item)}</div>
-            <div class="print-card__price">${price}</div>
-          </div>
-        </div>
-      </article>
-    `
-  }
-
+  const label = buildLabelPreviewModel(item, { size })
   return `
-    <article class="print-card print-card--large">
+    <article class="print-card print-card--${label.size}">
       <div class="print-card__bar"></div>
-      <div class="print-card__content">
-        <div class="print-card__top">
-          <div class="print-card__name-group">
-            <div class="print-card__brand">${brand}</div>
-            <div class="print-card__name">${name}</div>
-          </div>
-          <div class="print-card__price">${price}</div>
+      <div class="print-card__top">
+        <div class="print-card__identity">
+          <strong class="print-card__brand">${escapeHtml(label.brand || '-')}</strong>
+          <span class="print-card__name">${escapeHtml(label.name || '-')}</span>
         </div>
-        <div class="print-card__details">
-          <span class="print-card__detail print-card__detail--feature">${feature}</span>
-          <span class="print-card__divider"></span>
-          <span class="print-card__detail print-card__detail--specification">${specification}</span>
-          <span class="print-card__divider"></span>
-          <span class="print-card__detail print-card__detail--category">${category}</span>
-        </div>
-        <div class="print-card__description">${description}</div>
+        ${renderQr(label)}
       </div>
+      <div class="print-card__bottom">
+        <div class="print-card__meta">${renderMeta(label)}</div>
+        <strong class="print-card__price">${escapeHtml(label.price)}</strong>
+      </div>
+      ${label.size === 'large' && label.description ? `<p class="print-card__description">${escapeHtml(label.description)}</p>` : ''}
     </article>
   `
 }
 
-const renderPrintSheetHtml = (size, panelItems) => {
-  const cards = panelItems.map((item) => renderPrintCardHtml(item, size)).join('')
-  return `
-    <section class="print-sheet print-sheet--${size}">
-      <div class="print-grid print-grid--${size}">
-        ${cards}
-      </div>
-    </section>
-  `
-}
+const renderPrintSheetHtml = (size, panelItems) => `
+  <section class="print-sheet print-sheet--${size}">
+    <div class="print-grid print-grid--${size}">
+      ${panelItems.map((item) => renderPrintCardHtml(item, size)).join('')}
+    </div>
+  </section>
+`
 
-export const renderPrintDocumentHtml = (panelsBySize, options = {}) => {
+export const renderLabelPrintDocumentHtml = (panelsBySize, options = {}) => {
   const title = escapeHtml(options.title || 'Label Print')
   const sheets = []
   for (const section of panelsBySize || []) {
@@ -114,15 +59,6 @@ export const renderPrintDocumentHtml = (panelsBySize, options = {}) => {
   }
 
   return `<!doctype html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${title}</title>
-  <style>${labelPrintCss}</style>
-</head>
-<body>
-  ${sheets.join('')}
-</body>
-</html>`
+<html lang="zh-Hant"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>${title}</title><style>${labelPrintCss}</style></head>
+<body>${sheets.join('')}</body></html>`
 }

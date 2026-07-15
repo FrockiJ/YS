@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
@@ -8,8 +8,10 @@ import iconArrowIndicator from '../assets/ic-arrow.svg'
 import emptyIllustration from '../assets/label_illustration_empty_content.svg'
 import AppSidebar from '../components/AppSidebar.vue'
 import AppTopBar from '../components/AppTopBar.vue'
+import LabelPreview from '../components/LabelPreview.vue'
 import { usePermissionSideMenu } from '../composables/usePermissionSideMenu'
 import { buildPrimaryNavItems, PRIMARY_NAV_ICON_IMAGES } from '../utils/appNavigation'
+import { renderLabelPrintDocumentHtml } from '../print/labelPrintTemplate'
 import {
   deletePrintListItem,
   fetchPrintList,
@@ -44,9 +46,31 @@ const editDescription = ref('')
 const editInstruction = ref('')
 const isRegenefeature = ref(false)
 const isSaving = ref(false)
+const isPrinting = ref(false)
 
 const LABEL_LANG = 'zh-TW'
 const MAX_DESC = 220
+const PRINT_PANEL_CAPACITY = { small: 8, medium: 4, large: 2 }
+const PRINT_PANEL_ORDER = ['small', 'medium', 'large']
+let printIframeRef = null
+let printCleanupTimer = null
+
+const printPanelsBySize = computed(() => {
+  const grouped = { small: [], medium: [], large: [] }
+  printItems.value.forEach((item) => {
+    if (PRINT_PANEL_ORDER.includes(item?.size)) grouped[item.size].push(item)
+  })
+  return PRINT_PANEL_ORDER.map((size) => {
+    const copies = grouped[size].flatMap((item) => {
+      const quantity = Math.max(1, Math.floor(Number(item?.quantity) || 1))
+      return Array.from({ length: quantity }, () => item)
+    })
+    const panels = []
+    const capacity = PRINT_PANEL_CAPACITY[size]
+    for (let index = 0; index < copies.length; index += capacity) panels.push(copies.slice(index, index + capacity))
+    return { size, panels }
+  }).filter((section) => section.panels.length)
+})
 
 const glyphs = {
   search:
@@ -248,12 +272,55 @@ const resolveSizeLabel = (size) => {
   return t('labelSettings.sizeLarge')
 }
 
-const handlePrint = () => {
-  // Placeholder: future print action
+const cleanupPrintIframe = () => {
+  if (printCleanupTimer) {
+    clearTimeout(printCleanupTimer)
+    printCleanupTimer = null
+  }
+  if (printIframeRef?.parentNode) printIframeRef.parentNode.removeChild(printIframeRef)
+  printIframeRef = null
+  isPrinting.value = false
+}
+
+const handlePrint = async () => {
+  if (!printPanelsBySize.value.length || isPrinting.value || typeof window === 'undefined') return
+  const iframe = document.createElement('iframe')
+  iframe.setAttribute('aria-hidden', 'true')
+  Object.assign(iframe.style, {
+    position: 'fixed', right: '0', bottom: '0', width: '0', height: '0', opacity: '0', border: '0', pointerEvents: 'none',
+  })
+  document.body.appendChild(iframe)
+  printIframeRef = iframe
+  isPrinting.value = true
+
+  try {
+    const documentHtml = renderLabelPrintDocumentHtml(printPanelsBySize.value, { title: t('labelPrint.title') })
+    const doc = iframe.contentDocument || iframe.contentWindow?.document
+    if (!doc || !iframe.contentWindow) throw new Error('Print iframe document not available')
+    await new Promise((resolve) => {
+      iframe.addEventListener('load', resolve, { once: true })
+      doc.open()
+      doc.write(documentHtml)
+      doc.close()
+      window.setTimeout(resolve, 300)
+    })
+    iframe.contentWindow.onafterprint = cleanupPrintIframe
+    printCleanupTimer = window.setTimeout(cleanupPrintIframe, 15000)
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+    iframe.contentWindow.focus()
+    iframe.contentWindow.print()
+  } catch (error) {
+    console.error('Print labels failed', error)
+    cleanupPrintIframe()
+  }
 }
 
 onMounted(() => {
   loadPrintList()
+})
+
+onBeforeUnmount(() => {
+  cleanupPrintIframe()
 })
 </script>
 
@@ -335,41 +402,7 @@ onMounted(() => {
                 </div>
               </div>
               <div class="label-print-card__preview">
-                <div class="label-preview" :class="`label-preview--${item.size}`">
-                  <div class="label-preview__bar"></div>
-                  <div class="label-preview__price">{{ resolvePriceText(item) }}</div>
-                  <div class="label-preview__body">
-                    <div class="label-preview__brand">{{ resolveBrand(item) }}</div>
-                    <div class="label-preview__name">{{ resolveProductName(item) }}</div>
-                  </div>
-                  <div v-if="item.size === 'small'" class="label-preview__meta">
-                    <div>??{{ resolveSpecification(item) }}</div>
-                    <div>??{{ resolveCategory(item) || '-' }}</div>
-                  </div>
-                  <div v-else-if="item.size === 'medium'" class="label-preview__meta">
-                    <div>??{{ resolveFeature(item) || '-' }}</div>
-                    <div>??{{ resolveSpecification(item) }}</div>
-                    <div>??{{ resolveCategory(item) || '-' }}</div>
-                  </div>
-                  <div v-else class="label-preview__details">
-                    <span class="label-preview__detail label-preview__detail--feature">
-                      {{ resolveFeature(item) || '-' }}
-                    </span>
-                    <div class="label-preview__details-group">
-                      <span class="label-preview__divider"></span>
-                      <span class="label-preview__detail label-preview__detail--specification">
-                        {{ resolveSpecification(item) }}
-                      </span>
-                      <span class="label-preview__divider"></span>
-                      <span class="label-preview__detail label-preview__detail--category">
-                        {{ resolveCategory(item) || '-' }}
-                      </span>
-                    </div>
-                  </div>
-                  <div v-if="item.size === 'large'" class="label-preview__description">
-                    {{ (item.description || '').slice(0, MAX_DESC) }}
-                  </div>
-                </div>
+                <LabelPreview :source="item" :size="item.size" />
               </div>
             </article>
           </section>
@@ -552,6 +585,21 @@ onMounted(() => {
 .label-print-card__preview {
   display: flex;
   align-items: flex-start;
+}
+
+.label-print-card__preview :deep(.label-preview-v2--small) {
+  width: 304px;
+  height: 206px;
+}
+
+.label-print-card__preview :deep(.label-preview-v2--medium) {
+  width: 390px;
+  height: 278px;
+}
+
+.label-print-card__preview :deep(.label-preview-v2--large) {
+  width: 600px;
+  height: 402px;
 }
 
 .label-preview {
