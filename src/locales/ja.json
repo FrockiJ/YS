@@ -218,10 +218,18 @@
       }
     },
     "rag": {
-      "summary_title": "内容を確認して続行してください。",
-      "status_label": "ラベル",
-      "external_search_title": "タイトル",
-      "external_search_status": "外部検索"
+      "summary_title": "RAG 要約",
+      "status_label": "RAG 引用内容",
+      "external_search_title": "外部検索",
+      "external_search_status": "外部ソースを使用",
+      "external_verification_unavailable_title": "外部検証は現在利用できません",
+      "external_verification_unavailable_status": "外部検証は未完了です",
+      "external_verification_incomplete_title": "外部検証は未完了です",
+      "external_verification_incomplete_status": "検証可能な外部ソースが見つかりませんでした",
+      "general_knowledge_title": "一般知識による回答",
+      "general_knowledge_status": "RAG・外部ソース未使用",
+      "erp_source_title": "ERP 商品データ",
+      "erp_source_status": "ERP 商品照会"
     },
     "cerp": {
       "notice_history": "I found this product in スマートシステム. Summary (from previously exported data):",

@@ -53,6 +53,7 @@ import {
   formatProductRecommendationReason,
 } from '../utils/productBridge'
 import { resolveCerpColor, resolveCerpStock } from '../utils/cerpFields'
+import { resolveKnowledgeSourceLocaleKey } from '../utils/knowledgeSource'
 import {
   QUOTE_ACTION_PIVOT_TO_QUOTE,
   buildVisibleUserPrompt,
@@ -1950,32 +1951,8 @@ const buildResultCardSummaryBullets = (
   return fallback && !isLowSignalResultCardBullet(fallback) ? [clipResultCardDetail(fallback)] : []
 }
 
-const buildResultCardSourceLabel = (metadata = {}, references = [], variant = 'title') => {
-  const sourceTiers = Array.isArray(metadata.source_tier) ? metadata.source_tier : [metadata.source_tier]
-  const hasExternalEvidence =
-    sourceTiers.map((value) => String(value || '').toLowerCase()).includes('external_evidence') ||
-    Boolean(metadata?.external_search?.attempted) ||
-    (Array.isArray(references) && references.some((ref) => ref?.kind === 'external'))
-  if (hasExternalEvidence) {
-    return t('home.rag.external_search_title')
-  }
-  return t('home.rag.summary_title')
-}
-
 const resolveResultCardSourceLabel = (metadata = {}, references = [], variant = 'title') => {
-  const sourceTiers = Array.isArray(metadata.source_tier) ? metadata.source_tier : [metadata.source_tier]
-  const hasExternalEvidence =
-    sourceTiers.map((value) => String(value || '').toLowerCase()).includes('external_evidence') ||
-    Boolean(metadata?.external_search?.attempted) ||
-    (Array.isArray(references) && references.some((ref) => ref?.kind === 'external'))
-
-  if (hasExternalEvidence) {
-    return variant === 'status'
-      ? t('home.rag.external_search_status')
-      : t('home.rag.external_search_title')
-  }
-
-  return variant === 'status' ? t('home.rag.status_label') : t('home.rag.summary_title')
+  return t(resolveKnowledgeSourceLocaleKey(metadata, references, variant))
 }
 
 const buildResultCardFromPayload = (

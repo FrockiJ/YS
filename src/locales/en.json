@@ -221,7 +221,15 @@
       "summary_title": "RAG summary",
       "status_label": "RAG references",
       "external_search_title": "External Search",
-      "external_search_status": "External Search"
+      "external_search_status": "External sources used",
+      "external_verification_unavailable_title": "External verification unavailable",
+      "external_verification_unavailable_status": "External verification not completed",
+      "external_verification_incomplete_title": "External verification not completed",
+      "external_verification_incomplete_status": "No verifiable external source found",
+      "general_knowledge_title": "General knowledge answer",
+      "general_knowledge_status": "No RAG or external source used",
+      "erp_source_title": "ERP product data",
+      "erp_source_status": "ERP product lookup"
     },
     "cerp": {
       "notice_history": "I found this product in intelligent system. Summary (from previously exported data):",

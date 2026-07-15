@@ -221,7 +221,15 @@
       "summary_title": "RAG 摘要",
       "status_label": "RAG 引用內容",
       "external_search_title": "外部搜尋",
-      "external_search_status": "外部搜尋"
+      "external_search_status": "已使用外部搜尋",
+      "external_verification_unavailable_title": "外部查證目前無法使用",
+      "external_verification_unavailable_status": "外部查證未完成",
+      "external_verification_incomplete_title": "外部查證未完成",
+      "external_verification_incomplete_status": "未取得可驗證來源",
+      "general_knowledge_title": "一般知識回答",
+      "general_knowledge_status": "未使用 RAG 或外部來源",
+      "erp_source_title": "ERP 商品資料",
+      "erp_source_status": "ERP 商品查詢"
     },
     "cerp": {
       "notice_history": "I found this product in 智慧系統. Summary (from previously exported data):",
