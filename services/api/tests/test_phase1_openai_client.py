@@ -114,6 +114,49 @@ class OpenAIClientTests(unittest.TestCase):
         self.assertEqual(ctx.exception.model, "gpt-5.4-mini")
         self.assertIn("model_not_found", ctx.exception.body)
 
+    def test_budget_counts_real_requests_and_blocks_a_third(self):
+        budget = openai_client.LLMRequestBudget(limit=2)
+        budget.reserve("planner")
+        budget.add_usage({"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15})
+        budget.reserve("final")
+        with self.assertRaises(RuntimeError):
+            budget.reserve("final")
+        snapshot = budget.snapshot()
+        self.assertEqual(snapshot["used"], 2)
+        self.assertEqual(snapshot["planner_calls"], 1)
+        self.assertEqual(snapshot["final_calls"], 1)
+        self.assertEqual(snapshot["total_tokens"], 15)
+        self.assertEqual(snapshot["blocked_retries"], 1)
+
+    def test_planned_call_can_disable_model_fallback(self):
+        attempted_models = []
+
+        def fake_request(payload, trace=None):
+            attempted_models.append(payload["model"])
+            raise urllib.error.HTTPError(
+                url="https://api.openai.com/v1/chat/completions",
+                code=503,
+                msg="unavailable",
+                hdrs=None,
+                fp=io.BytesIO(b"{}"),
+            )
+
+        with mock.patch.dict(
+            os.environ,
+            {"OPENAI_CHAT_MODEL": "gpt-5", "OPENAI_FALLBACK_CHAT_MODEL": "gpt-5.4-mini"},
+            clear=False,
+        ), mock.patch(
+            "src.pipelines.llm.openai_client._request_chat_completion",
+            side_effect=fake_request,
+        ):
+            with self.assertRaises(openai_client.OpenAIChatHTTPError):
+                openai_client._sync_chat_complete(
+                    "system",
+                    "user",
+                    allow_model_fallback=False,
+                )
+        self.assertEqual(attempted_models, ["gpt-5"])
+
 
 if __name__ == "__main__":
     unittest.main()

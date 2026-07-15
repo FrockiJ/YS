@@ -6,7 +6,7 @@ from ...schemas.ai import AnalysisResult, Hit
 
 
 class GroundingService:
-    """Keeps citations tied to retrieved hits and fails closed for required verification."""
+    """Keeps citations tied to retrieved hits without replacing the generated answer."""
 
     def post_process(
         self,
@@ -22,7 +22,8 @@ class GroundingService:
         metadata = dict(normalized.get("metadata") or {})
         available = [hit.model_dump() for hit in hits]
         available_by_id = {str(item.get("id")): item for item in available if item.get("id") is not None}
-        requested = normalized.get("citations") if isinstance(normalized.get("citations"), list) else []
+        citations_were_supplied = isinstance(normalized.get("citations"), list)
+        requested = normalized.get("citations") if citations_were_supplied else []
         citations: List[Dict[str, Any]] = []
         seen = set()
         for record in requested:
@@ -36,7 +37,7 @@ class GroundingService:
                 continue
             seen.add(identifier)
             citations.append(matched)
-        if not requested and available:
+        if not citations_were_supplied and available:
             citations = available[:6]
 
         authoritative = [
@@ -47,9 +48,9 @@ class GroundingService:
         ]
         fallback_applied = False
         if analysis.needs_authoritative_sources and not authoritative:
-            normalized["text"] = self._verification_unavailable_text(language, query)
-            citations = []
-            fallback_applied = True
+            # Missing live evidence is metadata for the final LLM to disclose at
+            # claim scope. It must never replace an otherwise useful answer.
+            fallback_applied = False
 
         summaries: List[str] = []
         for item in citations[:4]:
@@ -82,25 +83,9 @@ class GroundingService:
                     "unmapped_citation_count": max(len(requested) - len(citations), 0),
                     "all_citations_mapped": len(requested) == len(citations),
                 },
-                "hard_error_flags": ["external_verification_unavailable"] if fallback_applied else [],
+                "hard_error_flags": [],
             }
         )
         normalized["citations"] = citations
         normalized["metadata"] = metadata
         return normalized
-
-    @staticmethod
-    def _verification_unavailable_text(language: Optional[str], query: str = "") -> str:
-        normalized = str(language or "").lower()
-        campsite_query = any(term in str(query or "").casefold() for term in ("營區", "營地", "露營區", "campground", "campsite"))
-        if normalized.startswith("zh"):
-            if campsite_query:
-                return "目前無法取得可驗證的即時外部來源，因此不能聲稱已完成查證。可先依出發地車程、海拔、道路條件、設施與行程天數篩選，實際營運及空位仍須向營地確認。"
-            return "目前無法取得可驗證的即時外部來源，因此不能聲稱已完成查證；我只能提供非即時的一般建議。"
-        if normalized.startswith("ja"):
-            if campsite_query:
-                return "検証可能な最新の外部情報を取得できないため、確認済みとは言えません。出発地からの移動時間、標高、道路、設備、日数で候補を絞り、営業状況と空きはキャンプ場へ確認してください。"
-            return "検証可能な最新の外部情報を取得できないため、確認済みとは言えません。一般的な案内のみ提供できます。"
-        if campsite_query:
-            return "Verified current sources are unavailable, so I cannot claim this was checked. Filter by travel time, elevation, road access, facilities, and trip length, then confirm opening and availability with the campsite."
-        return "Verified current sources are unavailable, so I cannot claim this was checked. I can only provide non-current general guidance."

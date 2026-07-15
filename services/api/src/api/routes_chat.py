@@ -36,7 +36,6 @@ from ..core.store_profile import get_store_profile
 from ..core.i18n import t, normalize_lang
 from ..core.models import Conversation
 from ..core.module_registry import is_module_enabled
-from ..domain_modules.loader import get_chat_domain_hooks
 from ..pipelines.nlp.embedder import (
     EmbeddingUnavailableError,
     embed_texts,
@@ -55,15 +54,16 @@ from ..pipelines.compose.generator import generate_answer as _generate_summary
 from .routes_cerp import CERPClientError
 from ..models.customer import Customer
 from ..models.project import Project
-from ..services.ai.analysis import AnalysisService
 from ..services.ai.benchmark_guardrails import build_guardrail_response
 from ..services.ai.orchestrator import ChatOrchestrator
 from ..services.ai.retrieval import RetrievalService
-from ..services.ai.product_need_extractor import ProductNeedExtractor, ProductNeedResult, NEED_PROFILE_VERSION
+from ..services.ai.product_need_extractor import ProductNeedResult, NEED_PROFILE_VERSION
 from ..services.ai.product_bridge import ProductBridgeService
-from ..services.ai.product_fact_lookup import ProductFactLookupService
-from ..services.ai.product_intent_analysis import ProductIntentAnalysisService, merge_need_profile_patch
+from ..services.ai.product_intent_analysis import merge_need_profile_patch
 from ..services.ai.trip_plan import TripPlanService
+from ..services.ai.chat_planner import ChatExecutionPlan, ChatPlanningService
+from ..services.ai.erp_ast import ERPQueryExecutor
+from ..pipelines.llm.openai_client import LLMRequestBudget
 from ..services.project_service import can_read_conversation, can_write_conversation
 from ..utils.lang import detect_lang
 
@@ -72,26 +72,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 retrieval_service = RetrievalService()
 chat_orchestrator = ChatOrchestrator(retrieval_service=retrieval_service)
-analysis_service = AnalysisService()
-product_need_extractor = ProductNeedExtractor()
 product_bridge_service = ProductBridgeService()
-product_fact_lookup_service = ProductFactLookupService()
-product_intent_analysis_service = ProductIntentAnalysisService()
 trip_plan_service = TripPlanService()
-chat_domain_hooks = get_chat_domain_hooks()
+chat_planning_service = ChatPlanningService()
+erp_query_executor = ERPQueryExecutor()
 _MOJIBAKE_MARKER_RE = re.compile(r"[鈭鋆撅蝮銝摰憭靘隞嚗餈箏喲瑼]")
-_BUSINESS_LOCATION_QUERY_RE = re.compile(
-    r"(?:\u4ee3\u7406\u5546|\u7d93\u92b7\u5546|\u9580\u5e02|\u9580\u5e97|\u5e97\u9762|\u54ea\u88e1\u8cb7|\u5728\u54ea\u8cb7|"
-    r"dealer|distributor|retailer|store|shop|where\s+to\s+buy)",
-    re.IGNORECASE,
-)
-_BUSINESS_LOCATION_NEARBY_RE = re.compile(
-    r"(?:\u9644\u8fd1|\u8eab\u908a|\u5468\u908a).{0,10}(?:\u4ee3\u7406\u5546|\u7d93\u92b7\u5546|\u9580\u5e02|\u9580\u5e97|\u5e97\u9762|"
-    r"dealer|distributor|retailer|store|shop)",
-    re.IGNORECASE,
-)
-
-
 def _looks_like_mojibake_input(value: Any) -> bool:
     text = str(value or "").strip()
     if not text:
@@ -105,121 +90,6 @@ def _looks_like_mojibake_input(value: Any) -> bool:
         return True
     return False
 
-
-async def _load_optional_rag_context_for_outdoor_recommendation(text: str) -> Dict[str, Any]:
-    try:
-        hits = await retrieval_service._run_rag_search(
-            text,
-            query_variants=[text],
-            alias_filters=None,
-            rag_k=4,
-            prompt_category="general_chat",
-            entity_hints={},
-        )
-    except Exception as exc:
-        logger.info("Outdoor recommendation optional RAG lookup skipped: %s", exc)
-        return {"hit_count": 0, "sections": [], "error": f"{type(exc).__name__}: {exc}"}
-    sections: List[Dict[str, Any]] = []
-    for hit in hits[:4]:
-        if not isinstance(hit, dict):
-            continue
-        meta = hit.get("meta") if isinstance(hit.get("meta"), dict) else {}
-        title = str(meta.get("title") or meta.get("source_name") or hit.get("id") or "").strip()
-        text_value = str(hit.get("summary") or hit.get("text") or "").strip()
-        if not text_value:
-            continue
-        sections.append(
-            {
-                "title": title,
-                "text": text_value[:600],
-                "source_tier": meta.get("source_tier") or hit.get("source_tier") or "",
-            }
-        )
-    return {
-        "hit_count": len(sections),
-        "sections": sections,
-    }
-
-
-def _looks_like_business_location_query(value: Any) -> bool:
-    text = str(value or "")
-    return bool(_BUSINESS_LOCATION_QUERY_RE.search(text) or _BUSINESS_LOCATION_NEARBY_RE.search(text))
-
-
-def _build_business_location_answer(
-    query: str,
-    *,
-    store_profile: Optional[Dict[str, Any]],
-    language: str,
-) -> Dict[str, Any]:
-    profile = store_profile if isinstance(store_profile, dict) else {}
-    contact = profile.get("contact") if isinstance(profile.get("contact"), dict) else {}
-    company = str(
-        profile.get("company_name")
-        or profile.get("name")
-        or profile.get("english_name")
-        or ""
-    ).strip()
-    address = str(contact.get("address") or profile.get("address") or "").strip()
-    phone = str(contact.get("phone") or profile.get("phone") or "").strip()
-    booking = contact.get("booking") if isinstance(contact.get("booking"), dict) else {}
-    booking_online = booking.get("online") if isinstance(booking.get("online"), dict) else {}
-    booking_url = str(booking_online.get("url") or contact.get("booking_url") or "").strip()
-    has_location = bool(address or phone or booking_url)
-    if str(language or "").lower().startswith("ja"):
-        if not has_location:
-            text = "\u4f01\u696d\u8cc7\u6599\u306b\u5229\u7528\u53ef\u80fd\u306a\u5e97\u8217\u30fb\u4ee3\u7406\u5e97\u60c5\u5831\u304c\u307e\u3060\u767b\u9332\u3055\u308c\u3066\u3044\u307e\u305b\u3093\u3002"
-        else:
-            display_company = company or "\u4f01\u696d"
-            lines = [f"\u767b\u9332\u6e08\u307f\u306e\u4f01\u696d\u60c5\u5831\u3067\u78ba\u8a8d\u3067\u304d\u308b\u7a93\u53e3\u306f {display_company} \u3067\u3059\u3002"]
-            if address:
-                lines.append(f"- \u4f4f\u6240\uff1a{address}")
-            if phone:
-                lines.append(f"- \u96fb\u8a71\uff1a{phone}")
-            if booking_url:
-                lines.append(f"- \u4e88\u7d04/URL\uff1a{booking_url}")
-            text = "\n".join(lines)
-    elif str(language or "").lower().startswith(("zh", "tw")):
-        if not has_location:
-            text = "\u4f01\u696d\u8cc7\u6599\u76ee\u524d\u6c92\u6709\u53ef\u7528\u7684\u5e97\u9762\u6216\u4ee3\u7406\u5546\u8cc7\u8a0a\uff0c\u56e0\u6b64\u6211\u4e0d\u6703\u81ea\u884c\u63a8\u6e2c\u5916\u90e8\u5e97\u5bb6\u3002"
-        else:
-            display_company = company or "\u672c\u4f01\u696d"
-            lines = [f"\u4f9d\u7cfb\u7d71\u5167\u7684\u4f01\u696d\u8cc7\u6599\uff0c\u53ef\u6307\u5411 {display_company} \u7684\u5b98\u65b9\u806f\u7d61\u8cc7\u8a0a\uff1a"]
-            if address:
-                lines.append(f"- \u5730\u5740\uff1a{address}")
-            if phone:
-                lines.append(f"- \u96fb\u8a71\uff1a{phone}")
-            if booking_url:
-                lines.append(f"- \u9810\u7d04/URL\uff1a{booking_url}")
-            text = "\n".join(lines)
-    else:
-        if not has_location:
-            text = "No store, dealer, or distributor information is currently available in the company profile, so I will not guess external locations."
-        else:
-            lines = [f"Based on the company profile, use {company or 'the company'} official contact information:"]
-            if address:
-                lines.append(f"- Address: {address}")
-            if phone:
-                lines.append(f"- Phone: {phone}")
-            if booking_url:
-                lines.append(f"- Booking/URL: {booking_url}")
-            text = "\n".join(lines)
-    return {
-        "text": text,
-        "metadata": {
-            "intent": "BUSINESS_LOCATION_LOOKUP",
-            "prompt_category": "business_location_lookup",
-            "response_mode": "company_profile_lookup" if has_location else "data_or_permission_needed",
-            "answer_mode": "company_profile_lookup" if has_location else "data_or_permission_needed",
-            "routing_path": "strict_business_fact_gate",
-            "substantive_answer": has_location,
-            "source_policy": "internal_only",
-            "language": language,
-            "lang": language,
-            "query": query,
-            "company_profile_used": has_location,
-        },
-    }
 
 _TRACEBACK_PATTERN = re.compile(r"traceback\s*\(most recent call last\)", re.IGNORECASE)
 
@@ -440,7 +310,9 @@ def _knowledge_contract(metadata: Optional[Dict[str, Any]]) -> Dict[str, Any]:
     metadata = metadata if isinstance(metadata, dict) else {}
     snapshot = metadata.get("retrieval_snapshot") if isinstance(metadata.get("retrieval_snapshot"), dict) else {}
     selected_hits = int(
-        snapshot.get("rag_hit_count")
+        metadata.get("used_rag_hit_count")
+        if metadata.get("used_rag_hit_count") is not None
+        else snapshot.get("rag_hit_count")
         if snapshot.get("rag_hit_count") is not None
         else (metadata.get("rag_hit_count") or 0)
     )
@@ -455,7 +327,9 @@ def _knowledge_contract(metadata: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         or metadata.get("external_search_attempted")
     )
     external_hit_count = int(
-        external.get("hit_count_post_filter")
+        metadata.get("used_external_hit_count")
+        if metadata.get("used_external_hit_count") is not None
+        else external.get("hit_count_post_filter")
         or external.get("hit_count")
         or external.get("result_count")
         or 0
@@ -484,27 +358,6 @@ def _knowledge_contract(metadata: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         "external_status": external_status,
     }
 
-
-def _requires_external_verification(
-    text: str,
-    url_inputs: Optional[List[str]] = None,
-    *,
-    task_type: Optional[str] = None,
-) -> bool:
-    if url_inputs:
-        return True
-    if task_type in {"destination_recommendation", "destination_filter"}:
-        return True
-    if task_type in {"erp_lookup", "product_recommendation"}:
-        return False
-    return bool(
-        re.search(
-            r"(?:最新|即時|今天|本週|本月|查證|核實|官方(?:公告|規範|資料)|規範|法規|公告|警報|天氣|氣象|路況|封閉|開放狀態|安全警報|風險警報)|"
-            r"\b(?:latest|today|real[- ]?time|verify|fact[- ]?check|official (?:notice|rule|data)|closed|closure|regulation|permit|warning|forecast|weather|road conditions?)\b",
-            str(text or ""),
-            re.IGNORECASE,
-        )
-    )
 
 def _product_bridge_metadata(
     result: ProductNeedResult,
@@ -1669,10 +1522,14 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
             knowledge_meta = await get_conversation_meta(knowledge_uuid)
             if knowledge_meta and isinstance(knowledge_meta.get("context_state"), dict):
                 conversation_context_state = dict(knowledge_meta["context_state"])
-        product_need_result = product_need_extractor.extract(
-            text,
-            history=product_need_history,
-            context_state=conversation_context_state,
+        inherited_need_profile = conversation_context_state.get("product_need_profile")
+        if not isinstance(inherited_need_profile, dict):
+            inherited_need_profile = {}
+        product_need_result = ProductNeedResult(
+            profile=merge_need_profile_patch({}, inherited_need_profile),
+            eligible=False,
+            explicit_product_intent=False,
+            preview_categories=[],
         )
         domain_cerp_enabled = is_module_enabled("domain.cerp")
         if _looks_like_mojibake_input(text):
@@ -1743,151 +1600,32 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
             guardrail_response["project"] = project_context
             guardrail_response["store"] = store_profile or None
             return guardrail_response
-        if (
-            domain_cerp_enabled
-            and chat_domain_hooks
-            and chat_domain_hooks.should_handle_business_fields(text)
-        ):
-            try:
-                cerp_business_response = await chat_domain_hooks.answer_business_fields(
-                    text,
-                    language=resolved_lang,
-                )
-            except CERPClientError:
-                cerp_business_response = None
-            if cerp_business_response:
-                project_id = project_context.get("id") if project_context else None
-                project_label = project_context.get("label") if project_context else None
-                conv_uuid: Optional[uuid.UUID] = None
-                requested_conversation_id = data.get("conversation_id")
-                if requested_conversation_id and not data.get("reset_conversation"):
-                    try:
-                        conv_uuid = uuid.UUID(str(requested_conversation_id))
-                    except (ValueError, TypeError):
-                        conv_uuid = None
-                conv_id = await add_message_to_conversation(
-                    conv_uuid,
-                    "user",
-                    text,
-                    user_id=user_id,
-                    project_id=project_id,
-                    project_label=project_label,
-                )
-                answer_payload = cerp_business_response.get("answer") if isinstance(cerp_business_response.get("answer"), dict) else {}
-                metadata = answer_payload.get("metadata") if isinstance(answer_payload.get("metadata"), dict) else {}
-                metadata["language"] = resolved_lang
-                metadata["lang"] = resolved_lang
-                metadata["detected_query_language"] = question_lang
-                metadata["requested_language"] = requested_lang
-                metadata.setdefault("routing_path", "strict_business_fact_gate")
-                metadata.setdefault("project", project_context or {})
-                _, assistant_message_id = await add_message_to_conversation(
-                    conv_id,
-                    "assistant",
-                    str(answer_payload.get("text") or cerp_business_response.get("content") or ""),
-                    user_id=user_id,
-                    project_id=project_id,
-                    project_label=project_label,
-                    metadata=metadata,
-                    return_message_id=True,
-                )
-                answer_payload["metadata"] = metadata
-                answer_payload["conversation_id"] = str(conv_id) if conv_id else None
-                if assistant_message_id:
-                    answer_payload["message_id"] = str(assistant_message_id)
-                cerp_business_response["answer"] = answer_payload
-                cerp_business_response["project"] = project_context
-                cerp_business_response["store"] = store_profile or None
-                return cerp_business_response
-
-        if _looks_like_business_location_query(text):
-            business_location = _build_business_location_answer(
+        llm_budget = LLMRequestBudget(limit=2)
+        try:
+            execution_plan = await chat_planning_service.plan(
                 text,
-                store_profile=store_profile or None,
-                language=resolved_lang,
+                history=product_need_history,
+                context_state=conversation_context_state,
+                budget=llm_budget,
             )
-            project_id = project_context.get("id") if project_context else None
-            project_label = project_context.get("label") if project_context else None
-            conv_uuid: Optional[uuid.UUID] = None
-            requested_conversation_id = data.get("conversation_id")
-            if requested_conversation_id and not data.get("reset_conversation"):
-                try:
-                    conv_uuid = uuid.UUID(str(requested_conversation_id))
-                except (ValueError, TypeError):
-                    conv_uuid = None
-            conv_id = await add_message_to_conversation(
-                conv_uuid,
-                "user",
-                text,
-                user_id=user_id,
-                project_id=project_id,
-                project_label=project_label,
-            )
-            answer_payload: Dict[str, Any] = {
-                "text": str(business_location.get("text") or ""),
-                "citations": [],
-                "conversation_id": str(conv_id) if conv_id else None,
-                "metadata": business_location.get("metadata") if isinstance(business_location.get("metadata"), dict) else {},
-            }
-            metadata = answer_payload["metadata"]
-            metadata["language"] = resolved_lang
-            metadata["lang"] = resolved_lang
-            metadata["detected_query_language"] = question_lang
-            metadata["requested_language"] = requested_lang
-            metadata.setdefault("project", project_context or {})
-            _, assistant_message_id = await add_message_to_conversation(
-                conv_id,
-                "assistant",
-                answer_payload["text"],
-                user_id=user_id,
-                project_id=project_id,
-                project_label=project_label,
-                metadata=metadata,
-                return_message_id=True,
-            )
-            if assistant_message_id:
-                answer_payload["message_id"] = str(assistant_message_id)
-            return {
-                "ok": True,
-                "kind": "chat",
-                "intent": {"name": "BUSINESS_LOCATION_LOOKUP"},
-                "answer": answer_payload,
-                "content": answer_payload["text"],
-                "language": resolved_lang,
-                "project": project_context,
-                "store": store_profile or None,
-            }
-
-        product_intent_decision = await product_intent_analysis_service.analyze(
-            text,
-            history=product_need_history,
+        except Exception as exc:
+            logger.warning("YS-AI planner failed; using knowledge-only fallback: %s", exc)
+            execution_plan = ChatPlanningService.fallback(text)
+        product_intent_decision = execution_plan
+        trip_plan_result = trip_plan_service.merge_planner_patch(
             context_state=conversation_context_state,
-            bridge_eligible=product_need_result.eligible,
-        )
-        trip_plan_result = trip_plan_service.update(
-            text,
-            context_state=conversation_context_state,
+            patch=execution_plan.trip_plan_patch.model_dump(exclude_none=True),
             task_type=product_intent_decision.task_type,
         )
-        trip_need_patch = (
-            trip_plan_service.to_product_need_patch(trip_plan_result.trip_plan)
-            if product_intent_decision.task_type in {"product_recommendation", "erp_lookup"}
-            else {}
-        )
+        trip_need_patch: Dict[str, Any] = {}
         merged_profile = merge_need_profile_patch(
             trip_need_patch,
             product_need_result.profile,
         )
         merged_profile = merge_need_profile_patch(
             merged_profile,
-            product_intent_decision.need_profile_patch,
+            product_intent_decision.need_profile_patch.model_dump(),
         )
-        if trip_need_patch:
-            merged_profile = trip_plan_service.apply_product_context(
-                merged_profile,
-                trip_plan_result.trip_plan,
-                text,
-            )
         product_need_result = ProductNeedResult(
             profile=merged_profile,
             eligible=product_intent_decision.bridge_eligible,
@@ -1895,149 +1633,12 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
             preview_categories=list(merged_profile.get("categories") or [])[:6],
         )
 
-        if (
-            domain_cerp_enabled
-            and product_need_result.explicit_product_intent
-        ):
-            is_product_fact_lookup = product_intent_decision.task_type == "erp_lookup"
-            if is_product_fact_lookup:
-                recommendation = await product_fact_lookup_service.lookup(
-                    product_intent_decision.lookup_operation or "product_lookup",
-                    product_intent_decision.lookup_query or text,
-                    resolved_lang,
-                )
-            else:
-                try:
-                    recommendation = await product_bridge_service.recommend(
-                        product_need_result.profile,
-                        language=resolved_lang,
-                    )
-                except CERPClientError:
-                    recommendation = {
-                        "product_results": [],
-                        "source_timestamp": datetime.now(timezone.utc).isoformat(),
-                        "professional_guidance": ProductBridgeService.professional_guidance(
-                            product_need_result.profile,
-                            resolved_lang,
-                        ),
-                        "text": ProductBridgeService._answer_text(False, resolved_lang),
-                        "erp_status": "error",
-                    }
-            project_id = project_context.get("id") if project_context else None
-            project_label = project_context.get("label") if project_context else None
-            conv_uuid = uuid.UUID(str(knowledge_conversation_id)) if knowledge_conversation_id else None
-            conv_id = await add_message_to_conversation(
-                conv_uuid,
-                "user",
-                text,
-                user_id=user_id,
-                project_id=project_id,
-                project_label=project_label,
+        erp_result: Optional[Dict[str, Any]] = None
+        if domain_cerp_enabled and execution_plan.erp_ast is not None:
+            erp_result = await erp_query_executor.execute(
+                execution_plan.erp_ast,
+                language=resolved_lang,
             )
-            product_results = list(recommendation.get("product_results") or [])
-            if is_product_fact_lookup:
-                answer_text = str(recommendation.get("text") or "").strip()
-            else:
-                answer_text = "\n\n".join(
-                    part
-                    for part in (
-                        str(recommendation.get("professional_guidance") or "").strip(),
-                        str(recommendation.get("text") or "").strip(),
-                    )
-                    if part
-                )
-            knowledge = {
-                "mode": "llm_only",
-                "rag_status": "empty_corpus",
-                "rag_hit_count": 0,
-                "external_attempted": False,
-                "external_status": "not_attempted",
-            }
-            metadata: Dict[str, Any] = {
-                "intent": "ERP_PRODUCT_FACT_LOOKUP" if is_product_fact_lookup else "PRODUCT_RECOMMENDATION",
-                "knowledge": knowledge,
-                "product_bridge": _product_bridge_metadata(
-                    product_need_result,
-                    trigger="immediate",
-                    fulfilled=True,
-                    intent_source=product_intent_decision.source,
-                    intent_confidence=product_intent_decision.confidence,
-                    intent_task_type=product_intent_decision.task_type,
-                    intent_decision=product_intent_decision.decision,
-                ),
-                "product_results": product_results,
-                "erp_status": (
-                    (recommendation.get("erp_lookup") or {}).get("status")
-                    if is_product_fact_lookup
-                    else recommendation.get("erp_status")
-                ),
-                "erp_snapshot_timestamp": (
-                    (recommendation.get("erp_lookup") or {}).get("timestamp")
-                    if is_product_fact_lookup
-                    else recommendation.get("source_timestamp")
-                ),
-                "language": resolved_lang,
-                "lang": resolved_lang,
-                "detected_query_language": question_lang,
-                "requested_language": requested_lang,
-                "routing_path": (
-                    "erp_product_fact_lookup"
-                    if is_product_fact_lookup
-                    else "knowledge_first_immediate_product_bridge"
-                ),
-                "intent_task_type": product_intent_decision.task_type,
-                "intent_decision": product_intent_decision.decision,
-                "intent_source": product_intent_decision.source,
-                "intent_confidence": round(float(product_intent_decision.confidence), 3),
-                "intent_lookup_operation": product_intent_decision.lookup_operation,
-                "project": project_context or {},
-            }
-            if is_product_fact_lookup:
-                metadata["erp_lookup"] = dict(recommendation.get("erp_lookup") or {})
-            _, assistant_message_id = await add_message_to_conversation(
-                conv_id,
-                "assistant",
-                answer_text,
-                user_id=user_id,
-                project_id=project_id,
-                project_label=project_label,
-                metadata=metadata,
-                return_message_id=True,
-            )
-            metadata["product_bridge"]["source_message_id"] = str(assistant_message_id)
-            await update_message_enrichment(assistant_message_id, metadata=metadata)
-            context_update = {
-                "trip_plan": trip_plan_result.trip_plan,
-                "product_need_profile": product_need_result.profile,
-                "source_message_id": str(assistant_message_id),
-            }
-            if is_product_fact_lookup:
-                context_update["erp_lookup"] = dict(recommendation.get("erp_lookup") or {})
-            await merge_conversation_context_state(
-                conv_id,
-                context_update,
-                context_version=NEED_PROFILE_VERSION,
-            )
-            answer_payload = {
-                "text": answer_text,
-                "citations": [],
-                "conversation_id": str(conv_id),
-                "message_id": str(assistant_message_id),
-                "metadata": metadata,
-            }
-            return {
-                "ok": True,
-                "kind": "chat",
-                "intent": {
-                    "name": "ERP_PRODUCT_FACT_LOOKUP" if is_product_fact_lookup else "PRODUCT_RECOMMENDATION"
-                },
-                "answer": answer_payload,
-                "content": answer_text,
-                "language": resolved_lang,
-                "project": project_context,
-                "store": store_profile or None,
-                "product_results": product_results,
-            }
         lang = resolved_lang
 
         history_cutoff_value: Optional[datetime] = None
@@ -2060,14 +1661,12 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
         refined_text = text
         standard_prompt_category_override: Optional[str] = "general_chat"
         standard_authoritative_reason_override: Optional[str] = None
-        auto_external_verification = _requires_external_verification(
-            text,
-            url_inputs,
-            task_type=product_intent_decision.task_type,
-        )
+        auto_external_verification = bool(execution_plan.external.required or url_inputs)
         standard_needs_authoritative_override = auto_external_verification
         if auto_external_verification:
-            standard_authoritative_reason_override = "time_sensitive_or_explicit_verification"
+            standard_authoritative_reason_override = (
+                execution_plan.external.reason or "time_sensitive_or_explicit_verification"
+            )
 
         orchestrator_call = chat_orchestrator.chat(
             refined_text,
@@ -2092,11 +1691,11 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
                 **conversation_context_state,
                 "trip_plan": trip_plan_result.trip_plan,
             },
-            retrieval_query_override=trip_plan_service.retrieval_query(
-                text,
-                trip_plan_result.trip_plan,
-                product_intent_decision.task_type,
-            ),
+            retrieval_query_override=(execution_plan.rag_queries[0] if execution_plan.rag_queries else text),
+            execution_plan=execution_plan,
+            erp_result=erp_result,
+            llm_budget=llm_budget,
+            planning_history=product_need_history,
         )
         try:
             if benchmark_trace and benchmark_deadline_seconds is not None:
@@ -2115,30 +1714,6 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
                 store_profile=store_profile or None,
             )
         payload = orchestrated.dict()
-        context_hits = payload.get("context") if isinstance(payload.get("context"), list) else []
-        rag_summaries = [
-            item
-            for item in context_hits
-            if isinstance(item, dict)
-            and str(item.get("source_type") or "").strip() != "external_search"
-        ]
-        if rag_summaries:
-            rag_product_need = product_need_extractor.extract(
-                text,
-                history=product_need_history,
-                context_state=conversation_context_state,
-                rag_summaries=rag_summaries,
-            )
-            merged_rag_profile = merge_need_profile_patch(
-                rag_product_need.profile,
-                product_intent_decision.need_profile_patch,
-            )
-            product_need_result = ProductNeedResult(
-                profile=merged_rag_profile,
-                eligible=product_intent_decision.bridge_eligible,
-                explicit_product_intent=False,
-                preview_categories=list(merged_rag_profile.get("categories") or [])[:6],
-            )
         answer_metadata = payload.get("answer", {}).get("metadata")
         if isinstance(answer_metadata, dict):
             answer_metadata["language"] = lang
@@ -2152,10 +1727,11 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
             answer_metadata["intent_source"] = product_intent_decision.source
             answer_metadata["intent_confidence"] = round(float(product_intent_decision.confidence), 3)
             answer_metadata["intent_lookup_operation"] = product_intent_decision.lookup_operation
-            trigger = "button" if product_need_result.eligible else "none"
+            trigger = "immediate" if erp_result is not None else ("button" if product_need_result.eligible else "none")
             answer_metadata["product_bridge"] = _product_bridge_metadata(
                 product_need_result,
                 trigger=trigger,
+                fulfilled=erp_result is not None,
                 intent_source=product_intent_decision.source,
                 intent_confidence=product_intent_decision.confidence,
                 intent_task_type=product_intent_decision.task_type,
@@ -2166,10 +1742,7 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
             if prompt_category == "general_chat" and response_mode == "generated":
                 retrieval_snapshot = answer_metadata.get("retrieval_snapshot") if isinstance(answer_metadata.get("retrieval_snapshot"), dict) else {}
                 hit_count = int(retrieval_snapshot.get("selected_hit_count") or 0) if retrieval_snapshot else 0
-                if analysis_service._looks_like_outdoor_location_advice_query(text):
-                    routing_path = "outdoor_location_llm_with_rag" if hit_count > 0 else "outdoor_location_llm_no_rag"
-                else:
-                    routing_path = "general_llm_with_rag" if hit_count > 0 else "general_llm_no_rag"
+                routing_path = "ys_ai_planned_with_rag" if hit_count > 0 else "ys_ai_planned_no_rag"
                 answer_metadata.setdefault(
                     "routing_path",
                     routing_path,
@@ -2190,7 +1763,7 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
                 answer_payload["citations"] = []
             answer_payload["metadata"] = answer_metadata
             payload["answer"] = answer_payload
-            payload["product_results"] = []
+            payload["product_results"] = list((erp_result or {}).get("product_results") or [])
         if assistant_message_id:
             await update_message_enrichment(
                 assistant_message_id,
@@ -2212,6 +1785,8 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
                             "source_message_id": str(assistant_message_id),
                         }
                     )
+                if isinstance(erp_result, dict) and isinstance(erp_result.get("erp_lookup"), dict):
+                    context_updates["erp_lookup"] = dict(erp_result["erp_lookup"])
                 await merge_conversation_context_state(
                     uuid.UUID(str(response_conversation_id)),
                     context_updates,

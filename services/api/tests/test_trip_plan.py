@@ -7,58 +7,43 @@ class TripPlanServiceTests(unittest.TestCase):
     def setUp(self):
         self.service = TripPlanService()
 
-    def test_three_turn_trip_state_and_product_patch(self):
-        first = self.service.update(
-            "南部中海拔營區推薦",
+    def test_three_turn_planner_patches_preserve_trip_state(self):
+        first = self.service.merge_planner_patch(
             context_state={},
-            task_type="destination_recommendation",
+            patch={
+                "activity": "camping",
+                "destination_region": "southern_taiwan",
+                "elevation_band": "mid_altitude",
+            },
+            task_type="destination",
         ).trip_plan
-        self.assertEqual(first["activity"], "camping")
-        self.assertEqual(first["destination_region"], "southern_taiwan")
-        self.assertEqual(first["elevation_band"], "mid_altitude")
-
-        second = self.service.update(
-            "依高雄出發地幫我篩選，三天的營地",
+        second = self.service.merge_planner_patch(
             context_state={"trip_plan": first},
-            task_type="destination_filter",
+            patch={"departure_location": "高雄", "duration_days": 3},
+            task_type="destination",
         ).trip_plan
-        self.assertEqual(second["destination_region"], "southern_taiwan")
-        self.assertEqual(second["departure_location"], "高雄")
-        self.assertEqual(second["duration_days"], 3)
-
-        third = self.service.update(
-            "合適的用品推薦",
+        third = self.service.merge_planner_patch(
             context_state={"trip_plan": second},
+            patch={},
             task_type="product_recommendation",
         ).trip_plan
-        patch = self.service.to_product_need_patch(third)
-        self.assertEqual(patch["activity"], "camping")
-        self.assertEqual(patch["location"], "南部中海拔")
-        self.assertEqual(patch["duration"], "3天")
-        self.assertNotIn("高雄", str(patch))
-        self.assertIn("sleeping_gear", patch["categories"])
 
-        cleaned = self.service.apply_product_context(
-            {**patch, "location": "southern_taiwan"},
-            third,
-            "合適的用品推薦",
-        )
-        self.assertEqual(cleaned["location"], "南部中海拔")
-        self.assertNotIn("southern_taiwan", str(cleaned))
+        self.assertEqual(third["activity"], "camping")
+        self.assertEqual(third["destination_region"], "southern_taiwan")
+        self.assertEqual(third["elevation_band"], "mid_altitude")
+        self.assertEqual(third["departure_location"], "高雄")
+        self.assertEqual(third["duration_days"], 3)
+        self.assertEqual(third["active_task_type"], "product_recommendation")
 
-    def test_destination_filter_retrieval_query_restores_prior_constraints(self):
-        plan = {
-            "activity": "camping",
-            "destination_region": "southern_taiwan",
-            "departure_location": "高雄",
-            "elevation_band": "mid_altitude",
-            "duration_days": 3,
-        }
-        query = self.service.retrieval_query("再幫我篩選", plan, "destination_filter")
-        self.assertIn("南部", query)
-        self.assertIn("中海拔", query)
-        self.assertIn("從高雄出發", query)
-        self.assertIn("3天", query)
+    def test_unrecognized_planner_fields_are_not_persisted(self):
+        result = self.service.merge_planner_patch(
+            context_state={},
+            patch={"activity": "camping", "erp_query": "高雄", "unknown": "value"},
+            task_type="destination",
+        ).trip_plan
+        self.assertEqual(result["activity"], "camping")
+        self.assertNotIn("erp_query", result)
+        self.assertNotIn("unknown", result)
 
 
 if __name__ == "__main__":

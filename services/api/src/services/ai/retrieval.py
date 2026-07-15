@@ -25,6 +25,8 @@ class RetrievalService:
         needs_authoritative_sources: bool = False,
         source_policy: str = "internal_preferred",
         external_search_reason: Optional[str] = None,
+        external_query: Optional[str] = None,
+        external_on_rag_miss: bool = True,
         prompt_category: Optional[str] = None,
         entity_hints: Optional[Dict[str, Any]] = None,
         request_deadline_at: Optional[float] = None,
@@ -68,11 +70,13 @@ class RetrievalService:
                 or str(source_policy or "").strip() == "authoritative_external_required"
                 or external_search_reason
             )
+            if external_on_rag_miss and internal_hits:
+                should_attempt_external = False
             if should_attempt_external:
                 try:
                     search_result = await asyncio.to_thread(
                         self._external_search_service.search,
-                        query,
+                        str(external_query or query),
                         entity_hints=entity_hints or {},
                         prompt_category="source_validation",
                         external_search_reason=external_search_reason or "authoritative_required",

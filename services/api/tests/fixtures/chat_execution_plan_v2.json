@@ -1,0 +1,62 @@
+[
+  {
+    "id": "stable-learning-recommendation",
+    "prompt": "推薦一種學習方法",
+    "paraphrases": ["能建議一個有效的讀書方法嗎？"],
+    "expected": {"answer_mode": "knowledge_only", "erp": false, "external": false}
+  },
+  {
+    "id": "unknown-brand-inventory",
+    "prompt": "bombada 還剩幾件？",
+    "paraphrases": ["幫我查 Bombada 現在的庫存數量"],
+    "expected": {"task_type": "erp_lookup", "operation": "inventory", "external": false}
+  },
+  {
+    "id": "inventory-management-counterexample",
+    "prompt": "庫存管理方法有哪些？",
+    "paraphrases": ["如何改善公司的庫存管理流程？"],
+    "expected": {"answer_mode": "knowledge_only", "erp": false, "external": false}
+  },
+  {
+    "id": "pricing-strategy-counterexample",
+    "prompt": "產品價格策略怎麼制定？",
+    "paraphrases": ["定價策略通常要考慮哪些因素？"],
+    "expected": {"answer_mode": "knowledge_only", "erp": false, "external": false}
+  },
+  {
+    "id": "live-mountain-weather",
+    "prompt": "目前玉山天氣如何？",
+    "paraphrases": ["幫我查玉山現在的天氣狀況"],
+    "expected": {"erp": false, "external": true}
+  },
+  {
+    "id": "stable-selection-current-word-counterexample",
+    "prompt": "目前釣竿怎麼挑？",
+    "paraphrases": ["現在要選釣竿應注意什麼？"],
+    "expected": {"erp": false, "external": false}
+  },
+  {
+    "id": "brand-catalog",
+    "prompt": "目前釣竿品牌有哪些？",
+    "paraphrases": ["YS 現有釣竿是哪些品牌？"],
+    "expected": {"task_type": "erp_lookup", "operation": "catalog", "external": false}
+  },
+  {
+    "id": "destination-planning",
+    "prompt": "南部中海拔營區推薦",
+    "paraphrases": ["想找南台灣中海拔的露營區方向"],
+    "expected": {"task_type": "destination", "erp": false, "external": false}
+  },
+  {
+    "id": "destination-live-availability",
+    "prompt": "查證這週末南部中海拔營區是否還有空位",
+    "paraphrases": ["請確認本週末哪些南部山區營地仍在營業且可訂"],
+    "expected": {"task_type": "destination", "erp": false, "external": true}
+  },
+  {
+    "id": "mixed-guidance-and-products",
+    "prompt": "玉山雨季怎麼準備，順便推薦有庫存且三千元內的裝備",
+    "paraphrases": ["先說明雨季登山準備，再找價格不超過 3000 且有貨的用品"],
+    "expected": {"task_type": "mixed", "answer_mode": "mixed", "operation": "recommendation", "external": false}
+  }
+]
