@@ -52,7 +52,7 @@ if [[ -n "$source_dump" || -n "$source_manifest" ]]; then
 
   existing_tables="$("${compose[@]}" exec -T postgres sh -lc "psql -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DB\" -Atqc \"SELECT count(*) FROM pg_tables WHERE schemaname = 'public';\"")"
   if [[ "$existing_tables" != 0 ]]; then
-    "$api_dir/scripts/gcp/backup-db.sh" "${backups_dir}/pre_restore_${release_id}.dump"
+    bash "$api_dir/scripts/gcp/backup-db.sh" "${backups_dir}/pre_restore_${release_id}.dump"
   fi
 
   container_id="$("${compose[@]}" ps -q postgres)"
@@ -60,7 +60,7 @@ if [[ -n "$source_dump" || -n "$source_manifest" ]]; then
   "${compose[@]}" exec -T postgres sh -lc 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists --no-owner --no-privileges /tmp/source.dump'
   "${compose[@]}" exec -T postgres rm -f /tmp/source.dump
   cp "$source_manifest" "${backups_dir}/source_${release_id}.manifest.json"
-  "$api_dir/scripts/gcp/verify-db-counts.sh" "${backups_dir}/source_${release_id}.manifest.json"
+  bash "$api_dir/scripts/gcp/verify-db-counts.sh" "${backups_dir}/source_${release_id}.manifest.json"
 fi
 
 "${compose[@]}" build api
