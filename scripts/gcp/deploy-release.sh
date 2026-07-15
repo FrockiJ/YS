@@ -64,10 +64,18 @@ if [[ -n "$source_dump" || -n "$source_manifest" ]]; then
 fi
 
 "${compose[@]}" build api
-"${compose[@]}" run --rm --no-deps api sh -lc '
-  encoded_password="$(python -c "import os, urllib.parse; print(urllib.parse.quote(os.environ[\"POSTGRES_PASSWORD\"], safe=\"\"))")"
-  export ALEMBIC_DATABASE_URL="postgresql+psycopg2://${POSTGRES_USER}:${encoded_password}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
-  alembic upgrade head
+"${compose[@]}" run --rm --no-deps api python -c '
+import os
+import subprocess
+import urllib.parse
+
+environment = os.environ.copy()
+password = urllib.parse.quote(environment["POSTGRES_PASSWORD"], safe="")
+environment["ALEMBIC_DATABASE_URL"] = (
+    f"postgresql+psycopg2://{environment[\"POSTGRES_USER\"]}:{password}"
+    f"@{environment[\"POSTGRES_HOST\"]}:{environment[\"POSTGRES_PORT\"]}/{environment[\"POSTGRES_DB\"]}"
+)
+subprocess.run(["alembic", "upgrade", "head"], env=environment, check=True)
 '
 "${compose[@]}" up -d --build --remove-orphans
 rm -rf "$staging_dir"
