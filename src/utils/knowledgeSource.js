@@ -7,6 +7,10 @@ const ERP_LOOKUP_OPERATIONS = new Set([
 const normalizeToken = (value) => String(value || '').trim().toLowerCase()
 
 const hasFactLookupMetadata = (metadata = {}) => {
+  const answerMode = normalizeToken(
+    metadata?.execution_plan?.answer_mode || metadata.answer_mode
+  )
+  if (answerMode === 'mixed') return false
   const erpLookup =
     metadata?.erp_lookup && typeof metadata.erp_lookup === 'object'
       ? metadata.erp_lookup
@@ -16,7 +20,8 @@ const hasFactLookupMetadata = (metadata = {}) => {
   )
   return Boolean(
     ERP_LOOKUP_OPERATIONS.has(operation) ||
-      normalizeToken(metadata.intent_task_type) === 'erp_lookup'
+      normalizeToken(metadata.intent_task_type) === 'erp_lookup' ||
+      (answerMode === 'erp_only' && metadata?.erp_query)
   )
 }
 
