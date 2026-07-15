@@ -22,6 +22,8 @@ if ($existing | Where-Object { $_.Name -eq 'ys-uat' }) {
 $env:YS_VUE_DIR = $vueDir
 $env:YS_BACKEND_ENV_FILE = $envFile
 Remove-Item Env:YS_UAT_WEB_BIND_ADDRESS -ErrorAction SilentlyContinue
+Remove-Item Env:YS_WEB_BIND_ADDRESS -ErrorAction SilentlyContinue
+Remove-Item Env:YS_WEB_HOST_PORT -ErrorAction SilentlyContinue
 
 if ($Public) {
     if (-not (Test-Path -LiteralPath $publicEnvFile)) {

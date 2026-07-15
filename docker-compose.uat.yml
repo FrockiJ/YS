@@ -9,7 +9,7 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "${YS_UAT_WEB_BIND_ADDRESS:-127.0.0.1}::80"
+      - "${YS_WEB_BIND_ADDRESS:-${YS_UAT_WEB_BIND_ADDRESS:-127.0.0.1}}:${YS_WEB_HOST_PORT:-}:80"
 
   api:
     build:
