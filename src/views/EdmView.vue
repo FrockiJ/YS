@@ -14,6 +14,15 @@ import {
 import { writeClipboard } from '../utils/clipboard'
 import { formatUsdPrice } from '../utils/currency'
 import {
+  isEdmBundleColumn,
+  isEdmColorColumn,
+  isEdmPriceColumn,
+  isEdmProductColumn,
+  normalizeEdmTableColumns,
+  resolveEdmTableValue,
+  snapshotEdmTableColumns,
+} from '../utils/edmTable'
+import {
   buildCerpPricingState,
   DEFAULT_EDM_QUOTE_TIER,
   EDM_QUOTE_TIERS,
@@ -26,10 +35,10 @@ import {
   resolveCerpCode,
   resolveCerpColor,
   resolveCerpProductName,
-  resolveCerpProducer,
-  resolveCerpRating,
+  resolveCerpBrand,
+  resolveCerpFeature,
   resolveCerpStock,
-  resolveCerpVintage,
+  resolveCerpSpecification,
   resolveEdmQuotePriceForTier,
   toNullableNumber,
 } from '../utils/cerpFields'
@@ -91,23 +100,7 @@ const showQuoteTierColumn = false
 const showEmptyState = computed(
   () => !isLoading.value && !loadError.value && previewRows.value.length === 0
 )
-const tableColumns = computed(() => {
-  const columns = [
-    { key: 'no', label: t('edm.table.columns.no') },
-    { key: 'vintage', label: t('edm.table.columns.vintage') },
-    { key: 'producer', label: t('edm.table.columns.producer') },
-    { key: 'product', label: t('edm.table.columns.product') },
-    { key: 'color', label: t('edm.table.columns.color') },
-    { key: 'rating', label: t('edm.table.columns.rating') },
-    { key: 'list_price', label: t('edm.table.columns.list_price') },
-    { key: 'quote_price', label: t('edm.table.columns.quote_price') },
-    { key: 'bundle', label: t('edm.table.columns.bundle') },
-  ]
-  if (showQuoteTierColumn) {
-    columns.push({ key: 'quote_tier_action', label: t('edm.table.columns.quote_action') })
-  }
-  return columns
-})
+const tableColumns = computed(() => normalizeEdmTableColumns(previewState.value?.table_columns))
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -176,13 +169,14 @@ const getBundleDiscountAriaLabel = (row = {}) =>
   })
 
 const serializePreviewRow = (row = {}) => ({
+  ...row,
   id: String(row.id || resolveCerpCode(row, '')),
   no: resolveCerpCode(row, ''),
-  vintage: resolveCerpVintage(row, ''),
-  producer: resolveCerpProducer(row, ''),
+  specification: resolveCerpSpecification(row, ''),
+  brand: resolveCerpBrand(row, ''),
   product: resolveCerpProductName(row, ''),
   color: resolveCerpColor(row, ''),
-  rating: resolveCerpRating(row, ''),
+  feature: resolveCerpFeature(row, ''),
   list_price: normalizeNumber(row.list_price),
   quote_price: normalizeNumber(row.quote_price),
   vip_price: normalizeNumber(row.vip_price),
@@ -250,13 +244,14 @@ const persistPreviewState = async () => {
 const normalizePreviewRow = (row = {}, index = 0) => {
   const pricing = buildCerpPricingState(row, row.selected_quote_tier)
   return {
+    ...row,
     id: String(row.id || resolveCerpCode(row, `row-${index}`)),
     no: resolveCerpCode(row, '-'),
-    vintage: resolveCerpVintage(row, '-'),
-    producer: resolveCerpProducer(row, '-'),
+    specification: resolveCerpSpecification(row, '-'),
+    brand: resolveCerpBrand(row, '-'),
     product: resolveCerpProductName(row, '-'),
     color: resolveCerpColor(row, '-'),
-    rating: resolveCerpRating(row, '-'),
+    feature: resolveCerpFeature(row, '-'),
     list_price: pricing.list_price,
     quote_price: pricing.quote_price,
     display_quote_price: pricing.display_quote_price,
@@ -289,6 +284,7 @@ const normalizePreviewPayload = (payload, { readOnly = false } = {}) => {
     rows: Array.isArray(payload.rows)
       ? payload.rows.map((row, index) => normalizePreviewRow(row, index))
       : [],
+    table_columns: snapshotEdmTableColumns(payload.table_columns),
     project: payload.project || {},
     conversation_id: payload.conversation_id || null,
     customer:
@@ -309,28 +305,8 @@ const buildPreviewRows = (items = []) =>
     ? items.map((item, index) =>
         normalizePreviewRow(
           {
-            id: item.id,
-            no: item.no,
-            vintage: item.vintage,
-            producer: item.producer,
-            product: item.product,
-            color: item.color,
-            rating: item.rating,
-            list_price: item.list_price ?? item.price,
-            vip_price: item.vip_price ?? item.vip,
-            fb_price: item.fb_price,
-            wholesale_price:
-              item.wholesale_price ??
-              item.invn808 ??
-              item.invn080 ??
-              item.wholesale ??
-              item.dealer_price ??
-              item.dealer,
+            ...item,
             selected_quote_tier: item.selected_quote_tier || DEFAULT_EDM_QUOTE_TIER,
-            display_quote_price: item.display_quote_price ?? item.quote_price,
-            quote_price: item.quote_price,
-            stock: resolveCerpStock(item),
-            bundle: resolveCerpBundleDisplay(item),
             bundle_discount_enabled: item.bundle_discount_enabled,
             bundle_discount_type: item.bundle_discount_type,
             product_link: item.link || item.linkHref || item.link_href || item.url || '',
@@ -529,35 +505,26 @@ const sendShareLink = async () => {
   }
 }
 
+const getTableCellText = (row, column) => {
+  const value = resolveEdmTableValue(row, column.key)
+  if (isEdmPriceColumn(column.key)) return formatCurrency(value)
+  if (isEdmBundleColumn(column.key)) return getBundleDiscountStatusText(row)
+  return value
+}
+
 const exportExcel = () => {
   if (!previewRows.value.length) return
 
-  const exportColumns = tableColumns.value.filter((column) => column.key !== 'quote_tier_action')
+  const exportColumns = tableColumns.value
   const header = exportColumns.map((column) => column.label)
-  const rows = previewRows.value.map((row) => [
-    row.no,
-    row.vintage,
-    row.producer,
-    row.product,
-    row.color,
-    row.rating,
-    formatCurrency(row.list_price),
-    formatCurrency(row.quote_price),
-    getBundleDiscountStatusText(row),
-  ])
+  const rows = previewRows.value.map((row) =>
+    exportColumns.map((column) => getTableCellText(row, column))
+  )
 
   const worksheet = XLSX.utils.aoa_to_sheet([header, ...rows])
-  worksheet['!cols'] = [
-    { wch: 14 },
-    { wch: 10 },
-    { wch: 22 },
-    { wch: 48 },
-    { wch: 12 },
-    { wch: 14 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 10 },
-  ]
+  worksheet['!cols'] = exportColumns.map((column) => ({
+    wch: Math.max(10, Math.round((column.width || 110) / 8)),
+  }))
 
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, t('edm.export.sheet_name'))
@@ -605,6 +572,7 @@ const loadInternalPreview = async () => {
     quote_date: new Date().toISOString(),
     hero_text: buildHeroText(rows),
     rows,
+    table_columns: snapshotEdmTableColumns(edmContext?.table_columns),
   }
   const response = await createEdmPreview(payload)
   const normalized = normalizePreviewPayload(response)
@@ -785,34 +753,32 @@ onBeforeUnmount(() => {
               </thead>
               <tbody>
                 <tr v-for="row in previewRows" :key="row.id">
-                  <td>{{ row.no }}</td>
-                  <td>{{ row.vintage }}</td>
-                  <td>{{ row.producer }}</td>
-                  <td class="edm-table__product">
+                  <td
+                    v-for="column in tableColumns"
+                    :key="column.key"
+                    :class="{
+                      'edm-table__product': isEdmProductColumn(column.key),
+                      'is-price': isEdmPriceColumn(column.key),
+                      'is-quote': column.key === 'vip' || column.key === 'quote_price',
+                    }"
+                  >
                     <a
-                      v-if="row.product_link"
+                      v-if="isEdmProductColumn(column.key) && row.product_link"
                       :href="row.product_link"
                       target="_blank"
                       rel="noopener"
                     >
-                      {{ row.product }}
+                      {{ getTableCellText(row, column) }}
                     </a>
-                    <span v-else class="edm-table__product-text">
-                      {{ row.product }}
+                    <span v-else-if="isEdmProductColumn(column.key)" class="edm-table__product-text">
+                      {{ getTableCellText(row, column) }}
                     </span>
-                  </td>
-                  <td>
-                    <span class="edm-table__color">
+                    <span v-else-if="isEdmColorColumn(column.key)" class="edm-table__color">
                       <img :src="resolveColorIcon(row.color)" alt="" aria-hidden="true" />
-                      <span>{{ row.color }}</span>
+                      <span>{{ getTableCellText(row, column) }}</span>
                     </span>
-                  </td>
-                  <td>{{ row.rating }}</td>
-                  <td class="is-price">{{ formatCurrency(row.list_price) }}</td>
-                  <td class="is-price is-quote">{{ formatCurrency(row.quote_price) }}</td>
-                  <td>
                     <button
-                      v-if="isElevenPlusOneBundle(row) && canEditEdmPreview"
+                      v-else-if="isEdmBundleColumn(column.key) && isElevenPlusOneBundle(row) && canEditEdmPreview"
                       type="button"
                       class="edm-table__bundle-toggle"
                       :class="{ 'is-disabled': !isBundleDiscountEnabled(row) }"
@@ -823,24 +789,14 @@ onBeforeUnmount(() => {
                       <strong>{{ getBundleDiscountLabel(row) }}</strong>
                     </button>
                     <span
-                      v-else-if="isElevenPlusOneBundle(row)"
+                      v-else-if="isEdmBundleColumn(column.key) && isElevenPlusOneBundle(row)"
                       class="edm-table__bundle-status"
                       :class="{ 'is-disabled': !isBundleDiscountEnabled(row) }"
                     >
                       <span>{{ resolveCerpBundleDisplay(row, '11+1') }}</span>
                       <strong>{{ getBundleDiscountLabel(row) }}</strong>
                     </span>
-                    <span v-else>{{ resolveCerpBundleDisplay(row) }}</span>
-                  </td>
-                  <td v-if="showQuoteTierColumn" class="edm-table__action-cell">
-                    <button
-                      type="button"
-                      class="edm-table__quote-action"
-                      :aria-label="`Switch quote tier for ${row.product}`"
-                      @click="cycleRowQuoteTier(row)"
-                    >
-                      {{ getQuoteTierLabel(row.selected_quote_tier) }}
-                    </button>
+                    <span v-else>{{ getTableCellText(row, column) }}</span>
                   </td>
                 </tr>
               </tbody>

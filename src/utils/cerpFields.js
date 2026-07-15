@@ -4,7 +4,7 @@ export const ELEVEN_PLUS_ONE_BUNDLE_TYPE = 'eleven_plus_one'
 
 const hasValue = (value) => value !== undefined && value !== null && value !== ''
 
-const COLOR_PLACEHOLDER_VALUES = new Set([
+const PLACEHOLDER_VALUES = new Set([
   '-',
   'unknown',
   '未知',
@@ -15,7 +15,7 @@ const COLOR_PLACEHOLDER_VALUES = new Set([
 ])
 
 const BUNDLE_PLACEHOLDER_VALUES = new Set([
-  ...COLOR_PLACEHOLDER_VALUES,
+  ...PLACEHOLDER_VALUES,
   '無',
   'none',
   'no',
@@ -70,7 +70,7 @@ export const toNullableNumber = (value) => {
 const isPlaceholderDisplayValue = (value) => {
   if (!hasValue(value)) return true
   const normalized = String(value).trim().toLowerCase()
-  return !normalized || COLOR_PLACEHOLDER_VALUES.has(normalized)
+  return !normalized || PLACEHOLDER_VALUES.has(normalized)
 }
 
 export const normalizeEdmQuoteTier = (value) =>
@@ -79,11 +79,24 @@ export const normalizeEdmQuoteTier = (value) =>
 export const resolveCerpCode = (row = {}, fallback = '-') =>
   toDisplayString(pickFirst(row, ['no', 'id', 'invn002']), fallback)
 
-export const resolveCerpVintage = (row = {}, fallback = '') =>
-  toDisplayString(pickFirst(row, ['invn807', 'vintage', 'invn051']), fallback)
+export const resolveCerpSpecification = (row = {}, fallback = '') =>
+  toDisplayString(
+    pickFirst(row, [
+      'specification',
+      'spec',
+      'spec1',
+      'model',
+      'model_name',
+      'model_year',
+      'invn807',
+      'invn051',
+      'size',
+    ]),
+    fallback
+  )
 
-export const resolveCerpProducer = (row = {}, fallback = '') =>
-  toDisplayString(pickFirst(row, ['producer', 'invn006']), fallback)
+export const resolveCerpBrand = (row = {}, fallback = '') =>
+  toDisplayString(pickFirst(row, ['brand', 'supplier', 'invn006']), fallback)
 
 export const resolveCerpProductName = (row = {}, fallback = '') =>
   toDisplayString(
@@ -102,7 +115,7 @@ export const resolveCerpProductName = (row = {}, fallback = '') =>
   )
 
 export const resolveCerpColor = (row = {}, fallback = '') => {
-  const colorKeys = ['color', 'invn801', 'wine_color', 'wineColor', 'Color']
+  const colorKeys = ['color', 'product_color', 'invn801', 'Color']
   for (const key of colorKeys) {
     const displayValue = toDisplayString(row?.[key], '')
     if (!isPlaceholderDisplayValue(displayValue)) return displayValue
@@ -110,8 +123,8 @@ export const resolveCerpColor = (row = {}, fallback = '') => {
   return fallback
 }
 
-export const resolveCerpRating = (row = {}, fallback = '') =>
-  toDisplayString(pickFirst(row, ['rating', 'invn804']), fallback)
+export const resolveCerpFeature = (row = {}, fallback = '') =>
+  toDisplayString(pickFirst(row, ['feature', 'material', 'invn804']), fallback)
 
 export const resolveCerpBundle = (row = {}, fallback = '') =>
   toDisplayString(pickFirst(row, ['invn048', 'bundle']), fallback)

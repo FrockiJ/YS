@@ -227,6 +227,21 @@
       "notice_history": "I found this product in 智慧系統. Summary (from previously exported data):",
       "notice_direct": "I found this product in 智慧系統. Summary:"
     },
+    "product_bridge": {
+      "action": "查看 YS 推薦商品",
+      "loading": "正在查詢 YS 商品...",
+      "preview": "建議裝備類別：{categories}",
+      "in_stock": "有庫存",
+      "legacy_reason": "符合{requirements}需求，且為 ERP 實際可用商品。",
+      "generic_reason": "符合目前的商品需求與可售條件。",
+      "requirements": {
+        "rain_protection": "防雨", "shelter": "遮蔽", "sleeping_gear": "睡眠保暖",
+        "lighting": "照明", "cooking_water": "炊事與飲水", "storage_packs": "背負與乾燥收納",
+        "power": "供電", "safety_repair": "安全與維修", "fishing_gear": "釣魚裝備",
+        "waterproof": "防水", "lightweight": "輕量", "compact": "易收納", "warm": "保暖"
+      },
+      "error": "目前無法載入 YS 商品，請稍後再試。"
+    },
     "cerp_results": {
       "title": "商品庫存結果（{count} 筆）",
       "subtitle": "以下結果留在聊天頁面供檢查，不會自動建立報價清單。",
@@ -250,10 +265,12 @@
         "review_score": "商品庫存評分"
       },
       "columns": {
+        "brand": "品牌",
+        "specification": "規格",
         "code": "品號",
-        "producer": "品牌",
+        "brand": "品牌",
         "name": "產品",
-        "vintage": "型號型號年份",
+        "specification": "型號／規格",
         "stock": "庫存",
         "price": "價格",
         "status": "狀態",
@@ -294,8 +311,8 @@
     "product_card": {
       "labels": {
         "number": "No.",
-        "vintage": "型號年份",
-        "producer": "品牌",
+        "specification": "型號／規格",
+        "brand": "品牌",
         "product": "品名",
         "color": "顏色",
         "rating": "評分",
@@ -307,7 +324,7 @@
       "bundle_1_1": "搭贈 1+1",
       "bundle_label": "1+1",
       "default_title": "商品庫存報價",
-      "non_vintage": "NV",
+      "non_specification": "NV",
       "photo_placeholder": "產品圖片準備中"
     },
     "user": {
@@ -323,10 +340,10 @@
       "success_intro": "針對「{query}」，我已整理可直接比較的報價候選內容：",
       "success_bullet_count": "{count} 筆產品可直接比較",
       "bullet_quote_info": "每項產品的代碼、名稱、庫存與報價資訊",
-      "bullet_wine_details": "顏色、評級、型號年份與品牌資訊，方便快速檢視",
+      "bullet_product_details": "顏色、特色、型號／規格與品牌資訊，方便快速檢視",
       "bullet_compare": "以便於並排比較的結構呈現",
       "success_closing": "這份清單已整理成可快速確認優先報價產品的格式。",
-      "closing_bullet_filter": "可再依類別、品牌或型號年份縮小範圍",
+      "closing_bullet_filter": "可再依類別、品牌或型號／規格縮小範圍",
       "closing_bullet_save": "可保留目前結果，稍後再調整",
       "closing_bullet_more": "可要求更多相近產品擴充候選清單",
       "shortage_title": "已為「{query}」整理 {count}/{requested} 筆報價建議",
@@ -336,13 +353,13 @@
       "shortage_closing": "如需，我可以把這些相近且有庫存的替代品加入下一版報價候選。",
       "empty_title": "目前沒有「{query}」的報價結果",
       "empty_intro": "暫時找不到可直接放入報價清單的產品；縮小條件後可重新整理。",
-      "empty_bullet_request": "確認品牌、類別、型號年份或偏好風格",
+      "empty_bullet_request": "確認品牌、類別、型號／規格或偏好風格",
       "empty_bullet_inventory": "改用有庫存項目或放寬庫存範圍重試",
       "empty_bullet_refine": "以用途、適配性或價格區間重新篩選",
       "empty_closing": "如需，我可以立即改成更接近目標的另一個報價方向。",
       "empty_closing_bullet_alternative": "切換為同品牌或同風格替代品",
       "empty_closing_bullet_region": "改以類別作為主要篩選條件",
-      "empty_closing_bullet_style": "改以用途、評級或價格帶重新推薦",
+      "empty_closing_bullet_style": "改以用途、特色或價格帶重新推薦",
       "near_match_title": "找到接近「{query}」的報價候選",
       "near_match_intro": "沒有找到完全符合且可銷售的項目，但有相近的報價候選可檢視。",
       "near_match_bullet_count": "目前有 {count} 筆相近的智慧系統候選",
@@ -747,7 +764,6 @@
         "avg_unit_price_label": "平均單價",
         "region_label": "類別",
         "region_placeholder": "登山 / 釣具",
-        "has_wine_cabinet_label": "Has storage locker",
         "description_label": "描述",
         "description_placeholder": "客戶偏好、常買類別、偏好價格區間...",
         "errors": {
@@ -972,11 +988,11 @@
     "table": {
       "columns": {
         "no": "編號",
-        "vintage": "型號型號年份",
-        "producer": "品牌",
+        "specification": "型號／規格",
+        "brand": "品牌",
         "product": "產品",
         "color": "顏色",
-        "rating": "評級",
+        "rating": "特色",
         "stock": "庫存",
         "price": "價格",
         "vip": "VIP 價",
@@ -1029,9 +1045,9 @@
       },
       "price_range": "價格區間",
       "color": "顏色",
-      "rating": "評級",
-      "vintage": "型號型號年份",
-      "producer": "品牌",
+      "rating": "特色",
+      "specification": "型號／規格",
+      "brand": "品牌",
       "inventory": "庫存",
       "all": "全部"
     },
@@ -1064,11 +1080,11 @@
       "color": "顏色",
       "color_unknown": "未知",
       "conversation_title": "新報價",
-      "non_vintage": "NV",
+      "non_specification": "NV",
       "none": "無",
       "price_estimate": "預估 {price}",
       "price_pending": "價格待確認",
-      "producer": "品牌",
+      "brand": "品牌",
       "product": "產品",
       "rating": "評分",
       "stock_bottles": "{count} 件",
@@ -1087,7 +1103,7 @@
       "count": "{count} 張",
       "meta": {
         "price": "價格",
-        "vintage": "型號型號年份",
+        "specification": "型號／規格",
         "sku": "SKU",
         "link": "連結",
         "area": "區域: {value}"
@@ -1096,7 +1112,7 @@
     "slide": {
       "notes": {
         "color": "顏色: {value}",
-        "rating": "評級: {value}"
+        "rating": "特色: {value}"
       }
     },
     "share": {
@@ -1128,7 +1144,7 @@
       "add_rule": "新增規則",
       "reset_rules": "重設規則",
       "remove_rule": "移除規則",
-      "group_by_producer": "依品牌分組",
+      "group_by_brand": "依品牌分組",
       "show_bundle_column": "顯示搭贈欄",
       "placeholder": "排序",
       "count": "{count} 項規則",
@@ -1145,9 +1161,9 @@
       },
       "fields": {
         "product": "產品",
-        "vintage": "型號型號年份",
+        "specification": "型號／規格",
         "color": "顏色",
-        "rating": "評級",
+        "rating": "特色",
         "stock": "庫存",
         "price": "價格",
         "bundle": "組合",
@@ -1160,11 +1176,11 @@
       "submit_failed": "送出報價請求失敗。",
       "cerp_failed": "取得商品庫存產品失敗。"
     },
-    "producer_description": {
+    "brand_description": {
       "line1": "{brand} {version} {product}（{color}，{rating}）。",
       "line2": "庫存: {stock}. 價格: {price}.",
       "line3": "可詢問用途建議或類別替代品.",
-      "line4": "使用篩選器縮小顏色、型號型號年份與評級.",
+      "line4": "使用篩選器縮小顏色、型號／規格與特色.",
       "filler": " 可提供附加備註."
     },
     "rating": {
@@ -1217,8 +1233,8 @@
       "color_icon": "{color} 色系",
       "columns": {
         "no": "No.",
-        "vintage": "型號年份",
-        "producer": "品牌",
+        "specification": "型號／規格",
+        "brand": "品牌",
         "product": "產品",
         "color": "顏色",
         "rating": "評分",
@@ -1365,10 +1381,10 @@
       "success_intro": "針對「{query}」，我已整理可直接比較的報價候選內容：",
       "success_bullet_count": "{count} 筆產品可直接比較",
       "bullet_quote_info": "每項產品的代碼、名稱、庫存與報價資訊",
-      "bullet_wine_details": "顏色、評級、型號年份與品牌資訊，方便快速檢視",
+      "bullet_product_details": "顏色、特色、型號／規格與品牌資訊，方便快速檢視",
       "bullet_compare": "以便於並排比較的結構呈現",
       "success_closing": "這份清單已整理成可快速確認優先報價產品的格式。",
-      "closing_bullet_filter": "可再依類別、品牌或型號年份縮小範圍",
+      "closing_bullet_filter": "可再依類別、品牌或型號／規格縮小範圍",
       "closing_bullet_save": "可保留目前結果，稍後再調整",
       "closing_bullet_more": "可要求更多相近產品擴充候選清單",
       "shortage_title": "已為「{query}」整理 {count}/{requested} 筆報價建議",
@@ -1378,13 +1394,13 @@
       "shortage_closing": "如需，我可以把這些相近且有庫存的替代品加入下一版報價候選。",
       "empty_title": "目前沒有「{query}」的報價結果",
       "empty_intro": "暫時找不到可直接放入報價清單的產品；縮小條件後可重新整理。",
-      "empty_bullet_request": "確認品牌、類別、型號年份或偏好風格",
+      "empty_bullet_request": "確認品牌、類別、型號／規格或偏好風格",
       "empty_bullet_inventory": "改用有庫存項目或放寬庫存範圍重試",
       "empty_bullet_refine": "以用途、適配性或價格區間重新篩選",
       "empty_closing": "如需，我可以立即改成更接近目標的另一個報價方向。",
       "empty_closing_bullet_alternative": "切換為同品牌或同風格替代品",
       "empty_closing_bullet_region": "改以類別作為主要篩選條件",
-      "empty_closing_bullet_style": "改以用途、評級或價格帶重新推薦",
+      "empty_closing_bullet_style": "改以用途、特色或價格帶重新推薦",
       "near_match_title": "找到接近「{query}」的報價候選",
       "near_match_intro": "沒有找到完全符合且可銷售的項目，但有相近的報價候選可檢視。",
       "near_match_bullet_count": "目前有 {count} 筆相近的智慧系統候選",
@@ -1410,8 +1426,8 @@
       "sheet_name": "報價回傳",
       "columns": {
         "no": "編號",
-        "vintage": "型號年份",
-        "producer": "品牌",
+        "specification": "型號／規格",
+        "brand": "品牌",
         "product": "產品名稱",
         "color": "顏色",
         "rating": "評分",
@@ -1495,10 +1511,14 @@
       "more_options": "更多操作"
     },
     "stats": {
+      "brand": "品牌",
+      "category": "分類",
+      "specification": "規格",
+      "material": "材質",
       "color": "顏色",
-      "vintage": "型號年份",
+      "specification": "型號／規格",
       "rating": "評分",
-      "producer": "品牌"
+      "brand": "品牌"
     },
     "status": {
       "stock": "庫存"
@@ -1508,7 +1528,7 @@
     "title": "展櫃標示",
     "step1": "Step 1",
     "step2": "Step 2",
-    "selectWines": "選擇列印產品",
+    "selectProducts": "選擇列印產品",
     "selectSize": "選擇標示尺寸",
     "searchPlaceholder": "搜尋品名、brand、產品編號",
     "searchLoading": "搜尋中...",
@@ -1670,7 +1690,6 @@
       "lastTradeAt": "最近交易時間",
       "avgUnitPrice": "平均單價",
       "region": "偏好類別",
-      "hasWineCabinet": "是否租儲物櫃",
       "preferenceNote": "客戶喜好描述",
       "title": "客戶資訊",
       "yes": "是",
@@ -1727,7 +1746,6 @@
       "last_trade_at": "最近一次交易時間",
       "avg_unit_price": "平均單價",
       "region": "類別",
-      "has_wine_cabinet": "有沒有倉儲櫃",
       "yes": "有",
       "no": "無",
       "load_accounts_failed": "載入帳號清單失敗",
@@ -1776,7 +1794,7 @@
     "title": "檔案資源",
     "subtitle": "管理內部團隊共用的產品標籤、圖片與文件。",
     "tabs": {
-      "wine_label": "產品標籤",
+      "product_label": "產品標籤",
       "image": "圖片",
       "document": "文件"
     },
@@ -1793,12 +1811,12 @@
       "add_rule": "新增排序",
       "reset_rules": "重設排序",
       "remove_rule": "移除排序",
-      "group_by_producer": "將相同品牌的商品分組",
+      "group_by_brand": "將相同品牌的商品分組",
       "group_by_department": "將相同部門的檔案進行分組",
       "fields": {
         "uploaded_at": "上傳時間",
         "display_name": "檔案名稱",
-        "producer": "品牌",
+        "brand": "品牌",
         "product_code": "產品代碼",
         "department": "所屬部門",
         "file_type": "檔案類型",
@@ -1816,7 +1834,7 @@
     "table": {
       "name": "檔案名稱",
       "product_code": "產品代碼",
-      "producer": "品牌",
+      "brand": "品牌",
       "department": "所屬部門",
       "visibility": "公開狀態",
       "uploaded_at": "上傳時間",
@@ -1852,7 +1870,7 @@
     "errors": {
       "load": "載入檔案資源失敗。",
       "file_required": "請至少選擇一個檔案。",
-      "wine_required": "請選擇此標籤對應的產品。",
+      "product_required": "請選擇此標籤對應的產品。",
       "upload_failed": "檔案上傳失敗。",
       "create": "建立檔案資源失敗。",
       "update": "更新檔案資源失敗。",
@@ -1878,7 +1896,7 @@
       "per_page": "每頁筆數"
     },
     "upload_menu": {
-      "wine_label": {
+      "product_label": {
         "title": "商品標籤",
         "description": "上傳商品標籤圖片，並綁定到商品庫存品項。"
       },
@@ -1904,12 +1922,12 @@
       "step_image_title": "選擇產品標籤圖片",
       "step_image_hint": "請先上傳產品標籤圖片。",
       "image_size_hint": "建議比例：414 x 1024",
-      "step_wine_title": "選擇對應產品",
-      "step_wine_hint": "Bind the image to one 智慧系統 product and reuse it across model years.",
-      "select_wine": "選擇產品",
+      "step_product_title": "選擇對應產品",
+      "step_product_hint": "Bind the image to one 智慧系統 product and reuse it across model years.",
+      "select_product": "選擇產品",
       "related_title": "同系列商品",
       "related_code": "產品代碼",
-      "related_vintage": "型號年份",
+      "related_specification": "型號／規格",
       "department": "所屬部門",
       "visibility": "公開設定",
       "queue_title": "待上傳檔案",
@@ -1923,7 +1941,7 @@
       "dropzone_hint": "每一個檔案都會建立為獨立資源。",
       "upload_failed_retry": "上傳失敗，請稍後再試一次。",
       "fields": {
-        "producer": "品牌",
+        "brand": "品牌",
         "region": "類別",
         "color": "顏色"
       }
@@ -1960,8 +1978,8 @@
       "visibility": "公開設定"
     },
     "delete_modal": {
-      "wine_label_title": "刪除產品標籤",
-      "wine_label_body": "刪除此產品標籤後無法復原。確定要繼續嗎？",
+      "product_label_title": "刪除產品標籤",
+      "product_label_body": "刪除此產品標籤後無法復原。確定要繼續嗎？",
       "image_title": "刪除圖片",
       "image_body": "刪除後無法復原，確定要刪除此圖片嗎？",
       "document_title": "刪除文件",

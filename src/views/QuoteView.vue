@@ -29,13 +29,14 @@ import iconMoreVertical from '../assets/ic-more-vertical.svg'
 import iconShare from '../assets/ic-share.svg'
 import iconStar from '../assets/ic-star.svg'
 import { writeClipboard } from '../utils/clipboard'
+import { snapshotEdmTableColumns } from '../utils/edmTable'
 import {
   assertUsableChatResponse,
   normalizeChatAnswerPayload,
   resolveChatFlowErrorMessage,
 } from '../utils/chatFlow'
 import { buildQuoteChatRequest } from '../utils/quoteChatRequest'
-import { extractRatingValue } from '../utils/rating'
+import { extractFeatureValue } from '../utils/feature'
 import { formatUsdInput, formatUsdPrice, parseUsdInput } from '../utils/currency'
 import AppSidebar from '../components/AppSidebar.vue'
 import AppTopBar from '../components/AppTopBar.vue'
@@ -66,12 +67,12 @@ import {
   resolveCerpColor,
   resolveCerpField,
   resolveCerpProductName,
-  resolveCerpProducer,
-  resolveCerpRating,
+  resolveCerpBrand,
+  resolveCerpFeature,
   resolveCerpStock,
   resolveCerpStockSourceLabel,
   resolveCerpStoreStock,
-  resolveCerpVintage,
+  resolveCerpSpecification,
   toNullableNumber,
 } from '../utils/cerpFields'
 import './quote-stage.css'
@@ -257,23 +258,22 @@ const FALLBACK_CERP_SCHEMA = Object.freeze({
       width: 220,
       default_visible: true,
     },
-    { key: 'spec', label: 'Spec / Model', source_keys: ['spec', 'spec1', 'model', 'model_name', 'invn051', 'invn807'], width: 130, default_visible: true },
     { key: 'stock', label: 'Stock', source_keys: ['stock', 'stock_qty', 'total_stock', 'invn045'], width: 80, default_visible: true },
     { key: 'price', label: 'Price', source_keys: ['list_price', 'price', 'amount', 'invn013'], width: 110, default_visible: true },
     { key: 'vip', label: 'VIP Price', source_keys: ['quote_price', 'vip_price', 'display_quote_price', 'vip', 'invn015', 'amount', 'invn013'], width: 110, default_visible: true },
-    { key: 'producer', label: 'Brand / Supplier', source_keys: ['producer', 'brand', 'supplier', 'invn006'], width: 130, default_visible: false },
-    { key: 'vintage', label: 'Model Year', source_keys: ['model_year', 'vintage', 'invn807', 'invn051'], width: 100, default_visible: false },
+    { key: 'brand', label: 'Brand / Supplier', source_keys: ['brand', 'brand', 'supplier', 'invn006'], width: 130, default_visible: false },
+    { key: 'specification', label: 'Spec / Model', source_keys: ['specification', 'spec', 'spec1', 'model', 'model_name', 'model_year', 'invn807', 'invn051', 'size'], width: 130, default_visible: true },
     { key: 'color', label: 'Color', source_keys: ['color', 'invn801'], width: 90, default_visible: false },
-    { key: 'rating', label: 'Rating', source_keys: ['rating', 'invn804'], width: 100, default_visible: false },
+    { key: 'feature', label: 'Feature', source_keys: ['feature', 'invn804'], width: 100, default_visible: false },
     { key: 'bundle', label: 'Bundle', source_keys: ['bundle', 'promo', 'invn048'], width: 90, default_visible: false },
   ],
-  default_visible_columns: ['no', 'product', 'spec', 'stock', 'price', 'vip'],
+  default_visible_columns: ['no', 'product', 'specification', 'stock', 'price', 'vip'],
   filters: [
     { id: 'stock', field: 'stock', type: 'stock_status' },
     { id: 'price', field: 'price', type: 'range' },
-    { id: 'spec', field: 'spec', type: 'option' },
+    { id: 'specification', field: 'specification', type: 'option' },
   ],
-  sort_fields: ['product', 'spec', 'stock', 'price'],
+  sort_fields: ['product', 'specification', 'stock', 'price'],
   price_tiers: [
     { id: 'price', label: 'Price', column: 'price' },
     { id: 'vip', label: 'VIP Price', column: 'vip' },
@@ -334,15 +334,15 @@ const galleryCards = computed(() =>
       id: `gallery-${row.id || index}`,
       sku: row.no || row.id || `SKU-${index + 1}`,
       title:
-        `${row.producer || ''} ${row.product || ''}`.trim() ||
+        `${row.brand || ''} ${row.product || ''}`.trim() ||
         t('quote.gallery.default_title'),
       vipPrice: row.vip,
       comparePrice: row.price,
       color: row.color,
       spec: row.spec,
-      vintage: row.vintage,
-      rating: row.rating,
-      producer: row.producer,
+      specification: row.specification,
+      feature: row.feature,
+      brand: row.brand,
       terroirs: [],
       progress: 100,
       cases: row.stock ?? 0,
@@ -359,13 +359,13 @@ const storeCards = computed(() =>
     id: `store-${row.id || index}` ,
     sku: row.no || row.id || `SKU-${index + 1}` ,
     title:
-      `${row.producer || ''} ${row.product || ''}`.trim() ||
+      `${row.brand || ''} ${row.product || ''}`.trim() ||
       t('quote.gallery.default_title'),
     vipPrice: row.vip ,
-    rating: row.rating ,
+    feature: row.feature ,
     color: row.color ,
     spec: row.spec ,
-    vintage: row.vintage ,
+    specification: row.specification ,
     badges: row.bundle && row.bundle !== '-' ? [row.bundle] : [],
     photoUrl: row.photoUrl || row.photo_url || '',
     photoText: row.photoText || t('quote.gallery.photo_placeholder'),
@@ -378,9 +378,9 @@ const hasColumnData = (field) =>
     return value !== undefined && value !== null && String(value).trim() !== ''
   })
 const showColorFilter = computed(() => hasSchemaFilter('color') && hasColumnData('color'))
-const showRatingFilter = computed(() => hasSchemaFilter('rating') && hasColumnData('rating'))
-const showVintageFilter = computed(() => hasSchemaFilter('vintage') && hasColumnData('vintage'))
-const showProducerFilter = computed(() => hasSchemaFilter('producer') && hasColumnData('producer'))
+const showFeatureFilter = computed(() => hasSchemaFilter('feature') && hasColumnData('feature'))
+const showSpecificationFilter = computed(() => hasSchemaFilter('specification') && hasColumnData('specification'))
+const showBrandFilter = computed(() => hasSchemaFilter('brand') && hasColumnData('brand'))
 const showSpecFilter = computed(() => hasSchemaFilter('spec') && hasColumnData('spec'))
 
 const displayedSlideGroups = computed(() =>
@@ -388,19 +388,19 @@ const displayedSlideGroups = computed(() =>
     id: `slide-${row.id || idx}`,
     order: idx + 1,
     title:
-      `${row.producer || ''} ${row.product || ''}`.trim() ||
+      `${row.brand || ''} ${row.product || ''}`.trim() ||
       t('quote.defaults.unnamed'),
     price: row.price,
     vipPrice: row.vip,
-    vintage: row.vintage || t('quote.defaults.non_vintage'),
+    specification: row.specification || t('quote.defaults.non_specification'),
     spec: row.spec || '',
     sku: row.no || row.id || `SKU-${idx + 1}`,
     link: '#',
     notes: [
       t('quote.slide.notes.color', { value: row.color || '-' }),
-      t('quote.slide.notes.rating', { value: row.rating || '-' }),
+      t('quote.slide.notes.feature', { value: row.feature || '-' }),
     ],
-    producer: row.producer || '',
+    brand: row.brand || '',
     village: row.product || '',
     parcel: row.bundle || '-',
   }))
@@ -456,8 +456,8 @@ const sortFields = computed(() => ({
     directions: [t('quote.sort.directions.a_z'), t('quote.sort.directions.z_a')],
     defaultDirection: t('quote.sort.directions.a_z'),
   },
-  [t('quote.sort.fields.vintage')]: {
-    key: 'vintage',
+  [t('quote.sort.fields.specification')]: {
+    key: 'specification',
     directions: [t('quote.sort.directions.old_new'), t('quote.sort.directions.new_old')],
     defaultDirection: t('quote.sort.directions.old_new'),
   },
@@ -466,8 +466,8 @@ const sortFields = computed(() => ({
     directions: [t('quote.sort.directions.a_z'), t('quote.sort.directions.z_a')],
     defaultDirection: t('quote.sort.directions.a_z'),
   },
-  [t('quote.sort.fields.rating')]: {
-    key: 'rating',
+  [t('quote.sort.fields.feature')]: {
+    key: 'feature',
     directions: [t('quote.sort.directions.high_low'), t('quote.sort.directions.low_high')],
     defaultDirection: t('quote.sort.directions.high_low'),
   },
@@ -528,11 +528,11 @@ const defaultPriceTypeIds = computed(() => {
 const selectedPriceTypes = ref(['price', 'vip'])
 const showPriceTypeMenu = ref(false)
 
-const selectedVintages = ref([])
-const selectedProducers = ref([])
+const selectedSpecifications = ref([])
+const selectedBrands = ref([])
 const selectedSpecs = ref([])
-const showVintageMenu = ref(false)
-const showProducerMenu = ref(false)
+const showSpecificationMenu = ref(false)
+const showBrandMenu = ref(false)
 const showSpecMenu = ref(false)
 const setSortGrouping = (value) => {
   sortGrouping.value = value
@@ -557,17 +557,17 @@ const priceRange = ref({ min: 0, max: 100000 })
   const getColorDotBorder = (colorId) =>
     colorFilters.value.includes(colorId) ? '#9b0b0b' : '#c5c3bc'
 
-  const ratingSteps = (tm('quote.rating.steps') || []).map((step) => String(step))
-  const ratingRange = ref([0, ratingSteps.length - 1])
-  const ratingStepBounds = [
+  const featureSteps = (tm('quote.feature.steps') || []).map((step) => String(step))
+  const featureRange = ref([0, featureSteps.length - 1])
+  const featureStepBounds = [
     { min: 0, max: 84 },
     { min: 85, max: 89 },
     { min: 90, max: 95 },
     { min: 96, max: 100 },
   ]
 
-  const favoriteVintages = ref(['2021', '2022', '2023'])
-  const additionalVintage = 5
+  const favoriteSpecifications = ref(['2021', '2022', '2023'])
+  const additionalSpecification = 5
 const inventoryOptions = [
   { id: 'all', label: t('quote.inventory.all') },
   { id: 'store_stock', label: t('quote.inventory.boutique') },
@@ -634,11 +634,11 @@ const colorIconMap = {
 }
 
 
-const ratingFilterBounds = computed(() => {
-  const lowIndex = ratingRange.value[0]
-  const highIndex = ratingRange.value[1]
-  const minBound = ratingStepBounds[lowIndex]?.min ?? 0
-  const maxBound = ratingStepBounds[highIndex]?.max ?? 100
+const featureFilterBounds = computed(() => {
+  const lowIndex = featureRange.value[0]
+  const highIndex = featureRange.value[1]
+  const minBound = featureStepBounds[lowIndex]?.min ?? 0
+  const maxBound = featureStepBounds[highIndex]?.max ?? 100
   return { min: minBound, max: maxBound }
 })
 
@@ -649,9 +649,9 @@ const filteredTableRows = computed(() => {
   const activeColors = new Set(colorFilters.value)
   const minPrice = priceRange.value.min
   const maxPrice = priceRange.value.max
-  const { min: minRating, max: maxRating } = ratingFilterBounds.value
-  const activeVintages = selectedVintages.value
-  const activeProducers = selectedProducers.value
+  const { min: minFeature, max: maxFeature } = featureFilterBounds.value
+  const activeSpecifications = selectedSpecifications.value
+  const activeBrands = selectedBrands.value
   const activeSpecs = selectedSpecs.value
   const inventoryFilter = selectedInventory.value
   return tableRows.value.filter((row) => {
@@ -659,14 +659,14 @@ const filteredTableRows = computed(() => {
     const withinColor =
       !showColorFilter.value || !rowColor || activeColors.has(rowColor) || rowColor === UNKNOWN_COLOR.toLowerCase()
     const withinPrice = row.price >= minPrice && row.price <= maxPrice
-    const ratingValue = extractRatingValue(row.rating)
-    const withinRating = !showRatingFilter.value || (ratingValue >= minRating && ratingValue <= maxRating)
-    const withinVintage =
-      !showVintageFilter.value || !activeVintages.length || activeVintages.includes(String(row.vintage || '').trim())
-    const withinProducer =
-      !showProducerFilter.value ||
-      !activeProducers.length ||
-      activeProducers.includes(String(row.producer || '').trim())
+    const featureValue = extractFeatureValue(row.feature)
+    const withinFeature = !showFeatureFilter.value || (featureValue >= minFeature && featureValue <= maxFeature)
+    const withinSpecification =
+      !showSpecificationFilter.value || !activeSpecifications.length || activeSpecifications.includes(String(row.specification || '').trim())
+    const withinBrand =
+      !showBrandFilter.value ||
+      !activeBrands.length ||
+      activeBrands.includes(String(row.brand || '').trim())
     const withinSpec =
       !showSpecFilter.value || !activeSpecs.length || activeSpecs.includes(String(row.spec || '').trim())
     const withinInventory =
@@ -674,9 +674,9 @@ const filteredTableRows = computed(() => {
     return (
       withinColor &&
       withinPrice &&
-      withinRating &&
-      withinVintage &&
-      withinProducer &&
+      withinFeature &&
+      withinSpecification &&
+      withinBrand &&
       withinSpec &&
       withinInventory
     )
@@ -761,9 +761,9 @@ const resetFilters = () => {
   selectedPriceTypes.value = [...defaultPriceTypeIds.value]
   priceRange.value = { ...priceBounds }
   colorFilters.value = colorOptions.map((option) => option.id)
-  ratingRange.value = [0, ratingSteps.length - 1]
-  selectedVintages.value = []
-  selectedProducers.value = []
+  featureRange.value = [0, featureSteps.length - 1]
+  selectedSpecifications.value = []
+  selectedBrands.value = []
   selectedSpecs.value = []
   selectedInventory.value = 'all'
 }
@@ -781,6 +781,7 @@ const createEdmFromSelection = () => {
       JSON.stringify({
         conversation_id: quoteContext.value?.conversation_id || null,
         project: quoteContext.value?.project || null,
+        table_columns: snapshotEdmTableColumns(tableColumnsDisplayed.value),
         saved_at: new Date().toISOString(),
       })
     )
@@ -952,11 +953,11 @@ const priceFillStyle = computed(() => {
   }
 })
 
-const ratingFillStyle = computed(() => {
-  const total = ratingSteps.length - 1
+const featureFillStyle = computed(() => {
+  const total = featureSteps.length - 1
   return {
-    left: `${(ratingRange.value[0] / total) * 100}%`,
-    width: `${((ratingRange.value[1] - ratingRange.value[0]) / total) * 100}%`,
+    left: `${(featureRange.value[0] / total) * 100}%`,
+    width: `${((featureRange.value[1] - featureRange.value[0]) / total) * 100}%`,
   }
 })
 
@@ -972,14 +973,14 @@ const getNumeric = (value) => {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : 0
 }
-const producerDescriptionCache = new Map()
+const brandDescriptionCache = new Map()
 
-const buildProducerDescription = ({ producer, product, vintage, color, rating, stock, price }) => {
-  const baseProducer = producer || t('quote.defaults.producer')
+const buildBrandDescription = ({ brand, product, specification, color, feature, stock, price }) => {
+  const baseBrand = brand || t('quote.defaults.brand')
   const baseProduct = product || t('quote.defaults.product')
-  const baseVintage = vintage || t('quote.defaults.non_vintage')
+  const baseSpecification = specification || t('quote.defaults.non_specification')
   const baseColor = color || t('quote.defaults.color')
-  const baseRating = rating || t('quote.defaults.rating')
+  const baseFeature = feature || t('quote.defaults.feature')
   const stockText =
     typeof stock === 'number' && stock >= 0
       ? t('quote.defaults.stock_bottles', { count: stock })
@@ -989,30 +990,30 @@ const buildProducerDescription = ({ producer, product, vintage, color, rating, s
       ? t('quote.defaults.price_estimate', { price })
       : t('quote.defaults.price_pending')
   const sentences = [
-    t('quote.producer_description.line1', {
-      producer: baseProducer,
-      vintage: baseVintage,
+    t('quote.brand_description.line1', {
+      brand: baseBrand,
+      specification: baseSpecification,
       product: baseProduct,
       color: baseColor,
-      rating: baseRating,
+      feature: baseFeature,
     }),
-    t('quote.producer_description.line2', { stock: stockText, price: priceText }),
-    t('quote.producer_description.line3'),
-    t('quote.producer_description.line4'),
+    t('quote.brand_description.line2', { stock: stockText, price: priceText }),
+    t('quote.brand_description.line3'),
+    t('quote.brand_description.line4'),
   ]
   let text = sentences.join(' ')
-  const filler = t('quote.producer_description.filler')
+  const filler = t('quote.brand_description.filler')
   while (text.length < 250) {
     text += filler
   }
   return text.slice(0, 250)
 }
 
-const getProducerDescription = (fields) => {
-  const producer = fields.producer || t('quote.defaults.producer')
-  if (producerDescriptionCache.has(producer)) return producerDescriptionCache.get(producer)
-  const description = buildProducerDescription(fields)
-  producerDescriptionCache.set(producer, description)
+const getBrandDescription = (fields) => {
+  const brand = fields.brand || t('quote.defaults.brand')
+  if (brandDescriptionCache.has(brand)) return brandDescriptionCache.get(brand)
+  const description = buildBrandDescription(fields)
+  brandDescriptionCache.set(brand, description)
   return description
 }
 
@@ -1293,16 +1294,20 @@ const consumePendingQuoteCompose = async () => {
 const mapCERPToQuoteRow = (cerp) => {
   const code = cerp.no || cerp.code || cerp.id || cerp.invn002
   const pricing = buildCerpPricingState(cerp)
-  const producer = resolveCerpField(cerp, getSchemaSourceKeys('producer', ['producer', 'brand', 'supplier', 'invn006']), '') || resolveCerpProducer(cerp, '')
+  const brand = resolveCerpField(cerp, getSchemaSourceKeys('brand', ['brand', 'brand', 'supplier', 'invn006']), '') || resolveCerpBrand(cerp, '')
   const product = resolveCerpField(
     cerp,
     getSchemaSourceKeys('product', ['product', 'product_name', 'name', 'name_en', 'name_ch', 'invn077', 'invn005', 'title']),
     ''
   ) || resolveCerpProductName(cerp, t('quote.defaults.unnamed'))
-  const spec = resolveCerpField(cerp, getSchemaSourceKeys('spec', ['spec', 'spec1', 'model', 'model_name', 'invn051', 'invn807']), '')
-  const vintage = resolveCerpVintage(cerp, spec || t('quote.defaults.non_vintage'))
+  const specification = resolveCerpField(
+    cerp,
+    getSchemaSourceKeys('specification', ['specification', 'spec', 'spec1', 'model', 'model_name', 'model_year', 'invn807', 'invn051', 'size']),
+    ''
+  ) || resolveCerpSpecification(cerp, t('quote.defaults.non_specification'))
+  const spec = specification
   const color = resolveCerpField(cerp, getSchemaSourceKeys('color', ['color', 'invn801']), '') || resolveCerpColor(cerp, UNKNOWN_COLOR)
-  const rating = resolveCerpField(cerp, getSchemaSourceKeys('rating', ['rating', 'invn804']), '') || resolveCerpRating(cerp, t('quote.defaults.rating'))
+  const feature = resolveCerpField(cerp, getSchemaSourceKeys('feature', ['feature', 'invn804']), '') || resolveCerpFeature(cerp, t('quote.defaults.feature'))
   const stock = resolveCerpStock(cerp)
   const storeStock = resolveCerpStoreStock(cerp)
   const stockSourceLabel = resolveCerpStockSourceLabel(
@@ -1314,12 +1319,12 @@ const mapCERPToQuoteRow = (cerp) => {
     }
   )
   const price = getNumeric(pricing.list_price)
-  const description = getProducerDescription({
-    producer,
+  const description = getBrandDescription({
+    brand,
     product,
-    vintage,
+    specification,
     color,
-    rating,
+    feature,
     stock,
     price,
   })
@@ -1329,11 +1334,11 @@ const mapCERPToQuoteRow = (cerp) => {
     id: code || cerp.id,
     no: code,
     spec,
-    vintage,
-    producer,
+    specification,
+    brand,
     product,
     color,
-    rating,
+    feature,
     stock,
     store_stock: storeStock,
     stock_source: stockSourceLabel,
@@ -1360,12 +1365,12 @@ const mapCERPToPriceRow = (cerp) => {
   const pricing = buildCerpPricingState(cerp)
   return {
     no: code,
-    spec: resolveCerpField(cerp, getSchemaSourceKeys('spec', ['spec', 'spec1', 'model', 'model_name', 'invn051', 'invn807']), ''),
-    vintage: resolveCerpVintage(cerp, t('quote.defaults.non_vintage')),
-    producer: resolveCerpProducer(cerp, ''),
+    spec: resolveCerpSpecification(cerp, t('quote.defaults.non_specification')),
+    specification: resolveCerpSpecification(cerp, t('quote.defaults.non_specification')),
+    brand: resolveCerpBrand(cerp, ''),
     product: resolveCerpProductName(cerp, t('quote.defaults.unnamed')),
     color: resolveCerpColor(cerp, UNKNOWN_COLOR),
-    rating: resolveCerpRating(cerp, t('quote.defaults.rating')),
+    feature: resolveCerpFeature(cerp, t('quote.defaults.feature')),
     list: formatCurrency(getNumeric(pricing.list_price)),
     quote: formatCurrency(getNumeric(pricing.vip_price)),
     restaurant: formatCurrency(getNumeric(pricing.fb_price)),
@@ -2007,10 +2012,10 @@ const togglePanel = (panel) => {
     showSortPanel.value = !showSortPanel.value
   } else if (panel === 'priceType') {
     showPriceTypeMenu.value = !showPriceTypeMenu.value
-  } else if (panel === 'vintage') {
-    showVintageMenu.value = !showVintageMenu.value
-  } else if (panel === 'producer') {
-    showProducerMenu.value = !showProducerMenu.value
+  } else if (panel === 'specification') {
+    showSpecificationMenu.value = !showSpecificationMenu.value
+  } else if (panel === 'brand') {
+    showBrandMenu.value = !showBrandMenu.value
   } else if (panel === 'spec') {
     showSpecMenu.value = !showSpecMenu.value
   }
@@ -2042,14 +2047,14 @@ const handlePriceSlider = (type, event) => {
   }
 }
 
-const setRatingHandle = (type, value) => {
-  const next = [...ratingRange.value]
+const setFeatureHandle = (type, value) => {
+  const next = [...featureRange.value]
   if (type === 'min') {
     next[0] = Math.min(value, next[1])
   } else {
     next[1] = Math.max(value, next[0])
   }
-  ratingRange.value = next
+  featureRange.value = next
 }
 
 const openRowMenu = (rowId, event) => {
@@ -2083,11 +2088,11 @@ const closePanels = (event) => {
   if (!event.target.closest('[data-quote-panel="priceType"]')) {
     showPriceTypeMenu.value = false
   }
-    if (!event.target.closest('[data-quote-panel="vintage"]')) {
-    showVintageMenu.value = false
+    if (!event.target.closest('[data-quote-panel="specification"]')) {
+    showSpecificationMenu.value = false
   }
-  if (!event.target.closest('[data-quote-panel="producer"]')) {
-    showProducerMenu.value = false
+  if (!event.target.closest('[data-quote-panel="brand"]')) {
+    showBrandMenu.value = false
   }
   if (!event.target.closest('[data-quote-panel="spec"]')) {
     showSpecMenu.value = false
@@ -2140,20 +2145,20 @@ const syncPriceColumnsFromSelection = () => {
 watch(selectedPriceTypes, syncPriceColumnsFromSelection, { deep: true })
 syncPriceColumnsFromSelection()
 
-const toggleVintage = (value) => {
-  const set = new Set(selectedVintages.value)
+const toggleSpecification = (value) => {
+  const set = new Set(selectedSpecifications.value)
   const key = String(value || '').trim()
   if (!key) return
   set.has(key) ? set.delete(key) : set.add(key)
-  selectedVintages.value = Array.from(set)
+  selectedSpecifications.value = Array.from(set)
 }
 
-const toggleProducer = (value) => {
-  const set = new Set(selectedProducers.value)
+const toggleBrand = (value) => {
+  const set = new Set(selectedBrands.value)
   const key = String(value || '').trim()
   if (!key) return
   set.has(key) ? set.delete(key) : set.add(key)
-  selectedProducers.value = Array.from(set)
+  selectedBrands.value = Array.from(set)
 }
 
 const toggleSpec = (value) => {
@@ -2173,19 +2178,19 @@ const specOptions = computed(() => {
   return Array.from(bucket).sort((a, b) => a.localeCompare(b))
 })
 
-const vintageOptions = computed(() => {
+const specificationOptions = computed(() => {
   const bucket = new Set()
   tableRows.value.forEach((row) => {
-    const val = String(row.vintage || '').trim()
+    const val = String(row.specification || '').trim()
     if (val) bucket.add(val)
   })
   return Array.from(bucket).sort()
 })
 
-const producerOptions = computed(() => {
+const brandOptions = computed(() => {
   const bucket = new Set()
   tableRows.value.forEach((row) => {
-    const val = String(row.producer || '').trim()
+    const val = String(row.brand || '').trim()
     if (val) bucket.add(val)
   })
   return Array.from(bucket).sort((a, b) => a.localeCompare(b))
@@ -2269,7 +2274,7 @@ const sortRuleCountLabel = computed(() => {
     : t('quote.sort.placeholder')
 })
 
-const getVintageValue = (value) => {
+const getSpecificationValue = (value) => {
   const num = Number(value)
   if (Number.isFinite(num)) return num
   return Number.POSITIVE_INFINITY
@@ -2323,8 +2328,8 @@ function applySorting(rows) {
 
   if (sortGrouping.value) {
     comparators.push((a, b) => {
-      const pa = (a.producer || '').toString().toLowerCase()
-      const pb = (b.producer || '').toString().toLowerCase()
+      const pa = (a.brand || '').toString().toLowerCase()
+      const pb = (b.brand || '').toString().toLowerCase()
       return pa.localeCompare(pb)
     })
   }
@@ -2343,8 +2348,8 @@ function applySorting(rows) {
 
         return (a, b) => {
           switch (key) {
-            case 'vintage': {
-              const diff = getVintageValue(a[key]) - getVintageValue(b[key])
+            case 'specification': {
+              const diff = getSpecificationValue(a[key]) - getSpecificationValue(b[key])
               if (diff !== 0) return direction === primaryDirection ? diff : -diff
               return 0
             }
@@ -2357,11 +2362,11 @@ function applySorting(rows) {
               if (cmp !== 0) return direction === primaryDirection ? cmp : -cmp
               return 0
             }
-            case 'rating': {
-              const ra = extractRatingValue(a.rating)
-              const rb = extractRatingValue(b.rating)
+            case 'feature': {
+              const ra = extractFeatureValue(a.feature)
+              const rb = extractFeatureValue(b.feature)
               if (ra !== rb) return direction === primaryDirection ? rb - ra : ra - rb
-              const cmp = (a.rating || '').toString().localeCompare((b.rating || '').toString())
+              const cmp = (a.feature || '').toString().localeCompare((b.feature || '').toString())
               if (cmp !== 0) return cmp
               return 0
             }
@@ -2816,17 +2821,17 @@ onBeforeUnmount(() => {
                                   <label>{{ getSchemaColumnLabel('color', t('quote.table.columns.color')) }}</label>
                                   <span>{{ card.color }}</span>
                                 </li>
-                                <li v-if="card.vintage">
-                                  <label>{{ t('quote.table.columns.vintage') }}</label>
-                                  <span>{{ card.vintage }}</span>
+                                <li v-if="card.specification">
+                                  <label>{{ t('quote.table.columns.specification') }}</label>
+                                  <span>{{ card.specification }}</span>
                                 </li>
-                                <li v-if="card.rating">
-                                  <label>{{ t('quote.table.columns.rating') }}</label>
-                                  <span>{{ card.rating }}</span>
+                                <li v-if="card.feature">
+                                  <label>{{ t('quote.table.columns.feature') }}</label>
+                                  <span>{{ card.feature }}</span>
                                 </li>
-                                <li v-if="card.producer">
-                                  <label>{{ getSchemaColumnLabel('producer', t('quote.table.columns.producer')) }}</label>
-                                  <span>{{ card.producer }}</span>
+                                <li v-if="card.brand">
+                                  <label>{{ getSchemaColumnLabel('brand', t('quote.table.columns.brand')) }}</label>
+                                  <span>{{ card.brand }}</span>
                                 </li>
                               </ul>
                               <p class="quote-gallery-card__description">
@@ -2917,8 +2922,8 @@ onBeforeUnmount(() => {
                         </div>
                         <div class="quote-slide-card__meta-row">
                           <span class="quote-slide-card__meta-icon" aria-hidden="true">🏅</span>
-                          <span class="quote-slide-card__meta-label">{{ t('quote.slides.meta.vintage') }}</span>
-                          <strong>{{ group.vintage }}</strong>
+                          <span class="quote-slide-card__meta-label">{{ t('quote.slides.meta.specification') }}</span>
+                          <strong>{{ group.specification }}</strong>
                         </div>
                         <div class="quote-slide-card__meta-row">
                           <span class="quote-slide-card__meta-icon" aria-hidden="true">🔢</span>
@@ -2947,7 +2952,7 @@ onBeforeUnmount(() => {
                         </p>
                       </div>
                       <div class="quote-slide-card__details">
-                        <span>{{ group.producer }}</span>
+                        <span>{{ group.brand }}</span>
                         <span>{{ group.village }}</span>
                         <span>{{ t('quote.slides.meta.area', { value: group.parcel }) }}</span>
                       </div>
@@ -3042,16 +3047,16 @@ onBeforeUnmount(() => {
                     </p>
                     <ul class="quote-store-card__specs">
                       <li>
-                        <label>{{ t('quote.table.columns.rating') }}</label>
-                        <span>{{ card.rating }}</span>
+                        <label>{{ t('quote.table.columns.feature') }}</label>
+                        <span>{{ card.feature }}</span>
                       </li>
                       <li>
                         <label>{{ t('quote.table.columns.color') }}</label>
                         <span>{{ card.color }}</span>
                       </li>
                       <li>
-                        <label>{{ t('quote.table.columns.vintage') }}</label>
-                        <span>{{ card.vintage }}</span>
+                        <label>{{ t('quote.table.columns.specification') }}</label>
+                        <span>{{ card.specification }}</span>
                       </li>
                     </ul>
                     <div class="quote-store-card__checklist">
@@ -3158,7 +3163,7 @@ onBeforeUnmount(() => {
               </div>
             </section>
 
-            <section v-if="showRatingFilter" class="quote-filter__section">
+            <section v-if="showFeatureFilter" class="quote-filter__section">
               <p>{{ t('quote.filters.color') }}</p>
               <div class="quote-color__list">
                 <label
@@ -3186,29 +3191,29 @@ onBeforeUnmount(() => {
             </section>
 
             <section class="quote-filter__section">
-              <p>{{ t('quote.filters.rating') }}</p>
-              <div class="quote-rating">
-                <div class="quote-slider__track is-rating">
-                  <div class="quote-slider__fill" :style="ratingFillStyle" />
+              <p>{{ t('quote.filters.feature') }}</p>
+              <div class="quote-feature">
+                <div class="quote-slider__track is-feature">
+                  <div class="quote-slider__fill" :style="featureFillStyle" />
                   <input
                     type="range"
                     min="0"
-                    :max="ratingSteps.length - 1"
-                    :value="ratingRange[0]"
+                    :max="featureSteps.length - 1"
+                    :value="featureRange[0]"
                     step="1"
-                    @input="setRatingHandle('min', Number($event.target.value))"
+                    @input="setFeatureHandle('min', Number($event.target.value))"
                   />
                   <input
                     type="range"
                     min="0"
-                    :max="ratingSteps.length - 1"
-                    :value="ratingRange[1]"
+                    :max="featureSteps.length - 1"
+                    :value="featureRange[1]"
                     step="1"
-                    @input="setRatingHandle('max', Number($event.target.value))"
+                    @input="setFeatureHandle('max', Number($event.target.value))"
                   />
                 </div>
-                <div class="quote-rating__labels">
-                  <span v-for="step in ratingSteps" :key="step">{{ step }}</span>
+                <div class="quote-feature__labels">
+                  <span v-for="step in featureSteps" :key="step">{{ step }}</span>
                 </div>
               </div>
             </section>
@@ -3251,72 +3256,72 @@ onBeforeUnmount(() => {
               </div>
             </section>
 
-            <section v-if="showVintageFilter" class="quote-filter__section" data-quote-panel="vintage">
-              <p>{{ t('quote.filters.vintage') }}</p>
-              <div class="quote-autocomplete" @click.stop="togglePanel('vintage')">
+            <section v-if="showSpecificationFilter" class="quote-filter__section" data-quote-panel="specification">
+              <p>{{ t('quote.filters.specification') }}</p>
+              <div class="quote-autocomplete" @click.stop="togglePanel('specification')">
                 <div class="quote-autocomplete__field">
                   <div class="quote-autocomplete__chips">
                     <span
-                      v-for="chip in selectedVintages"
+                      v-for="chip in selectedSpecifications"
                       :key="chip"
                       class="quote-chip"
                     >
                       {{ chip }}
-                      <button type="button" @click.stop="toggleVintage(chip)">×</button>
+                      <button type="button" @click.stop="toggleSpecification(chip)">×</button>
                     </span>
-                    <span v-if="!selectedVintages.length" class="quote-autocomplete__placeholder">
+                    <span v-if="!selectedSpecifications.length" class="quote-autocomplete__placeholder">
                       {{ t('quote.filters.all') }}
                     </span>
                   </div>
                   <span class="quote-filter__caret">⌄</span>
                 </div>
               </div>
-              <div v-if="showVintageMenu" class="quote-filter__menu">
+              <div v-if="showSpecificationMenu" class="quote-filter__menu">
                 <button
-                  v-for="option in vintageOptions"
+                  v-for="option in specificationOptions"
                   :key="option"
                   type="button"
-                  :class="['quote-filter__menu-item', { 'is-active': selectedVintages.includes(option) }]"
-                  @click.stop="toggleVintage(option)"
+                  :class="['quote-filter__menu-item', { 'is-active': selectedSpecifications.includes(option) }]"
+                  @click.stop="toggleSpecification(option)"
                 >
                   <span class="quote-filter__check" aria-hidden="true">
-                    {{ selectedVintages.includes(option) ? '✓' : '' }}
+                    {{ selectedSpecifications.includes(option) ? '✓' : '' }}
                   </span>
                   <span>{{ option }}</span>
                 </button>
               </div>
             </section>
 
-            <section v-if="showProducerFilter" class="quote-filter__section" data-quote-panel="producer">
-              <p>{{ t('quote.filters.producer') }}</p>
-              <div class="quote-autocomplete" @click.stop="togglePanel('producer')">
+            <section v-if="showBrandFilter" class="quote-filter__section" data-quote-panel="brand">
+              <p>{{ t('quote.filters.brand') }}</p>
+              <div class="quote-autocomplete" @click.stop="togglePanel('brand')">
                 <div class="quote-autocomplete__field">
                   <div class="quote-autocomplete__chips">
                     <span
-                      v-for="chip in selectedProducers"
+                      v-for="chip in selectedBrands"
                       :key="chip"
                       class="quote-chip"
                     >
                       {{ chip }}
-                      <button type="button" @click.stop="toggleProducer(chip)">×</button>
+                      <button type="button" @click.stop="toggleBrand(chip)">×</button>
                     </span>
-                    <span v-if="!selectedProducers.length" class="quote-autocomplete__placeholder">
+                    <span v-if="!selectedBrands.length" class="quote-autocomplete__placeholder">
                       {{ t('quote.filters.all') }}
                     </span>
                   </div>
                   <span class="quote-filter__caret">⌄</span>
                 </div>
               </div>
-              <div v-if="showProducerMenu" class="quote-filter__menu">
+              <div v-if="showBrandMenu" class="quote-filter__menu">
                 <button
-                  v-for="option in producerOptions"
+                  v-for="option in brandOptions"
                   :key="option"
                   type="button"
-                  :class="['quote-filter__menu-item', { 'is-active': selectedProducers.includes(option) }]"
-                  @click.stop="toggleProducer(option)"
+                  :class="['quote-filter__menu-item', { 'is-active': selectedBrands.includes(option) }]"
+                  @click.stop="toggleBrand(option)"
                 >
                   <span class="quote-filter__check" aria-hidden="true">
-                    {{ selectedProducers.includes(option) ? '✓' : '' }}
+                    {{ selectedBrands.includes(option) ? '✓' : '' }}
                   </span>
                   <span>{{ option }}</span>
                 </button>

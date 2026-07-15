@@ -42,7 +42,7 @@ const editItem = ref(null)
 const editPrice = ref('')
 const editDescription = ref('')
 const editInstruction = ref('')
-const isRegenerating = ref(false)
+const isRegenefeature = ref(false)
 const isSaving = ref(false)
 
 const LABEL_LANG = 'zh-TW'
@@ -92,25 +92,25 @@ const resolveProductName = (item) => {
   ).toString().trim()
 }
 
-const resolveProducer = (item) => {
+const resolveBrand = (item) => {
   const product = resolveProduct(item)
-  return (product?.producer || product?.invn006 || '').toString().trim()
+  return (product?.brand || product?.invn006 || '').toString().trim()
 }
 
-const resolveVintage = (item) => {
+const resolveSpecification = (item) => {
   const product = resolveProduct(item)
-  const raw = (product?.vintage || product?.invn051 || '').toString().trim()
-  return raw || 'NV'
+  const raw = (product?.specification || product?.invn051 || '').toString().trim()
+  return raw || '-'
 }
 
-const resolveRegion = (item) => {
+const resolveCategory = (item) => {
   const product = resolveProduct(item)
-  return (product?.region || product?.invn030 || '').toString().trim()
+  return (product?.category || product?.invn030 || '').toString().trim()
 }
 
-const resolveRating = (item) => {
+const resolveFeature = (item) => {
   const product = resolveProduct(item)
-  return (product?.rating || product?.invn804 || product?.invn805 || '').toString().trim()
+  return (product?.feature || product?.invn804 || product?.invn805 || '').toString().trim()
 }
 
 const formatPrice = (value) => {
@@ -188,14 +188,14 @@ const closeEditModal = () => {
 }
 
 const handleRegenerate = async () => {
-  if (!editItem.value || isRegenerating.value) return
+  if (!editItem.value || isRegenefeature.value) return
   const instruction = editInstruction.value.trim()
   if (!instruction) return
   const code = resolveProductCode(editItem.value)
   if (!code) return
   const parsedPrice = normalizePriceInput(editPrice.value)
   if (!parsedPrice) return
-  isRegenerating.value = true
+  isRegenefeature.value = true
   try {
     const response = await regenerateLabelDescription({
       code,
@@ -208,7 +208,7 @@ const handleRegenerate = async () => {
   } catch (error) {
     console.error('Regenerate label description failed', error)
   } finally {
-    isRegenerating.value = false
+    isRegenefeature.value = false
   }
 }
 
@@ -339,30 +339,30 @@ onMounted(() => {
                   <div class="label-preview__bar"></div>
                   <div class="label-preview__price">{{ resolvePriceText(item) }}</div>
                   <div class="label-preview__body">
-                    <div class="label-preview__producer">{{ resolveProducer(item) }}</div>
+                    <div class="label-preview__brand">{{ resolveBrand(item) }}</div>
                     <div class="label-preview__name">{{ resolveProductName(item) }}</div>
                   </div>
                   <div v-if="item.size === 'small'" class="label-preview__meta">
-                    <div>??{{ resolveVintage(item) }}</div>
-                    <div>??{{ resolveRegion(item) || '-' }}</div>
+                    <div>??{{ resolveSpecification(item) }}</div>
+                    <div>??{{ resolveCategory(item) || '-' }}</div>
                   </div>
                   <div v-else-if="item.size === 'medium'" class="label-preview__meta">
-                    <div>??{{ resolveRating(item) || '-' }}</div>
-                    <div>??{{ resolveVintage(item) }}</div>
-                    <div>??{{ resolveRegion(item) || '-' }}</div>
+                    <div>??{{ resolveFeature(item) || '-' }}</div>
+                    <div>??{{ resolveSpecification(item) }}</div>
+                    <div>??{{ resolveCategory(item) || '-' }}</div>
                   </div>
                   <div v-else class="label-preview__details">
-                    <span class="label-preview__detail label-preview__detail--rating">
-                      {{ resolveRating(item) || '-' }}
+                    <span class="label-preview__detail label-preview__detail--feature">
+                      {{ resolveFeature(item) || '-' }}
                     </span>
                     <div class="label-preview__details-group">
                       <span class="label-preview__divider"></span>
-                      <span class="label-preview__detail label-preview__detail--vintage">
-                        {{ resolveVintage(item) }}
+                      <span class="label-preview__detail label-preview__detail--specification">
+                        {{ resolveSpecification(item) }}
                       </span>
                       <span class="label-preview__divider"></span>
-                      <span class="label-preview__detail label-preview__detail--region">
-                        {{ resolveRegion(item) || '-' }}
+                      <span class="label-preview__detail label-preview__detail--category">
+                        {{ resolveCategory(item) || '-' }}
                       </span>
                     </div>
                   </div>
@@ -420,10 +420,10 @@ onMounted(() => {
               <button
                 type="button"
                 class="label-edit-modal__send"
-                :disabled="!editInstruction.trim() || isRegenerating"
+                :disabled="!editInstruction.trim() || isRegenefeature"
                 @click="handleRegenerate"
               >
-                <span v-if="isRegenerating" class="label-edit-modal__send-spinner" aria-hidden="true"></span>
+                <span v-if="isRegenefeature" class="label-edit-modal__send-spinner" aria-hidden="true"></span>
                 <svg v-else viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M4 4L20 12L4 20L8 12L4 4Z" fill="currentColor" />
                 </svg>
@@ -583,7 +583,7 @@ onMounted(() => {
   max-width: 70%;
 }
 
-.label-preview__producer {
+.label-preview__brand {
   font-size: 19px;
   font-weight: 700;
   line-height: 23px;
@@ -642,8 +642,8 @@ onMounted(() => {
   font-size: 24px;
 }
 
-.label-preview--medium .label-preview__producer,
-.label-preview--large .label-preview__producer {
+.label-preview--medium .label-preview__brand,
+.label-preview--large .label-preview__brand {
   font-size: 23px;
   line-height: 28px;
 }
@@ -685,8 +685,8 @@ onMounted(() => {
   background: rgba(22, 62, 97, 0.32);
 }
 
-.label-preview__detail--vintage,
-.label-preview__detail--region {
+.label-preview__detail--specification,
+.label-preview__detail--category {
   width: 141px;
   flex: 0 0 141px;
 }

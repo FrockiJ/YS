@@ -1,4 +1,4 @@
-﻿import labelPrintCss from './labelPrint.css?raw'
+import labelPrintCss from './labelPrint.css?raw'
 
 const escapeHtml = (value) =>
   String(value ?? '')
@@ -15,26 +15,26 @@ const renderMetaLine = (text) =>
 
 const renderSmallMeta = (item) => {
   const rows = []
-  rows.push(renderMetaLine(item.vintage || 'NV'))
-  rows.push(renderMetaLine(item.region || '-'))
+  rows.push(renderMetaLine(item.specification || '-'))
+  rows.push(renderMetaLine(item.category || '-'))
   return rows.join('')
 }
 
 const renderMediumMeta = (item) => {
   const rows = []
-  if (item.rating && item.rating !== '-') rows.push(renderMetaLine(item.rating))
-  rows.push(renderMetaLine(item.vintage || 'NV'))
-  rows.push(renderMetaLine(item.region || '-'))
+  if (item.feature && item.feature !== '-') rows.push(renderMetaLine(item.feature))
+  rows.push(renderMetaLine(item.specification || '-'))
+  rows.push(renderMetaLine(item.category || '-'))
   return rows.join('')
 }
 
 const renderPrintCardHtml = (item, size) => {
-  const producer = escapeHtml(item.producer || '')
+  const brand = escapeHtml(item.brand || '')
   const name = escapeHtml(item.name || '')
   const price = escapeHtml(item.price || '')
-  const rating = escapeHtml(item.rating || '-')
-  const vintage = escapeHtml(item.vintage || 'NV')
-  const region = escapeHtml(item.region || '-')
+  const feature = escapeHtml(item.feature || '-')
+  const specification = escapeHtml(item.specification || '-')
+  const category = escapeHtml(item.category || '-')
   const description = escapeHtml(item.description || '')
 
   if (size === 'small') {
@@ -42,7 +42,7 @@ const renderPrintCardHtml = (item, size) => {
       <article class="print-card print-card--small">
         <div class="print-card__bar"></div>
         <div class="print-card__content">
-          <div class="print-card__producer">${producer}</div>
+          <div class="print-card__brand">${brand}</div>
           <div class="print-card__name">${name}</div>
           <div class="print-card__small-row">
             <div class="print-card__meta">${renderSmallMeta(item)}</div>
@@ -58,7 +58,7 @@ const renderPrintCardHtml = (item, size) => {
       <article class="print-card print-card--medium">
         <div class="print-card__bar"></div>
         <div class="print-card__content">
-          <div class="print-card__producer">${producer}</div>
+          <div class="print-card__brand">${brand}</div>
           <div class="print-card__name">${name}</div>
           <div class="print-card__small-row">
             <div class="print-card__meta">${renderMediumMeta(item)}</div>
@@ -75,17 +75,17 @@ const renderPrintCardHtml = (item, size) => {
       <div class="print-card__content">
         <div class="print-card__top">
           <div class="print-card__name-group">
-            <div class="print-card__producer">${producer}</div>
+            <div class="print-card__brand">${brand}</div>
             <div class="print-card__name">${name}</div>
           </div>
           <div class="print-card__price">${price}</div>
         </div>
         <div class="print-card__details">
-          <span class="print-card__detail print-card__detail--rating">${rating}</span>
+          <span class="print-card__detail print-card__detail--feature">${feature}</span>
           <span class="print-card__divider"></span>
-          <span class="print-card__detail print-card__detail--vintage">${vintage}</span>
+          <span class="print-card__detail print-card__detail--specification">${specification}</span>
           <span class="print-card__divider"></span>
-          <span class="print-card__detail print-card__detail--region">${region}</span>
+          <span class="print-card__detail print-card__detail--category">${category}</span>
         </div>
         <div class="print-card__description">${description}</div>
       </div>

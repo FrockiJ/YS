@@ -59,7 +59,6 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { formatUsdPrice } from '../utils/currency'
 
 const { t } = useI18n()
 
@@ -72,10 +71,10 @@ const props = defineProps({
 
 const visibleStats = computed(() => {
   const base = [
-    { label: t('chat_product_card.stats.color'), value: props.product.color },
-    { label: t('chat_product_card.stats.vintage'), value: props.product.vintage },
-    { label: t('chat_product_card.stats.rating'), value: props.product.rating },
-    { label: t('chat_product_card.stats.producer'), value: props.product.producer },
+    { label: t('chat_product_card.stats.brand'), value: props.product.brand || props.product.brand },
+    { label: t('chat_product_card.stats.category'), value: props.product.category },
+    { label: t('chat_product_card.stats.specification'), value: props.product.specification || props.product.spec },
+    { label: t('chat_product_card.stats.material'), value: props.product.material },
   ]
   return base.filter(
     (item) =>
@@ -92,7 +91,13 @@ const statusText = computed(() => {
 })
 
 const formatCurrency = (value) => {
-  return formatUsdPrice(value, '')
+  const amount = Number(value)
+  if (!Number.isFinite(amount)) return ''
+  return new Intl.NumberFormat('zh-TW', {
+    style: 'currency',
+    currency: 'TWD',
+    maximumFractionDigits: 0,
+  }).format(amount)
 }
 </script>
 

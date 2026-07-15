@@ -54,7 +54,7 @@ const editPrice = ref('')
 const editDescription = ref('')
 const editInstruction = ref('')
 const editModalMode = ref('full')
-const isRegenerating = ref(false)
+const isRegenefeature = ref(false)
 const isSaving = ref(false)
 const printListCount = ref(0)
 const showSnackbar = ref(false)
@@ -224,19 +224,19 @@ const resolveProductName = (product) =>
     ''
   ).toString().trim()
 
-const resolveProducer = (product) =>
-  (product?.producer || product?.invn006 || '').toString().trim()
+const resolveBrand = (product) =>
+  (product?.brand || product?.invn006 || '').toString().trim()
 
-const resolveVintage = (product) => {
-  const raw = (product?.vintage || product?.invn051 || '').toString().trim()
-  return raw || 'NV'
+const resolveSpecification = (product) => {
+  const raw = (product?.specification || product?.invn051 || '').toString().trim()
+  return raw || '-'
 }
 
-const resolveRegion = (product) =>
-  (product?.region || product?.invn030 || '').toString().trim()
+const resolveCategory = (product) =>
+  (product?.category || product?.invn030 || '').toString().trim()
 
-const resolveRating = (product) =>
-  (product?.rating || product?.invn804 || product?.invn805 || '').toString().trim()
+const resolveFeature = (product) =>
+  (product?.feature || product?.invn804 || product?.invn805 || '').toString().trim()
 
 const resolvePrintProduct = (item) => item?.product_snapshot || {}
 
@@ -247,24 +247,24 @@ const resolvePrintName = (item) => {
   return resolveProductName(product)
 }
 
-const resolvePrintProducer = (item) => {
+const resolvePrintBrand = (item) => {
   const product = resolvePrintProduct(item)
-  return resolveProducer(product)
+  return resolveBrand(product)
 }
 
-const resolvePrintVintage = (item) => {
+const resolvePrintSpecification = (item) => {
   const product = resolvePrintProduct(item)
-  return resolveVintage(product)
+  return resolveSpecification(product)
 }
 
-const resolvePrintRegion = (item) => {
+const resolvePrintCategory = (item) => {
   const product = resolvePrintProduct(item)
-  return resolveRegion(product)
+  return resolveCategory(product)
 }
 
-const resolvePrintRating = (item) => {
+const resolvePrintFeature = (item) => {
   const product = resolvePrintProduct(item)
-  return resolveRating(product)
+  return resolveFeature(product)
 }
 
 const getPrintPanelTitle = (size) => {
@@ -345,12 +345,12 @@ const buildPrintTemplatePanels = () =>
     size: section.size,
     panels: section.panels.map((panelItems) =>
       panelItems.map((item) => ({
-        producer: resolvePrintProducer(item),
+        brand: resolvePrintBrand(item),
         name: resolvePrintName(item),
         price: resolvePrintPriceText(item),
-        rating: resolvePrintRating(item) || '-',
-        vintage: resolvePrintVintage(item),
-        region: resolvePrintRegion(item) || '-',
+        feature: resolvePrintFeature(item) || '-',
+        specification: resolvePrintSpecification(item),
+        category: resolvePrintCategory(item) || '-',
         description: (item.description || '').slice(0, MAX_DESC),
       }))
     ),
@@ -401,8 +401,8 @@ const formatImportRowValue = (entry) => {
   return [
     raw['產品編號'],
     raw['品名'],
-    raw['Brand'] ?? raw['Producer'],
-    raw['Model Year'] ?? raw['年份'],
+    raw['Brand'] ?? raw['Brand'],
+    raw.Specification,
     raw['價格'],
     raw['大尺寸'],
     raw['中尺寸'],
@@ -481,8 +481,8 @@ const downloadFailedRowsWorkbook = () => {
     ...importErrorRows.value.map((entry) => [
       entry?.raw_row?.['產品編號'] ?? '',
       entry?.raw_row?.['品名'] ?? '',
-      entry?.raw_row?.['Brand'] ?? entry?.raw_row?.['Producer'] ?? '',
-      entry?.raw_row?.['Model Year'] ?? entry?.raw_row?.['年份'] ?? '',
+      entry?.raw_row?.['Brand'] ?? entry?.raw_row?.['Brand'] ?? '',
+      entry?.raw_row?.Specification ?? '',
       entry?.raw_row?.['價格'] ?? '',
       entry?.raw_row?.['大尺寸'] ?? '',
       entry?.raw_row?.['中尺寸'] ?? '',
@@ -795,7 +795,7 @@ const closeEditModal = () => {
 
 const handleRegenerate = async () => {
   if (editModalMode.value !== 'full') return
-  if (isRegenerating.value) return
+  if (isRegenefeature.value) return
   const instruction = editInstruction.value.trim()
   if (!instruction) return
   const code = editItem.value ? resolvePrintCode(editItem.value) : resolveProductCode(selectedProduct.value)
@@ -811,7 +811,7 @@ const handleRegenerate = async () => {
   if (!parsedPrice) {
     editPrice.value = formatPrice(priceValue)
   }
-  isRegenerating.value = true
+  isRegenefeature.value = true
   try {
     const response = await regenerateLabelDescription({
       code,
@@ -825,7 +825,7 @@ const handleRegenerate = async () => {
   } catch (error) {
     console.error('Regenerate label description failed', error)
   } finally {
-    isRegenerating.value = false
+    isRegenefeature.value = false
   }
 }
 
@@ -1169,7 +1169,7 @@ onBeforeUnmount(() => {
           <section class="label-card label-card--s1">
             <div class="label-card__header">
               <span class="label-chip">{{ t('labelSettings.step1') }}</span>
-              <span class="label-category">{{ t('labelSettings.selectWines') }}</span>
+              <span class="label-category">{{ t('labelSettings.selectProducts') }}</span>
             </div>
             <div class="label-card__row">
               <div
@@ -1225,7 +1225,7 @@ onBeforeUnmount(() => {
                     <span class="label-search__option-title">{{ resolveProductName(item) }}</span>
                     <span class="label-search__option-sub">
                       {{ resolveProductCode(item) }}
-                      <span v-if="resolveProducer(item)"> · {{ resolveProducer(item) }}</span>
+                      <span v-if="resolveBrand(item)"> · {{ resolveBrand(item) }}</span>
                     </span>
                   </button>
                   <div
@@ -1293,12 +1293,12 @@ onBeforeUnmount(() => {
                   <div v-if="selectedProduct" class="label-preview label-preview--small">
                     <div class="label-preview__bar"></div>
                     <div class="label-preview__body">
-                      <div class="label-preview__producer">{{ resolveProducer(selectedProduct) }}</div>
+                      <div class="label-preview__brand">{{ resolveBrand(selectedProduct) }}</div>
                       <div class="label-preview__name">{{ resolveProductName(selectedProduct) }}</div>
                     </div>
                     <div class="label-preview__meta">
-                      <div>• {{ resolveVintage(selectedProduct) }}</div>
-                      <div>• {{ resolveRegion(selectedProduct) || '-' }}</div>
+                      <div>• {{ resolveSpecification(selectedProduct) }}</div>
+                      <div>• {{ resolveCategory(selectedProduct) || '-' }}</div>
                     </div>
                     <div class="label-preview__price">{{ resolvePriceText(selectedProduct, 'small') }}</div>
                   </div>
@@ -1330,13 +1330,13 @@ onBeforeUnmount(() => {
                   <div v-if="selectedProduct" class="label-preview label-preview--medium">
                     <div class="label-preview__bar"></div>
                     <div class="label-preview__body">
-                      <div class="label-preview__producer">{{ resolveProducer(selectedProduct) }}</div>
+                      <div class="label-preview__brand">{{ resolveBrand(selectedProduct) }}</div>
                       <div class="label-preview__name">{{ resolveProductName(selectedProduct) }}</div>
                     </div>
                     <div class="label-preview__meta">
-                      <div>• {{ resolveRating(selectedProduct) || '-' }}</div>
-                      <div>• {{ resolveVintage(selectedProduct) }}</div>
-                      <div>• {{ resolveRegion(selectedProduct) || '-' }}</div>
+                      <div>• {{ resolveFeature(selectedProduct) || '-' }}</div>
+                      <div>• {{ resolveSpecification(selectedProduct) }}</div>
+                      <div>• {{ resolveCategory(selectedProduct) || '-' }}</div>
                     </div>
                     <div class="label-preview__price">{{ resolvePriceText(selectedProduct, 'medium') }}</div>
                   </div>
@@ -1369,21 +1369,21 @@ onBeforeUnmount(() => {
                     <div class="label-preview__bar"></div>
                     <div class="label-preview__price">{{ resolvePriceText(selectedProduct, 'large') }}</div>
                     <div class="label-preview__body">
-                      <div class="label-preview__producer">{{ resolveProducer(selectedProduct) }}</div>
+                      <div class="label-preview__brand">{{ resolveBrand(selectedProduct) }}</div>
                       <div class="label-preview__name">{{ resolveProductName(selectedProduct) }}</div>
                     </div>
                     <div class="label-preview__details">
-                      <span class="label-preview__detail label-preview__detail--rating">
-                        {{ resolveRating(selectedProduct) || '-' }}
+                      <span class="label-preview__detail label-preview__detail--feature">
+                        {{ resolveFeature(selectedProduct) || '-' }}
                       </span>
                       <div class="label-preview__details-group">
                         <span class="label-preview__divider"></span>
-                        <span class="label-preview__detail label-preview__detail--vintage">
-                          {{ resolveVintage(selectedProduct) }}
+                        <span class="label-preview__detail label-preview__detail--specification">
+                          {{ resolveSpecification(selectedProduct) }}
                         </span>
                         <span class="label-preview__divider"></span>
-                        <span class="label-preview__detail label-preview__detail--region">
-                          {{ resolveRegion(selectedProduct) || '-' }}
+                        <span class="label-preview__detail label-preview__detail--category">
+                          {{ resolveCategory(selectedProduct) || '-' }}
                         </span>
                       </div>
                     </div>
@@ -1498,30 +1498,30 @@ onBeforeUnmount(() => {
                               <div class="label-preview__bar"></div>
                               <div class="label-preview__price">{{ resolvePrintPriceText(item) }}</div>
                               <div class="label-preview__body">
-                                <div class="label-preview__producer">{{ resolvePrintProducer(item) }}</div>
+                                <div class="label-preview__brand">{{ resolvePrintBrand(item) }}</div>
                                 <div class="label-preview__name">{{ resolvePrintName(item) }}</div>
                               </div>
                               <div v-if="item.size === 'small'" class="label-preview__meta">
-                                <div>• {{ resolvePrintVintage(item) }}</div>
-                                <div>• {{ resolvePrintRegion(item) || '-' }}</div>
+                                <div>• {{ resolvePrintSpecification(item) }}</div>
+                                <div>• {{ resolvePrintCategory(item) || '-' }}</div>
                               </div>
                               <div v-else-if="item.size === 'medium'" class="label-preview__meta">
-                                <div>• {{ resolvePrintRating(item) || '-' }}</div>
-                                <div>• {{ resolvePrintVintage(item) }}</div>
-                                <div>• {{ resolvePrintRegion(item) || '-' }}</div>
+                                <div>• {{ resolvePrintFeature(item) || '-' }}</div>
+                                <div>• {{ resolvePrintSpecification(item) }}</div>
+                                <div>• {{ resolvePrintCategory(item) || '-' }}</div>
                               </div>
                               <div v-else class="label-preview__details">
-                                <span class="label-preview__detail label-preview__detail--rating">
-                                  {{ resolvePrintRating(item) || '-' }}
+                                <span class="label-preview__detail label-preview__detail--feature">
+                                  {{ resolvePrintFeature(item) || '-' }}
                                 </span>
                                 <div class="label-preview__details-group">
                                   <span class="label-preview__divider"></span>
-                                  <span class="label-preview__detail label-preview__detail--vintage">
-                                    {{ resolvePrintVintage(item) }}
+                                  <span class="label-preview__detail label-preview__detail--specification">
+                                    {{ resolvePrintSpecification(item) }}
                                   </span>
                                   <span class="label-preview__divider"></span>
-                                  <span class="label-preview__detail label-preview__detail--region">
-                                    {{ resolvePrintRegion(item) || '-' }}
+                                  <span class="label-preview__detail label-preview__detail--category">
+                                    {{ resolvePrintCategory(item) || '-' }}
                                   </span>
                                 </div>
                               </div>
@@ -1719,10 +1719,10 @@ onBeforeUnmount(() => {
                     <button
                       type="button"
                       class="label-edit-modal__send"
-                      :disabled="!editInstruction.trim() || isRegenerating"
+                      :disabled="!editInstruction.trim() || isRegenefeature"
                       @click="handleRegenerate"
                     >
-                      <span v-if="isRegenerating" class="label-edit-modal__send-spinner" aria-hidden="true"></span>
+                      <span v-if="isRegenefeature" class="label-edit-modal__send-spinner" aria-hidden="true"></span>
                       <svg v-else viewBox="0 0 24 24" aria-hidden="true">
                         <path
                           d="M4 4L20 12L4 20L8 12L4 4Z"
@@ -2157,7 +2157,7 @@ onBeforeUnmount(() => {
   max-width: 75%;
 }
 
-.label-preview__producer {
+.label-preview__brand {
   font-size: 19px;
   font-weight: 700;
   line-height: 23px;
@@ -2193,8 +2193,8 @@ onBeforeUnmount(() => {
   letter-spacing: -0.5px;
 }
 
-.label-preview--medium .label-preview__producer,
-.label-preview--large .label-preview__producer {
+.label-preview--medium .label-preview__brand,
+.label-preview--large .label-preview__brand {
   font-size: 23px;
   line-height: 28px;
 }
@@ -2252,8 +2252,8 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-.label-preview__detail--vintage,
-.label-preview__detail--region {
+.label-preview__detail--specification,
+.label-preview__detail--category {
   width: 141px;
   flex: 0 0 141px;
 }
@@ -2635,7 +2635,7 @@ onBeforeUnmount(() => {
   gap: 6px;
 }
 
-.label-print-card__preview .label-preview__producer {
+.label-print-card__preview .label-preview__brand {
   font-weight: 700;
   color: #102d47;
 }
@@ -2670,7 +2670,7 @@ onBeforeUnmount(() => {
   max-width: 264px;
 }
 
-.label-print-card__preview .label-preview--small .label-preview__producer {
+.label-print-card__preview .label-preview--small .label-preview__brand {
   font-size: 24px;
   line-height: 29px;
 }
@@ -2706,7 +2706,7 @@ onBeforeUnmount(() => {
   max-width: 342px;
 }
 
-.label-print-card__preview .label-preview--medium .label-preview__producer {
+.label-print-card__preview .label-preview--medium .label-preview__brand {
   font-size: 26px;
   line-height: 31px;
 }
@@ -2742,7 +2742,7 @@ onBeforeUnmount(() => {
   max-width: 552px;
 }
 
-.label-print-card__preview .label-preview--large .label-preview__producer {
+.label-print-card__preview .label-preview--large .label-preview__brand {
   font-size: 26px;
   line-height: 31px;
 }
@@ -2769,17 +2769,17 @@ onBeforeUnmount(() => {
   line-height: 20px;
 }
 
-.label-print-card__preview .label-preview--large .label-preview__detail--rating {
+.label-print-card__preview .label-preview--large .label-preview__detail--feature {
   min-width: 0;
   flex: 1;
 }
 
-.label-print-card__preview .label-preview--large .label-preview__detail--vintage {
+.label-print-card__preview .label-preview--large .label-preview__detail--specification {
   width: 60px;
   flex: 0 0 60px;
 }
 
-.label-print-card__preview .label-preview--large .label-preview__detail--region {
+.label-print-card__preview .label-preview--large .label-preview__detail--category {
   width: 72px;
   flex: 0 0 72px;
 }

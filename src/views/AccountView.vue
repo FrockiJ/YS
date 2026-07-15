@@ -157,7 +157,6 @@ const settingsProjectForm = ref({
   avgUnitPrice: '',
   preferenceNote: '',
   region: '',
-  hasWineCabinet: false,
 })
 
 const knowledgeActiveTab = ref(KNOWLEDGE_TAB_RAG)
@@ -243,7 +242,6 @@ const defaultSettingsProjectForm = () => ({
   avgUnitPrice: '',
   preferenceNote: '',
   region: '',
-  hasWineCabinet: false,
 })
 
 const customerTypeOptions = ['VIP', 'B2B', 'F&B']
@@ -694,7 +692,6 @@ const buildSettingsProjectPayload = () => ({
       : null,
     preference_note: settingsProjectForm.value.preferenceNote || null,
     region: settingsProjectForm.value.region || null,
-    has_wine_cabinet: Boolean(settingsProjectForm.value.hasWineCabinet),
   },
 })
 
@@ -1807,10 +1804,6 @@ onBeforeUnmount(() => {
               type="text"
               :placeholder="t('account.settings_stage.modal.region_placeholder')"
             />
-          </label>
-          <label class="account-field settings-project-modal__switch">
-            <span>{{ t('account.settings_stage.modal.has_wine_cabinet_label') }}</span>
-            <input v-model="settingsProjectForm.hasWineCabinet" type="checkbox" />
           </label>
         </div>
 

@@ -7,7 +7,7 @@
     "dev": "powershell -ExecutionPolicy Bypass -File .\\scripts\\start-dev-uat.ps1",
     "vite": "node scripts/start-vite.mjs",
     "dev:uat": "npm run dev",
-    "test": "node --test tests/chatFlow.test.mjs",
+    "test": "node --test tests/*.test.mjs",
     "check:locale": "node scripts/check-locale-at.mjs",
     "build": "vite build",
     "preview": "vite preview"

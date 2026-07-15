@@ -11,6 +11,14 @@ import { jsPDF } from 'jspdf'
 import { apiRequest } from '../services/apiClient'
 import { formatUsdPrice } from '../utils/currency'
 import {
+  isEdmBundleColumn,
+  isEdmColorColumn,
+  isEdmPriceColumn,
+  isEdmProductColumn,
+  normalizeEdmTableColumns,
+  resolveEdmTableValue,
+} from '../utils/edmTable'
+import {
   buildCerpPricingState,
   calculateBundleFreeQuantity,
   calculateBundlePayableQuantity,
@@ -67,6 +75,7 @@ const orderedBannerMeta = computed(() =>
   })
 )
 const heroTitle = computed(() => props.previewState?.hero_text || t('edm.hero.title'))
+const tableColumns = computed(() => normalizeEdmTableColumns(props.previewState?.table_columns))
 
 const DEFAULT_MAX_QUANTITY = 24
 
@@ -116,6 +125,13 @@ const getQuantityOptions = (row) =>
 
 const formatCurrency = (value) => {
   return formatUsdPrice(value)
+}
+
+const getTableCellText = (row, column) => {
+  const value = resolveEdmTableValue(row, column.key)
+  if (isEdmPriceColumn(column.key)) return formatCurrency(value)
+  if (isEdmBundleColumn(column.key)) return getShareBundleDisplay(row)
+  return value
 }
 
 const formatDateLabel = (value) => {
@@ -386,15 +402,7 @@ watch(
             <table>
               <thead>
                 <tr>
-                  <th>{{ t('edm.table.columns.no') }}</th>
-                  <th>{{ t('edm.table.columns.vintage') }}</th>
-                  <th>{{ t('edm.table.columns.producer') }}</th>
-                  <th>{{ t('edm.table.columns.product') }}</th>
-                  <th>{{ t('edm.table.columns.color') }}</th>
-                  <th>{{ t('edm.table.columns.rating') }}</th>
-                  <th>{{ t('edm.table.columns.list_price') }}</th>
-                  <th>{{ t('edm.table.columns.quote_price') }}</th>
-                  <th>{{ t('edm.table.columns.bundle') }}</th>
+                  <th v-for="column in tableColumns" :key="column.key">{{ column.label }}</th>
                   <th>{{ t('edm.table.columns.quantity') }}</th>
                 </tr>
               </thead>
@@ -403,49 +411,40 @@ watch(
                   v-for="(row, index) in selectedItems"
                   :key="resolveValue(row, ['no', 'sku', 'id', 'barcode'], index)"
                 >
-                  <td>{{ resolveValue(row, ['no', 'sku', 'id'], '-') }}</td>
-                  <td class="center">{{ resolveValue(row, ['vintage'], '-') }}</td>
-                  <td>{{ resolveValue(row, ['producer'], '-') }}</td>
-                  <td>
+                  <td
+                    v-for="column in tableColumns"
+                    :key="column.key"
+                    :class="{
+                      center: isEdmBundleColumn(column.key),
+                      right: isEdmPriceColumn(column.key),
+                      'edm-v1__quote': column.key === 'vip' || column.key === 'quote_price',
+                    }"
+                  >
                     <a
-                      v-if="resolveValue(row, ['product_link', 'link', 'href'], '')"
+                      v-if="isEdmProductColumn(column.key) && resolveValue(row, ['product_link', 'link', 'href'], '')"
                       class="edm-v1__link"
                       :href="resolveValue(row, ['product_link', 'link', 'href'], '')"
                       target="_blank"
                       rel="noopener"
                     >
-                      {{ resolveValue(row, ['product', 'name', 'title'], '-') }}
+                      {{ getTableCellText(row, column) }}
                     </a>
-                    <span v-else>
-                      {{ resolveValue(row, ['product', 'name', 'title'], '-') }}
+                    <span v-else-if="isEdmProductColumn(column.key)">
+                      {{ getTableCellText(row, column) }}
                     </span>
-                  </td>
-                  <td>
                     <span
+                      v-else-if="isEdmColorColumn(column.key)"
                       class="edm-v1__color"
-                      :data-tone="resolveValue(row, ['color'], '-')"
+                      :data-tone="getTableCellText(row, column)"
                     >
                       <img
                         class="edm-v1__icon"
-                        :src="resolveColorIcon(resolveValue(row, ['color'], '-'))"
-                        :alt="t('edm.table.color_icon', { color: resolveValue(row, ['color'], '-') })"
+                        :src="resolveColorIcon(getTableCellText(row, column))"
+                        :alt="t('edm.table.color_icon', { color: getTableCellText(row, column) })"
                       />
-                      {{ resolveValue(row, ['color'], '-') }}
+                      {{ getTableCellText(row, column) }}
                     </span>
-                  </td>
-                  <td>{{ resolveValue(row, ['rating'], '-') }}</td>
-                  <td class="right">
-                    {{ formatCurrency(resolveValue(row, ['list_price', 'price'], '')) }}
-                  </td>
-                  <td class="right edm-v1__quote">
-                    {{
-                      formatCurrency(
-                        resolveEdmUnitPrice(row)
-                      )
-                    }}
-                  </td>
-                  <td class="center">
-                    {{ getShareBundleDisplay(row) }}
+                    <span v-else>{{ getTableCellText(row, column) }}</span>
                   </td>
                   <td>
                     <div class="edm-v1__select">

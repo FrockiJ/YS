@@ -1,0 +1,35 @@
+name: YS Vue UAT
+
+on:
+  push:
+    branches: [ys-vue-uat]
+  pull_request:
+    branches: [ys-vue-uat]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run chat and product bridge tests
+        run: npm test -- --run
+      - name: Validate locale contracts
+        run: npm run check:locale
+      - name: Scan active UI for retired domain rules
+        shell: bash
+        run: |
+          if rg -n -i \
+            -g '*.ts' -g '*.js' -g '*.vue' -g '*.html' -g '*.json' -g '*.css' \
+            -g '!node_modules/**' -g '!dist/**' \
+            'wine|domaine|producer|vintage|vineyard|grape|burghound|vinous|decanter|tasting.?note|酒款|酒類|葡萄|產區|酒評|年份|酒櫃|品酒' \
+            src tests scripts; then
+            exit 1
+          fi
+      - name: Build production bundle
+        run: npm run build

@@ -337,7 +337,6 @@ const projectForm = ref({
   avgUnitPrice: '',
   preferenceNote: '',
   region: '',
-  hasWineCabinet: false,
 })
 
 const profileRows = computed(() => {
@@ -350,7 +349,6 @@ const profileRows = computed(() => {
     { label: t('projects.common.last_trade_at'), value: formatDateTime(p.last_trade_at) },
     { label: t('projects.common.avg_unit_price'), value: p.avg_unit_price ? formatCurrency(p.avg_unit_price) : '-' },
     { label: t('projects.common.region'), value: p.region || '-' },
-    { label: t('projects.common.has_wine_cabinet'), value: p.has_wine_cabinet === true ? t('projects.common.yes') : p.has_wine_cabinet === false ? t('projects.common.no') : '-' },
   ]
 })
 
@@ -382,7 +380,6 @@ const resetProjectForm = () => {
     avgUnitPrice: '',
     preferenceNote: '',
     region: '',
-    hasWineCabinet: false,
   }
 }
 
@@ -415,7 +412,6 @@ const buildCustomerProfilePayload = () => ({
   avg_unit_price: Number.isFinite(Number(projectForm.value.avgUnitPrice)) ? Number(projectForm.value.avgUnitPrice) : null,
   preference_note: projectForm.value.preferenceNote || null,
   region: projectForm.value.region || null,
-  has_wine_cabinet: Boolean(projectForm.value.hasWineCabinet),
 })
 
 const formatDateTime = (value) => {
@@ -1474,10 +1470,6 @@ onBeforeUnmount(() => {
           <label class="form-field">
             <span>{{ t('projects.common.region') }}</span>
             <input v-model="projectForm.region" type="text" placeholder="Hiking Gear" />
-          </label>
-          <label class="form-field form-field--switch">
-            <span>{{ t('projects.common.has_wine_cabinet') }}</span>
-            <input v-model="projectForm.hasWineCabinet" type="checkbox" />
           </label>
         </div>
 

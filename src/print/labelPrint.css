@@ -1,4 +1,4 @@
-﻿* {
+* {
   box-sizing: border-box;
 }
 
@@ -91,7 +91,7 @@ body {
   flex-direction: column;
 }
 
-.print-card__producer {
+.print-card__brand {
   margin: 0;
   color: #102d47;
   font-style: normal;
@@ -169,7 +169,7 @@ body {
   padding: 6.067mm 4.667mm 4.667mm;
 }
 
-.print-card--small .print-card__producer {
+.print-card--small .print-card__brand {
   font-size: 5.6mm;
   line-height: 6.767mm;
 }
@@ -190,7 +190,7 @@ body {
   padding: 6.533mm 5.6mm 5.6mm;
 }
 
-.print-card--medium .print-card__producer {
+.print-card--medium .print-card__brand {
   font-size: 6.067mm;
   line-height: 7.233mm;
 }
@@ -224,7 +224,7 @@ body {
   max-width: 90.066mm;
 }
 
-.print-card--large .print-card__producer {
+.print-card--large .print-card__brand {
   font-size: 6.067mm;
   line-height: 7.233mm;
 }
@@ -264,12 +264,12 @@ body {
   text-overflow: ellipsis;
 }
 
-.print-card__detail--rating {
+.print-card__detail--feature {
   flex: 1;
   min-width: 0;
 }
 
-.print-card__detail--vintage {
+.print-card__detail--specification {
   width: 14mm;
   text-align: center;
 }

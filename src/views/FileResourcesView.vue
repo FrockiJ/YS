@@ -30,7 +30,7 @@ import { useFileUploader } from '../composables/useFileUploader'
 import {
   createDocumentResource,
   createImageResource,
-  createWineLabelResource,
+  createProductLabelResource,
   deleteFileResource,
   fetchFileResourceDepartments,
   fetchFileResourceDetail,
@@ -38,7 +38,7 @@ import {
   fetchFileResources,
   searchCerpProducts,
   updateFileResource,
-  updateWineLabelResource,
+  updateProductLabelResource,
 } from '../services/ysApi'
 import { buildPrimaryNavItems, PRIMARY_NAV_ICON_IMAGES } from '../utils/appNavigation'
 
@@ -46,7 +46,7 @@ const router = useRouter()
 const { t, locale } = useI18n()
 const { isAuthenticated, avatarLabel, userProfile } = useAuth()
 
-const TYPE_WINE = 'wine_label'
+const TYPE_PRODUCT_LABEL = 'product_label'
 const TYPE_IMAGE = 'image'
 const TYPE_DOCUMENT = 'document'
 const SIDEBAR_COLLAPSE_BREAKPOINT = 720
@@ -111,7 +111,7 @@ const { sideMenu, sideMenuOpen, closePermissionMenu, handlePermissionNavClick } 
 const searchQuery = ref('')
 const debouncedQuery = ref('')
 const currentPage = ref(1)
-const activeTab = ref(TYPE_WINE)
+const activeTab = ref(TYPE_PRODUCT_LABEL)
 const sortRules = ref([])
 const sortGrouping = ref(false)
 const isSortPanelOpen = ref(false)
@@ -123,7 +123,7 @@ const noticeMessage = ref('')
 const activeRowMenuId = ref('')
 const isUploadMenuOpen = ref(false)
 const isUploadModalOpen = ref(false)
-const isWinePickerOpen = ref(false)
+const isProductPickerOpen = ref(false)
 const isPermissionModalOpen = ref(false)
 const isSubmitting = ref(false)
 const isDeleting = ref(false)
@@ -131,12 +131,12 @@ const formError = ref('')
 const uploadSubmitError = ref('')
 const deleteError = ref('')
 const permissionError = ref('')
-const wineSearchQuery = ref('')
-const wineResults = ref([])
-const isWineSearchLoading = ref(false)
-const wineSearchError = ref('')
-const selectedWineCandidateId = ref('')
-const selectedWine = ref(null)
+const productSearchQuery = ref('')
+const productResults = ref([])
+const isProductSearchLoading = ref(false)
+const productSearchError = ref('')
+const selectedProductCandidateId = ref('')
+const selectedProduct = ref(null)
 const familyProducts = ref([])
 const previewUrls = ref({})
 const previewDetailMap = ref({})
@@ -154,10 +154,10 @@ const uploadMenuRef = ref(null)
 const uploadMenuButtonRef = ref(null)
 const sortControlsRef = ref(null)
 const permissionTarget = ref(null)
-const uploadType = ref(TYPE_WINE)
+const uploadType = ref(TYPE_PRODUCT_LABEL)
 const departments = ref([])
 let searchTimer = 0
-let wineSearchRequestToken = 0
+let productSearchRequestToken = 0
 let previewRequestToken = 0
 let sortRuleSeed = 0
 const libraryDropDepth = ref(0)
@@ -177,7 +177,7 @@ const uploadMessages = () => ({
   uploading: ({ filename }) => t('fileResources.states.uploading_file', { filename }),
 })
 
-const wineUploader = useFileUploader({
+const productUploader = useFileUploader({
   allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
   messages: uploadMessages(),
 })
@@ -212,15 +212,15 @@ const rangeLabel = computed(() => {
 })
 
 const tabs = computed(() => [
-  { key: TYPE_WINE, label: t('fileResources.tabs.wine_label') },
+  { key: TYPE_PRODUCT_LABEL, label: t('fileResources.tabs.product_label') },
   { key: TYPE_IMAGE, label: t('fileResources.tabs.image') },
   { key: TYPE_DOCUMENT, label: t('fileResources.tabs.document') },
 ])
 
 const sortConfigByType = computed(() => ({
-  [TYPE_WINE]: {
-    groupBy: 'producer',
-    groupingLabel: t('fileResources.sort.group_by_producer'),
+  [TYPE_PRODUCT_LABEL]: {
+    groupBy: 'brand',
+    groupingLabel: t('fileResources.sort.group_by_brand'),
     defaultRules: [{ field: 'uploaded_at', direction: 'desc' }],
     fields: [
       {
@@ -240,8 +240,8 @@ const sortConfigByType = computed(() => ({
         },
       },
       {
-        value: 'producer',
-        label: t('fileResources.sort.fields.producer'),
+        value: 'brand',
+        label: t('fileResources.sort.fields.brand'),
         directions: {
           asc: t('fileResources.sort.directions.a_z'),
           desc: t('fileResources.sort.directions.z_a'),
@@ -433,7 +433,7 @@ const sortRequestKey = computed(() => activeSortTokens.value.join('|'))
 const activeUploader = computed(() => {
   if (uploadType.value === TYPE_IMAGE) return imageUploader
   if (uploadType.value === TYPE_DOCUMENT) return documentUploader
-  return wineUploader
+  return productUploader
 })
 const uploadAttachments = computed(() => activeUploader.value.attachments.value)
 const uploadWarning = computed(() => activeUploader.value.warning.value)
@@ -444,9 +444,9 @@ const departmentOptions = computed(() => {
   }
   return items
 })
-const selectedAttachment = computed(() => wineUploader.attachments.value.at(-1) || null)
-const selectedWineCandidate = computed(
-  () => wineResults.value.find((item) => item.no === selectedWineCandidateId.value) || null
+const selectedAttachment = computed(() => productUploader.attachments.value.at(-1) || null)
+const selectedProductCandidate = computed(
+  () => productResults.value.find((item) => item.no === selectedProductCandidateId.value) || null
 )
 const isEditMode = computed(() => modalMode.value === 'edit')
 const modalAttachmentPreviewUrl = computed(
@@ -458,12 +458,12 @@ const modalAttachmentFilename = computed(
 const modalAttachmentPresent = computed(
   () => Boolean(selectedAttachment.value?.file || editingResource.value?.id)
 )
-const selectedWineName = computed(
+const selectedProductName = computed(
   () =>
     String(
-      selectedWine.value?.name_ch ||
-        selectedWine.value?.name ||
-        selectedWine.value?.name_en ||
+      selectedProduct.value?.name_ch ||
+        selectedProduct.value?.name ||
+        selectedProduct.value?.name_en ||
         ''
     ).trim() || '-'
 )
@@ -485,17 +485,17 @@ const isPreviewModalLayerActive = computed(
     isPreviewOpen.value &&
     (isUploadModalOpen.value ||
       isDeleteModalOpen.value ||
-      isWinePickerOpen.value ||
+      isProductPickerOpen.value ||
       isPermissionModalOpen.value)
 )
 const uploadDisabled = computed(
   () =>
     !modalAttachmentPresent.value ||
-    !selectedWine.value ||
+    !selectedProduct.value ||
     isSubmitting.value ||
-    wineUploader.isUploading.value
+    productUploader.isUploading.value
 )
-const canConfirmWineSelection = computed(() => Boolean(selectedWineCandidate.value))
+const canConfirmProductSelection = computed(() => Boolean(selectedProductCandidate.value))
 const isLibraryUploadReady = computed(
   () =>
     Boolean(uploadAttachments.value.length) &&
@@ -514,7 +514,7 @@ const uploadModalSubtitle = computed(() => {
   return isEditMode.value ? t('fileResources.modal.edit_subtitle') : t('fileResources.modal.subtitle')
 })
 const submitButtonLabel = computed(() => {
-  if (isSubmitting.value || wineUploader.isUploading.value) return t('fileResources.states.submitting')
+  if (isSubmitting.value || productUploader.isUploading.value) return t('fileResources.states.submitting')
   return isEditMode.value ? t('fileResources.actions.save_changes') : t('fileResources.actions.save')
 })
 const libraryDropzoneTitle = computed(() => t('fileResources.modal.dropzone_title'))
@@ -714,7 +714,7 @@ const closeSortPanel = () => {
 }
 
 const resetSortStateForTab = (tabKey) => {
-  const config = sortConfigByType.value[tabKey] || sortConfigByType.value[TYPE_WINE]
+  const config = sortConfigByType.value[tabKey] || sortConfigByType.value[TYPE_PRODUCT_LABEL]
   sortRules.value = cloneSortRules(config?.defaultRules || [])
   sortGrouping.value = false
 }
@@ -821,31 +821,31 @@ const extractFamilyPrefix = (value = '') => {
   return match ? match[1] : normalized
 }
 
-const normalizeWineResult = (item = {}) => ({
+const normalizeProductResult = (item = {}) => ({
   id: item.id || item.no || '',
   no: String(item.no || item.id || '').trim(),
   name: String(item.name || item.name_ch || item.name_en || '').trim(),
   name_ch: String(item.name_ch || item.name || item.name_en || '').trim(),
   name_en: String(item.name_en || item.name_ch || item.name || '').trim(),
-  producer: String(item.producer || '').trim(),
-  region: String(item.region || '').trim(),
-  color: String(item.color || '').trim(),
-  vintage: item.vintage ?? '',
+  brand: String(item.brand || '').trim(),
+  category: String(item.category || item.raw_row?.category || '').trim(),
+  specification: String(item.specification || item.model || '').trim(),
+  material: String(item.material || item.raw_row?.material || '').trim(),
 })
 
 const resetUploadState = () => {
-  wineUploader.clear()
+  productUploader.clear()
   imageUploader.clear()
   documentUploader.clear()
   formError.value = ''
   uploadSubmitError.value = ''
-  wineSearchQuery.value = ''
-  wineResults.value = []
-  wineSearchError.value = ''
-  selectedWineCandidateId.value = ''
-  selectedWine.value = null
+  productSearchQuery.value = ''
+  productResults.value = []
+  productSearchError.value = ''
+  selectedProductCandidateId.value = ''
+  selectedProduct.value = null
   familyProducts.value = []
-  isWinePickerOpen.value = false
+  isProductPickerOpen.value = false
   editingResource.value = null
   modalMode.value = 'create'
   sharedForm.department_role = currentRole.value || departmentOptions.value[0] || ''
@@ -854,7 +854,7 @@ const resetUploadState = () => {
   isLibraryDropActive.value = false
 }
 
-const openUploadModal = (type = TYPE_WINE) => {
+const openUploadModal = (type = TYPE_PRODUCT_LABEL) => {
   closeUploadMenu()
   closeRowMenu()
   closeSortPanel()
@@ -879,28 +879,28 @@ const toggleUploadMenu = () => {
   isUploadMenuOpen.value = !isUploadMenuOpen.value
 }
 
-const openWinePicker = () => {
-  wineSearchError.value = ''
-  selectedWineCandidateId.value = selectedWine.value?.no || ''
-  if (!wineSearchQuery.value.trim()) {
-    wineSearchQuery.value = selectedWine.value?.name_ch || selectedWine.value?.name || ''
+const openProductPicker = () => {
+  productSearchError.value = ''
+  selectedProductCandidateId.value = selectedProduct.value?.no || ''
+  if (!productSearchQuery.value.trim()) {
+    productSearchQuery.value = selectedProduct.value?.name_ch || selectedProduct.value?.name || ''
   }
-  isWinePickerOpen.value = true
+  isProductPickerOpen.value = true
 }
 
-const closeWinePicker = () => {
-  isWinePickerOpen.value = false
-  wineSearchError.value = ''
+const closeProductPicker = () => {
+  isProductPickerOpen.value = false
+  productSearchError.value = ''
 }
 
-const buildFallbackWine = (resource = {}) => {
+const buildFallbackProduct = (resource = {}) => {
   if (!resource?.cerp_code_full) return null
-  return normalizeWineResult({
+  return normalizeProductResult({
     no: resource.cerp_code_full,
     name_ch: resource.display_name,
     name_en: resource.display_name,
     name: resource.display_name,
-    producer: resource.producer,
+    brand: resource.brand,
   })
 }
 
@@ -908,16 +908,17 @@ const sortFamilyProducts = (items = []) =>
   items
     .slice()
     .sort((left, right) => {
-      const leftVintage = Number(left?.vintage || 0)
-      const rightVintage = Number(right?.vintage || 0)
-      if (rightVintage !== leftVintage) return rightVintage - leftVintage
+      const specificationOrder = String(left?.specification || '').localeCompare(
+        String(right?.specification || ''),
+      )
+      if (specificationOrder !== 0) return specificationOrder
       return String(left?.no || '').localeCompare(String(right?.no || ''))
     })
 
-const fetchFamilyProductsForCode = async (cerpCode, fallbackWine = null) => {
+const fetchFamilyProductsForCode = async (cerpCode, fallbackProduct = null) => {
   const familyPrefix = extractFamilyPrefix(cerpCode)
   if (!familyPrefix) {
-    return fallbackWine ? [fallbackWine] : []
+    return fallbackProduct ? [fallbackProduct] : []
   }
   try {
     const response = await searchCerpProducts({
@@ -927,54 +928,54 @@ const fetchFamilyProductsForCode = async (cerpCode, fallbackWine = null) => {
     })
     const items = Array.isArray(response?.items) ? response.items : []
     const normalized = items
-      .map(normalizeWineResult)
+      .map(normalizeProductResult)
       .filter((item) => item.no && item.no.startsWith(familyPrefix))
     const deduped = Array.from(
       new Map(
-        [...normalized, ...(fallbackWine ? [fallbackWine] : [])].map((item) => [item.no, item])
+        [...normalized, ...(fallbackProduct ? [fallbackProduct] : [])].map((item) => [item.no, item])
       ).values()
     )
     return sortFamilyProducts(deduped)
   } catch {
-    return fallbackWine ? [fallbackWine] : []
+    return fallbackProduct ? [fallbackProduct] : []
   }
 }
 
 const loadFamilyProducts = async (cerpCode) => {
-  familyProducts.value = await fetchFamilyProductsForCode(cerpCode, selectedWine.value)
+  familyProducts.value = await fetchFamilyProductsForCode(cerpCode, selectedProduct.value)
 }
 
 const loadPreviewFamilyProducts = async (resource = {}) => {
-  const fallbackWine = buildFallbackWine(resource)
-  previewFamilyProducts.value = await fetchFamilyProductsForCode(resource?.cerp_code_full, fallbackWine)
+  const fallbackProduct = buildFallbackProduct(resource)
+  previewFamilyProducts.value = await fetchFamilyProductsForCode(resource?.cerp_code_full, fallbackProduct)
 }
 
-const hydrateSelectedWine = async (resource = {}) => {
-  const fallbackWine = buildFallbackWine(resource)
+const hydrateSelectedProduct = async (resource = {}) => {
+  const fallbackProduct = buildFallbackProduct(resource)
   if (!resource?.cerp_code_full) {
-    selectedWine.value = fallbackWine
-    selectedWineCandidateId.value = fallbackWine?.no || ''
-    familyProducts.value = fallbackWine ? [fallbackWine] : []
+    selectedProduct.value = fallbackProduct
+    selectedProductCandidateId.value = fallbackProduct?.no || ''
+    familyProducts.value = fallbackProduct ? [fallbackProduct] : []
     return
   }
-  selectedWine.value = (await fetchExactWineByCode(resource.cerp_code_full)) || fallbackWine
-  selectedWineCandidateId.value = selectedWine.value?.no || ''
-  wineSearchQuery.value = selectedWine.value?.name_ch || selectedWine.value?.name || resource.display_name || ''
-  await loadFamilyProducts(selectedWine.value?.no || resource.cerp_code_full || '')
+  selectedProduct.value = (await fetchExactProductByCode(resource.cerp_code_full)) || fallbackProduct
+  selectedProductCandidateId.value = selectedProduct.value?.no || ''
+  productSearchQuery.value = selectedProduct.value?.name_ch || selectedProduct.value?.name || resource.display_name || ''
+  await loadFamilyProducts(selectedProduct.value?.no || resource.cerp_code_full || '')
 }
 
 const trimAttachmentsToLatest = () => {
-  const current = wineUploader.attachments.value.slice()
+  const current = productUploader.attachments.value.slice()
   if (current.length <= 1) return
   const keepId = current.at(-1)?.id
   current
     .filter((item) => item.id !== keepId)
-    .forEach((item) => wineUploader.removeAttachment(item.id))
+    .forEach((item) => productUploader.removeAttachment(item.id))
 }
 
-const handleWineLabelFileChange = (event) => {
+const handleProductLabelFileChange = (event) => {
   formError.value = ''
-  wineUploader.handleFilesSelected(event)
+  productUploader.handleFilesSelected(event)
   trimAttachmentsToLatest()
 }
 
@@ -985,14 +986,14 @@ const handleLibraryFileChange = (event) => {
 }
 
 const handleLibraryDropEnter = (event) => {
-  if (uploadType.value === TYPE_WINE) return
+  if (uploadType.value === TYPE_PRODUCT_LABEL) return
   event.preventDefault()
   libraryDropDepth.value += 1
   isLibraryDropActive.value = true
 }
 
 const handleLibraryDropOver = (event) => {
-  if (uploadType.value === TYPE_WINE) return
+  if (uploadType.value === TYPE_PRODUCT_LABEL) return
   event.preventDefault()
   if (event.dataTransfer) {
     event.dataTransfer.dropEffect = 'copy'
@@ -1001,7 +1002,7 @@ const handleLibraryDropOver = (event) => {
 }
 
 const handleLibraryDropLeave = (event) => {
-  if (uploadType.value === TYPE_WINE) return
+  if (uploadType.value === TYPE_PRODUCT_LABEL) return
   event.preventDefault()
   libraryDropDepth.value = Math.max(0, libraryDropDepth.value - 1)
   if (!libraryDropDepth.value) {
@@ -1010,7 +1011,7 @@ const handleLibraryDropLeave = (event) => {
 }
 
 const handleLibraryDrop = (event) => {
-  if (uploadType.value === TYPE_WINE) return
+  if (uploadType.value === TYPE_PRODUCT_LABEL) return
   event.preventDefault()
   libraryDropDepth.value = 0
   isLibraryDropActive.value = false
@@ -1023,7 +1024,7 @@ const toggleRowMenu = (resourceId) => {
   activeRowMenuId.value = activeRowMenuId.value === resourceId ? '' : resourceId
 }
 
-const fetchExactWineByCode = async (cerpCode) => {
+const fetchExactProductByCode = async (cerpCode) => {
   const normalizedCode = String(cerpCode || '').trim()
   if (!normalizedCode) return null
   try {
@@ -1032,76 +1033,76 @@ const fetchExactWineByCode = async (cerpCode) => {
       limit: 20,
       lang: locale.value === 'en' ? 'en' : 'zh-TW',
     })
-    const items = Array.isArray(response?.items) ? response.items.map(normalizeWineResult) : []
+    const items = Array.isArray(response?.items) ? response.items.map(normalizeProductResult) : []
     return items.find((item) => item.no === normalizedCode) || null
   } catch {
     return null
   }
 }
 
-const searchWineCandidates = async (query) => {
+const searchProductCandidates = async (query) => {
   const keyword = String(query || '').trim()
-  const token = ++wineSearchRequestToken
+  const token = ++productSearchRequestToken
   if (!keyword) {
-    wineResults.value = []
-    wineSearchError.value = ''
-    isWineSearchLoading.value = false
+    productResults.value = []
+    productSearchError.value = ''
+    isProductSearchLoading.value = false
     return
   }
-  isWineSearchLoading.value = true
-  wineSearchError.value = ''
+  isProductSearchLoading.value = true
+  productSearchError.value = ''
   try {
     const response = await searchCerpProducts({
       query: keyword,
       limit: 20,
       lang: locale.value === 'en' ? 'en' : 'zh-TW',
     })
-    if (token !== wineSearchRequestToken) return
-    wineResults.value = Array.isArray(response?.items) ? response.items.map(normalizeWineResult) : []
-    if (!wineResults.value.length) {
-      selectedWineCandidateId.value = ''
-    } else if (!wineResults.value.some((item) => item.no === selectedWineCandidateId.value)) {
-      selectedWineCandidateId.value = ''
+    if (token !== productSearchRequestToken) return
+    productResults.value = Array.isArray(response?.items) ? response.items.map(normalizeProductResult) : []
+    if (!productResults.value.length) {
+      selectedProductCandidateId.value = ''
+    } else if (!productResults.value.some((item) => item.no === selectedProductCandidateId.value)) {
+      selectedProductCandidateId.value = ''
     }
   } catch (error) {
-    if (token !== wineSearchRequestToken) return
-    wineResults.value = []
-    wineSearchError.value = error?.message || t('fileResources.errors.search')
+    if (token !== productSearchRequestToken) return
+    productResults.value = []
+    productSearchError.value = error?.message || t('fileResources.errors.search')
   } finally {
-    if (token === wineSearchRequestToken) {
-      isWineSearchLoading.value = false
+    if (token === productSearchRequestToken) {
+      isProductSearchLoading.value = false
     }
   }
 }
 
-const handleWineSearchSubmit = () => {
-  const trimmed = wineSearchQuery.value.trim()
+const handleProductSearchSubmit = () => {
+  const trimmed = productSearchQuery.value.trim()
   if (!trimmed) {
-    wineResults.value = []
-    wineSearchError.value = ''
-    selectedWineCandidateId.value = ''
-    isWineSearchLoading.value = false
+    productResults.value = []
+    productSearchError.value = ''
+    selectedProductCandidateId.value = ''
+    isProductSearchLoading.value = false
     return
   }
   if (trimmed.length < 2) {
-    wineResults.value = []
-    wineSearchError.value = ''
-    selectedWineCandidateId.value = ''
-    isWineSearchLoading.value = false
+    productResults.value = []
+    productSearchError.value = ''
+    selectedProductCandidateId.value = ''
+    isProductSearchLoading.value = false
     return
   }
-  searchWineCandidates(trimmed)
+  searchProductCandidates(trimmed)
 }
 
-const confirmWineSelection = async () => {
-  if (!selectedWineCandidate.value) return
-  selectedWine.value = selectedWineCandidate.value
+const confirmProductSelection = async () => {
+  if (!selectedProductCandidate.value) return
+  selectedProduct.value = selectedProductCandidate.value
   formError.value = ''
-  await loadFamilyProducts(selectedWineCandidate.value.no)
-  closeWinePicker()
+  await loadFamilyProducts(selectedProductCandidate.value.no)
+  closeProductPicker()
 }
 
-const openWineEditModal = async (resourceSummary) => {
+const openProductEditModal = async (resourceSummary) => {
   closeRowMenu()
   closeUploadMenu()
   noticeMessage.value = ''
@@ -1110,8 +1111,8 @@ const openWineEditModal = async (resourceSummary) => {
     const detail = await fetchFileResourceDetail(resourceSummary.id)
     editingResource.value = detail
     modalMode.value = 'edit'
-    uploadType.value = TYPE_WINE
-    await hydrateSelectedWine(detail)
+    uploadType.value = TYPE_PRODUCT_LABEL
+    await hydrateSelectedProduct(detail)
     isUploadModalOpen.value = true
   } catch (error) {
     loadError.value = error?.message || t('fileResources.errors.detail')
@@ -1128,15 +1129,16 @@ const loadPreviewDetail = async (resourceSummary) => {
   try {
     const detail = await fetchFileResourceDetail(previewId)
     if (token !== previewRequestToken) return
-    if (detail.resource_type === TYPE_WINE) {
-      const exactWine = detail?.cerp_code_full ? await fetchExactWineByCode(detail.cerp_code_full) : null
+    if (detail.resource_type === TYPE_PRODUCT_LABEL) {
+      const exactProduct = detail?.cerp_code_full ? await fetchExactProductByCode(detail.cerp_code_full) : null
       if (token !== previewRequestToken) return
-      const enrichedDetail = exactWine
+      const enrichedDetail = exactProduct
         ? {
             ...detail,
-            producer: detail.producer || exactWine.producer || '',
-            region: exactWine.region || '',
-            color: exactWine.color || '',
+            brand: detail.brand || exactProduct.brand || '',
+            category: exactProduct.category || '',
+            specification: exactProduct.specification || exactProduct.model || '',
+            material: exactProduct.material || '',
           }
         : detail
       previewDetailMap.value = {
@@ -1168,7 +1170,7 @@ const loadPreviewDetail = async (resourceSummary) => {
   } catch (error) {
     if (token !== previewRequestToken) return
     previewLoadError.value = error?.message || t('fileResources.errors.detail')
-    if (resourceSummary.resource_type === TYPE_WINE) {
+    if (resourceSummary.resource_type === TYPE_PRODUCT_LABEL) {
       await loadPreviewFamilyProducts(resourceSummary || {})
     }
   } finally {
@@ -1217,7 +1219,7 @@ const downloadPreviewResource = async () => {
 
 const editPreviewResource = async () => {
   if (!activePreviewResource.value) return
-  await openWineEditModal(activePreviewResource.value)
+  await openProductEditModal(activePreviewResource.value)
 }
 
 const deletePreviewResource = () => {
@@ -1331,8 +1333,8 @@ const handleDocumentKeydown = (event) => {
     closePermissionModal()
     return
   }
-  if (isWinePickerOpen.value) {
-    closeWinePicker()
+  if (isProductPickerOpen.value) {
+    closeProductPicker()
     return
   }
   if (isUploadModalOpen.value) {
@@ -1351,14 +1353,14 @@ const handleDocumentKeydown = (event) => {
   closeRowMenu()
 }
 
-const submitWineLabel = async () => {
+const submitProductLabel = async () => {
   formError.value = ''
   if (!modalAttachmentPresent.value) {
     formError.value = t('fileResources.errors.file_required')
     return
   }
-  if (!selectedWine.value?.no) {
-    formError.value = t('fileResources.errors.wine_required')
+  if (!selectedProduct.value?.no) {
+    formError.value = t('fileResources.errors.product_required')
     return
   }
   isSubmitting.value = true
@@ -1366,7 +1368,7 @@ const submitWineLabel = async () => {
   try {
     let attachmentPayload = null
     if (selectedAttachment.value?.file) {
-      const [uploaded] = await wineUploader.uploadAll()
+      const [uploaded] = await productUploader.uploadAll()
       if (!uploaded?.path) {
         throw new Error(t('fileResources.errors.upload_failed'))
       }
@@ -1377,25 +1379,25 @@ const submitWineLabel = async () => {
         size: uploaded.size,
       }
     }
-    const isSameWineAsCurrent =
+    const isSameProductAsCurrent =
       isEditMode.value &&
       editingResource.value?.cerp_code_full &&
-      editingResource.value.cerp_code_full === selectedWine.value.no
+      editingResource.value.cerp_code_full === selectedProduct.value.no
     const payload = {
       display_name:
-        isEditMode.value && isSameWineAsCurrent
-          ? editingResource.value?.display_name || selectedWineName.value
-          : selectedWineName.value,
-      cerp_code_full: selectedWine.value.no,
+        isEditMode.value && isSameProductAsCurrent
+          ? editingResource.value?.display_name || selectedProductName.value
+          : selectedProductName.value,
+      cerp_code_full: selectedProduct.value.no,
     }
     if (attachmentPayload) {
       payload.attachment = attachmentPayload
     }
 
     if (isEditMode.value && editingResource.value?.id) {
-      await updateWineLabelResource(editingResource.value.id, payload)
+      await updateProductLabelResource(editingResource.value.id, payload)
     } else {
-      await createWineLabelResource({
+      await createProductLabelResource({
         ...payload,
         attachment: attachmentPayload,
       })
@@ -1462,8 +1464,8 @@ const submitLibraryUpload = async () => {
 }
 
 const submitUpload = async () => {
-  if (uploadType.value === TYPE_WINE) {
-    await submitWineLabel()
+  if (uploadType.value === TYPE_PRODUCT_LABEL) {
+    await submitProductLabel()
     return
   }
   await submitLibraryUpload()
@@ -1523,14 +1525,14 @@ watch(searchQuery, (value) => {
   }, 250)
 })
 
-watch(wineSearchQuery, (value) => {
-  if (!isWinePickerOpen.value) return
+watch(productSearchQuery, (value) => {
+  if (!isProductPickerOpen.value) return
   const trimmed = value.trim()
   if (!trimmed) {
-    wineResults.value = []
-    wineSearchError.value = ''
-    selectedWineCandidateId.value = ''
-    isWineSearchLoading.value = false
+    productResults.value = []
+    productSearchError.value = ''
+    selectedProductCandidateId.value = ''
+    isProductSearchLoading.value = false
   }
 })
 
@@ -1573,7 +1575,7 @@ onBeforeUnmount(() => {
   }
   clearPreviewUrls()
   clearPreviewDetails()
-  wineUploader.clear()
+  productUploader.clear()
   imageUploader.clear()
   documentUploader.clear()
 })
@@ -1630,9 +1632,9 @@ onBeforeUnmount(() => {
               </button>
 
               <div v-if="isUploadMenuOpen" ref="uploadMenuRef" class="file-upload-menu">
-                <button type="button" class="file-upload-menu__item" @click="openUploadModal(TYPE_WINE)">
-                  <strong>{{ t('fileResources.upload_menu.wine_label.title') }}</strong>
-                  <small>{{ t('fileResources.upload_menu.wine_label.description') }}</small>
+                <button type="button" class="file-upload-menu__item" @click="openUploadModal(TYPE_PRODUCT_LABEL)">
+                  <strong>{{ t('fileResources.upload_menu.product_label.title') }}</strong>
+                  <small>{{ t('fileResources.upload_menu.product_label.description') }}</small>
                 </button>
                 <button type="button" class="file-upload-menu__item" @click="openUploadModal(TYPE_IMAGE)">
                   <strong>{{ t('fileResources.upload_menu.image.title') }}</strong>
@@ -1705,7 +1707,7 @@ onBeforeUnmount(() => {
             <p v-if="noticeMessage" class="file-resource-notice">{{ noticeMessage }}</p>
             <p v-if="loadError" class="file-resource-error">{{ loadError }}</p>
 
-            <template v-if="activeTab === TYPE_WINE">
+            <template v-if="activeTab === TYPE_PRODUCT_LABEL">
               <div class="file-resource-table-wrap">
                 <div v-if="isLoading" class="file-resource-state">
                   {{ t('fileResources.states.loading') }}
@@ -1714,7 +1716,7 @@ onBeforeUnmount(() => {
                   <div class="file-resource-table__head">
                     <div>{{ t('fileResources.table.name') }}</div>
                     <div>{{ t('fileResources.table.product_code') }}</div>
-                    <div>{{ t('fileResources.table.producer') }}</div>
+                    <div>{{ t('fileResources.table.brand') }}</div>
                     <div>{{ t('fileResources.table.uploaded_at') }}</div>
                     <div />
                   </div>
@@ -1743,7 +1745,7 @@ onBeforeUnmount(() => {
                       {{ item.cerp_code_full || '-' }}
                     </div>
                     <div class="file-resource-table__cell">
-                      {{ item.producer || '-' }}
+                      {{ item.brand || '-' }}
                     </div>
                     <div class="file-resource-table__cell">
                       {{ formatDateTime(item.created_at) }}
@@ -1759,7 +1761,7 @@ onBeforeUnmount(() => {
                           <img :src="iconMoreVertical" alt="" aria-hidden="true" />
                         </button>
                         <div v-if="activeRowMenuId === item.id" class="file-resource-row-menu">
-                          <button type="button" class="file-resource-row-menu__item" @click="openWineEditModal(item)">
+                          <button type="button" class="file-resource-row-menu__item" @click="openProductEditModal(item)">
                             {{ t('fileResources.actions.edit') }}
                           </button>
                           <button type="button" class="file-resource-row-menu__item" @click="downloadResource(item)">
@@ -1890,7 +1892,7 @@ onBeforeUnmount(() => {
 
   <template v-if="isPreviewOpen && activePreviewResource">
     <div
-      v-if="activePreviewResource.resource_type === TYPE_WINE"
+      v-if="activePreviewResource.resource_type === TYPE_PRODUCT_LABEL"
       class="file-resource-preview"
       role="dialog"
       aria-modal="true"
@@ -2016,16 +2018,16 @@ onBeforeUnmount(() => {
               <strong>{{ activePreviewResource.display_name }}</strong>
               <dl class="file-resource-preview__meta">
                 <div>
-                  <dt>{{ t('fileResources.modal.fields.producer') }}</dt>
-                  <dd>{{ activePreviewResource.producer || '-' }}</dd>
+                  <dt>{{ t('fileResources.modal.fields.brand') }}</dt>
+                  <dd>{{ activePreviewResource.brand || '-' }}</dd>
                 </div>
                 <div>
                   <dt>{{ t('fileResources.modal.fields.region') }}</dt>
-                  <dd>{{ activePreviewResource.region || '-' }}</dd>
+                  <dd>{{ activePreviewResource.category || '-' }}</dd>
                 </div>
                 <div>
                   <dt>{{ t('fileResources.modal.fields.color') }}</dt>
-                  <dd>{{ activePreviewResource.color || '-' }}</dd>
+                  <dd>{{ activePreviewResource.specification || '-' }}</dd>
                 </div>
               </dl>
             </div>
@@ -2036,7 +2038,7 @@ onBeforeUnmount(() => {
             <div class="file-resource-preview__related">
               <div class="file-resource-preview__related-head">
                 <span>{{ t('fileResources.modal.related_code') }}</span>
-                <span>{{ t('fileResources.modal.related_vintage') }}</span>
+                <span>{{ t('fileResources.modal.related_specification') }}</span>
               </div>
               <div
                 v-for="item in previewFamilyProducts"
@@ -2044,7 +2046,7 @@ onBeforeUnmount(() => {
                 class="file-resource-preview__related-row"
               >
                 <span>{{ item.no }}</span>
-                <span>{{ item.vintage || '-' }}</span>
+                <span>{{ item.specification || '-' }}</span>
               </div>
             </div>
           </section>
@@ -2237,7 +2239,7 @@ onBeforeUnmount(() => {
   </template>
 
   <div
-    v-if="isUploadModalOpen && uploadType === TYPE_WINE"
+    v-if="isUploadModalOpen && uploadType === TYPE_PRODUCT_LABEL"
     class="modal-mask"
     :class="{ 'modal-mask--preview': isPreviewOpen }"
     role="dialog"
@@ -2255,11 +2257,11 @@ onBeforeUnmount(() => {
 
       <div class="file-upload-modal__body">
         <input
-          :ref="(el) => { wineUploader.fileInputRef.value = el }"
+          :ref="(el) => { productUploader.fileInputRef.value = el }"
           class="composer-file-input"
           type="file"
-          :accept="wineUploader.accept"
-          @change="handleWineLabelFileChange"
+          :accept="productUploader.accept"
+          @change="handleProductLabelFileChange"
         />
         <section class="file-upload-step">
           <header class="file-upload-step__header">
@@ -2270,7 +2272,7 @@ onBeforeUnmount(() => {
             </div>
           </header>
 
-          <button type="button" class="file-upload-dropzone" @click="wineUploader.triggerSelect">
+          <button type="button" class="file-upload-dropzone" @click="productUploader.triggerSelect">
             <div v-if="modalAttachmentPreviewUrl" class="file-upload-dropzone__preview">
               <img :src="modalAttachmentPreviewUrl" alt="" />
               <small>{{ modalAttachmentFilename }}</small>
@@ -2287,34 +2289,34 @@ onBeforeUnmount(() => {
           <header class="file-upload-step__header">
             <span class="file-upload-step__index">Step 2</span>
             <div>
-              <h3>{{ t('fileResources.modal.step_wine_title') }}</h3>
-              <p>{{ t('fileResources.modal.step_wine_hint') }}</p>
+              <h3>{{ t('fileResources.modal.step_product_title') }}</h3>
+              <p>{{ t('fileResources.modal.step_product_hint') }}</p>
             </div>
           </header>
 
-          <div v-if="selectedWine" class="file-upload-selection-card">
+          <div v-if="selectedProduct" class="file-upload-selection-card">
             <div class="file-upload-selection-card__top">
               <div>
-                <strong>{{ selectedWineName }}</strong>
-                <small>{{ selectedWine.no }}</small>
+                <strong>{{ selectedProductName }}</strong>
+                <small>{{ selectedProduct.no }}</small>
               </div>
-              <button type="button" class="file-upload-link" @click="openWinePicker">
+              <button type="button" class="file-upload-link" @click="openProductPicker">
                 {{ t('fileResources.actions.reselect') }}
               </button>
             </div>
 
             <dl class="file-upload-selection-grid">
               <div>
-                <dt>{{ t('fileResources.modal.fields.producer') }}</dt>
-                <dd>{{ selectedWine.producer || '-' }}</dd>
+                <dt>{{ t('fileResources.modal.fields.brand') }}</dt>
+                <dd>{{ selectedProduct.brand || '-' }}</dd>
               </div>
               <div>
                 <dt>{{ t('fileResources.modal.fields.region') }}</dt>
-                <dd>{{ selectedWine.region || '-' }}</dd>
+                <dd>{{ selectedProduct.category || '-' }}</dd>
               </div>
               <div>
                 <dt>{{ t('fileResources.modal.fields.color') }}</dt>
-                <dd>{{ selectedWine.color || '-' }}</dd>
+                <dd>{{ selectedProduct.specification || '-' }}</dd>
               </div>
             </dl>
 
@@ -2323,7 +2325,7 @@ onBeforeUnmount(() => {
               <div class="file-upload-related__table">
                 <div class="file-upload-related__head">
                   <span>{{ t('fileResources.modal.related_code') }}</span>
-                  <span>{{ t('fileResources.modal.related_vintage') }}</span>
+                  <span>{{ t('fileResources.modal.related_specification') }}</span>
                 </div>
                 <div
                   v-for="item in familyProducts"
@@ -2331,7 +2333,7 @@ onBeforeUnmount(() => {
                   class="file-upload-related__row"
                 >
                   <span>{{ item.no }}</span>
-                  <span>{{ item.vintage || '-' }}</span>
+                  <span>{{ item.specification || '-' }}</span>
                 </div>
               </div>
             </div>
@@ -2340,17 +2342,17 @@ onBeforeUnmount(() => {
           <button
             v-else
             type="button"
-            class="file-upload-wine-empty"
-            @click="openWinePicker"
+            class="file-upload-product-empty"
+            @click="openProductPicker"
           >
-            <span class="file-upload-wine-empty__icon">＋</span>
-            <strong>{{ t('fileResources.modal.select_wine') }}</strong>
+            <span class="file-upload-product-empty__icon">＋</span>
+            <strong>{{ t('fileResources.modal.select_product') }}</strong>
           </button>
         </section>
       </div>
 
-      <p v-if="uploadWarning" class="file-resource-error" data-testid="wine-upload-warning">{{ uploadWarning }}</p>
-      <p v-if="formError" class="file-resource-error" data-testid="wine-upload-error">{{ formError }}</p>
+      <p v-if="uploadWarning" class="file-resource-error" data-testid="product-upload-warning">{{ uploadWarning }}</p>
+      <p v-if="formError" class="file-resource-error" data-testid="product-upload-error">{{ formError }}</p>
 
       <footer class="file-upload-modal__footer">
         <button type="button" class="file-upload-button file-upload-button--ghost" @click="closeUploadModal">
@@ -2359,7 +2361,7 @@ onBeforeUnmount(() => {
         <button
           type="button"
           class="file-upload-button file-upload-button--primary"
-          data-testid="wine-upload-submit"
+          data-testid="product-upload-submit"
           :disabled="uploadDisabled"
           @click="submitUpload"
         >
@@ -2370,7 +2372,7 @@ onBeforeUnmount(() => {
   </div>
 
   <div
-    v-if="isUploadModalOpen && uploadType !== TYPE_WINE"
+    v-if="isUploadModalOpen && uploadType !== TYPE_PRODUCT_LABEL"
     class="modal-mask"
     :class="{ 'modal-mask--preview': isPreviewOpen }"
     role="dialog"
@@ -2540,7 +2542,7 @@ onBeforeUnmount(() => {
   </div>
 
   <div
-    v-if="isDeleteModalOpen && deleteTarget && deleteTarget.resource_type === TYPE_WINE"
+    v-if="isDeleteModalOpen && deleteTarget && deleteTarget.resource_type === TYPE_PRODUCT_LABEL"
     class="modal-mask"
     :class="{ 'modal-mask--preview': isPreviewOpen }"
     role="dialog"
@@ -2549,11 +2551,11 @@ onBeforeUnmount(() => {
   >
     <article class="file-resource-delete-modal">
       <header class="file-resource-delete-modal__header">
-        <h2>{{ t('fileResources.delete_modal.wine_label_title') }}</h2>
+        <h2>{{ t('fileResources.delete_modal.product_label_title') }}</h2>
         <button type="button" class="file-upload-modal__close" @click="closeDeleteModal">×</button>
       </header>
       <div class="file-resource-delete-modal__body">
-        <p class="file-resource-delete-modal__copy">{{ t('fileResources.delete_modal.wine_label_body') }}</p>
+        <p class="file-resource-delete-modal__copy">{{ t('fileResources.delete_modal.product_label_body') }}</p>
         <p v-if="deleteError" class="file-resource-error file-resource-delete-modal__error">{{ deleteError }}</p>
       </div>
       <footer class="file-resource-delete-modal__footer">
@@ -2573,7 +2575,7 @@ onBeforeUnmount(() => {
   </div>
 
   <div
-    v-if="isDeleteModalOpen && deleteTarget && deleteTarget.resource_type !== TYPE_WINE"
+    v-if="isDeleteModalOpen && deleteTarget && deleteTarget.resource_type !== TYPE_PRODUCT_LABEL"
     class="modal-mask"
     :class="{ 'modal-mask--preview': isPreviewOpen }"
     role="dialog"
@@ -2709,53 +2711,53 @@ onBeforeUnmount(() => {
   </div>
 
   <div
-    v-if="isWinePickerOpen"
+    v-if="isProductPickerOpen"
     class="modal-mask"
     :class="{ 'modal-mask--preview': isPreviewOpen }"
     role="dialog"
     aria-modal="true"
-    @click.self="closeWinePicker"
+    @click.self="closeProductPicker"
   >
     <article class="file-picker-modal">
       <header class="file-picker-modal__header">
         <h2>{{ t('fileResources.picker.title') }}</h2>
-        <button type="button" class="file-upload-modal__close" @click="closeWinePicker">×</button>
+        <button type="button" class="file-upload-modal__close" @click="closeProductPicker">×</button>
       </header>
 
       <div class="file-picker-modal__body">
         <label class="file-picker-search">
           <span class="file-picker-search__icon" v-html="glyphs.search" aria-hidden="true" />
           <input
-            v-model="wineSearchQuery"
+            v-model="productSearchQuery"
             type="search"
             :placeholder="t('fileResources.picker.search_placeholder')"
-            @keydown.enter.prevent="handleWineSearchSubmit"
+            @keydown.enter.prevent="handleProductSearchSubmit"
           />
         </label>
 
         <div class="file-picker-section-title">{{ t('fileResources.picker.results_title') }}</div>
-        <p v-if="wineSearchError" class="file-resource-error file-picker-modal__error">{{ wineSearchError }}</p>
+        <p v-if="productSearchError" class="file-resource-error file-picker-modal__error">{{ productSearchError }}</p>
 
-        <div v-if="isWineSearchLoading" class="file-picker-state">
+        <div v-if="isProductSearchLoading" class="file-picker-state">
           {{ t('fileResources.states.searching') }}
         </div>
-        <div v-else-if="wineResults.length" class="file-picker-results">
+        <div v-else-if="productResults.length" class="file-picker-results">
           <label
-            v-for="item in wineResults"
+            v-for="item in productResults"
             :key="item.no"
             class="file-picker-result"
-            :class="{ 'is-selected': selectedWineCandidateId === item.no }"
+            :class="{ 'is-selected': selectedProductCandidateId === item.no }"
           >
             <input
-              v-model="selectedWineCandidateId"
+              v-model="selectedProductCandidateId"
               type="radio"
-              name="wine-selection"
+              name="product-selection"
               :value="item.no"
             />
             <div class="file-picker-result__content">
               <strong>{{ item.name_ch || item.name }}</strong>
               <span>{{ item.no }}</span>
-              <small>{{ item.producer || '-' }}</small>
+              <small>{{ item.brand || '-' }}</small>
             </div>
           </label>
         </div>
@@ -2765,14 +2767,14 @@ onBeforeUnmount(() => {
       </div>
 
       <footer class="file-picker-modal__footer">
-        <button type="button" class="file-upload-button file-upload-button--ghost" @click="closeWinePicker">
+        <button type="button" class="file-upload-button file-upload-button--ghost" @click="closeProductPicker">
           {{ t('fileResources.actions.cancel') }}
         </button>
         <button
           type="button"
           class="file-upload-button file-upload-button--primary"
-          :disabled="!canConfirmWineSelection"
-          @click="confirmWineSelection"
+          :disabled="!canConfirmProductSelection"
+          @click="confirmProductSelection"
         >
           {{ t('fileResources.actions.confirm') }}
         </button>
@@ -3813,7 +3815,7 @@ onBeforeUnmount(() => {
 }
 
 .file-upload-dropzone__icon,
-.file-upload-wine-empty__icon {
+.file-upload-product-empty__icon {
   width: 48px;
   height: 48px;
   border-radius: 16px;
@@ -3828,7 +3830,7 @@ onBeforeUnmount(() => {
 }
 
 .file-upload-dropzone__icon::before,
-.file-upload-wine-empty__icon::before {
+.file-upload-product-empty__icon::before {
   content: '+';
   font-size: 24px;
   line-height: 1;
@@ -3849,7 +3851,7 @@ onBeforeUnmount(() => {
   line-height: 20px;
 }
 
-.file-upload-wine-empty {
+.file-upload-product-empty {
   min-height: 520px;
   border: 1px dashed rgba(145, 158, 171, 0.64);
   border-radius: 16px;
@@ -5256,7 +5258,7 @@ onBeforeUnmount(() => {
   }
 
   .file-upload-dropzone,
-  .file-upload-wine-empty,
+  .file-upload-product-empty,
   .file-upload-selection-card {
     min-height: 320px;
   }

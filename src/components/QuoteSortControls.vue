@@ -9,7 +9,7 @@
         <div v-if="showSortPanel" class="quote-sort__panel">
           <label class="quote-switch-row">
             <input type="checkbox" :checked="sortGrouping" @change="setSortGrouping(!sortGrouping)" />
-            {{ t('quote.sort.group_by_producer') }}
+            {{ t('quote.sort.group_by_brand') }}
           </label>
           <div
             v-for="rule in sortRules"

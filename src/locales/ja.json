@@ -227,6 +227,21 @@
       "notice_history": "I found this product in スマートシステム. Summary (from previously exported data):",
       "notice_direct": "I found this product in スマートシステム. Summary:"
     },
+    "product_bridge": {
+      "action": "YSおすすめ商品を見る",
+      "loading": "YS商品を確認中...",
+      "preview": "推奨カテゴリー：{categories}",
+      "in_stock": "在庫あり",
+      "legacy_reason": "{requirements}の要件に合い、ERPで実際に利用可能な商品です。",
+      "generic_reason": "現在の商品要件と販売可能条件に合っています。",
+      "requirements": {
+        "rain_protection": "雨対策", "shelter": "シェルター", "sleeping_gear": "睡眠・保温",
+        "lighting": "照明", "cooking_water": "調理・給水", "storage_packs": "携行・防水収納",
+        "power": "電源", "safety_repair": "安全・補修", "fishing_gear": "釣り用品",
+        "waterproof": "防水", "lightweight": "軽量", "compact": "収納性", "warm": "保温"
+      },
+      "error": "YS商品を読み込めませんでした。もう一度お試しください。"
+    },
     "cerp_results": {
       "title": "商品在庫結果 ({count})",
       "subtitle": "これらの結果は確認用としてチャット内に残り、見積リストは自動作成されません。",
@@ -250,10 +265,12 @@
         "review_score": "レビュー評価"
       },
       "columns": {
+        "brand": "ブランド",
+        "specification": "仕様",
         "code": "コード",
-        "producer": "ブランド",
+        "brand": "ブランド",
         "name": "商品",
-        "vintage": "モデル年",
+        "specification": "モデル年",
         "stock": "在庫",
         "price": "価格",
         "status": "ステータス",
@@ -294,11 +311,11 @@
     "product_card": {
       "labels": {
         "number": "No.",
-        "vintage": "モデル年",
-        "producer": "ブランド",
+        "specification": "モデル年",
+        "brand": "ブランド",
         "product": "商品",
         "color": "?",
-        "rating": "評価",
+        "feature": "評価",
         "stock": "在庫",
         "list_price": "ラベル",
         "vip_quote": "ラベル",
@@ -307,7 +324,7 @@
       "bundle_1_1": "Bundle 1+1",
       "bundle_label": "1+1",
       "default_title": "スマートシステム見積",
-      "non_vintage": "NV",
+      "non_specification": "NV",
       "photo_placeholder": "商品画像は準備中です"
     },
     "user": {
@@ -323,7 +340,7 @@
       "success_intro": "{query} の依頼に対して、見積に使える候補セットを整理しました。",
       "success_bullet_count": "{count} 件の商品を直接比較できます",
       "bullet_quote_info": "各商品のコード、商品名、在庫、見積情報を含みます",
-      "bullet_wine_details": "色、評価、モデル年、ブランド情報を確認できます",
+      "bullet_product_details": "色、評価、モデル年、ブランド情報を確認できます",
       "bullet_compare": "商品を横並びで比較しやすい構成です",
       "success_closing": "優先して見積に入れる商品を素早く確認できるよう整理しています。",
       "closing_bullet_filter": "カテゴリ、ブランド、モデル年でさらに絞り込めます",
@@ -747,7 +764,6 @@
         "avg_unit_price_label": "ラベル",
         "region_label": "ラベル",
         "region_placeholder": "入力してください",
-        "has_wine_cabinet_label": "Has storage locker",
         "description_label": "内容を確認して続行してください。",
         "description_placeholder": "入力してください",
         "errors": {
@@ -968,11 +984,11 @@
     "table": {
       "columns": {
         "no": "番号",
-        "vintage": "モデル年",
-        "producer": "ブランド",
+        "specification": "モデル年",
+        "brand": "ブランド",
         "product": "商品",
         "color": "色",
-        "rating": "評価",
+        "feature": "評価",
         "stock": "在庫",
         "price": "価格",
         "vip": "VIP価格",
@@ -1049,9 +1065,9 @@
       },
       "price_range": "価格範囲",
       "color": "色",
-      "rating": "評価",
-      "vintage": "モデル年",
-      "producer": "ブランド",
+      "feature": "評価",
+      "specification": "モデル年",
+      "brand": "ブランド",
       "inventory": "在庫",
       "all": "すべて"
     },
@@ -1084,13 +1100,13 @@
       "color": "色",
       "color_unknown": "不明",
       "conversation_title": "タイトル",
-      "non_vintage": "NV",
+      "non_specification": "NV",
       "none": "なし",
       "price_estimate": "概算 {price}",
       "price_pending": "価格未確定",
-      "producer": "ブランド",
+      "brand": "ブランド",
       "product": "商品",
-      "rating": "評価",
+      "feature": "評価",
       "stock_bottles": "{count} 点",
       "stock_pending": "在庫未確定",
       "supplier": "インテリジェントシステム",
@@ -1107,7 +1123,7 @@
       "count": "{count} 枚のスライド",
       "meta": {
         "price": "価格",
-        "vintage": "モデル年",
+        "specification": "モデル年",
         "sku": "SKU",
         "link": "リンク",
         "area": "エリア：{value}"
@@ -1116,7 +1132,7 @@
     "slide": {
       "notes": {
         "color": "内容を確認して続行してください。",
-        "rating": "内容を確認して続行してください。"
+        "feature": "内容を確認して続行してください。"
       }
     },
     "share": {
@@ -1148,7 +1164,7 @@
       "add_rule": "ルールを追加",
       "reset_rules": "ルールをリセット",
       "remove_rule": "ルールを削除",
-      "group_by_producer": "ブランドでグループ化",
+      "group_by_brand": "ブランドでグループ化",
       "show_bundle_column": "セット列を表示",
       "placeholder": "並び替え",
       "count": "{count} 件のルール",
@@ -1165,9 +1181,9 @@
       },
       "fields": {
         "product": "商品",
-        "vintage": "モデル年",
+        "specification": "モデル年",
         "color": "色",
-        "rating": "評価",
+        "feature": "評価",
         "stock": "在庫",
         "price": "価格",
         "bundle": "セット",
@@ -1180,14 +1196,14 @@
       "submit_failed": "処理に失敗しました。",
       "cerp_failed": "処理に失敗しました。"
     },
-    "producer_description": {
+    "brand_description": {
       "line1": "内容を確認して続行してください。",
       "line2": "内容を確認して続行してください。",
       "line3": "内容を確認して続行してください。",
       "line4": "内容を確認して続行してください。",
       "filler": "内容を確認して続行してください。"
     },
-    "rating": {
+    "feature": {
       "steps": [
         80,
         85,
@@ -1234,11 +1250,11 @@
       "color_icon": "色：{color}",
       "columns": {
         "no": "No.",
-        "vintage": "モデル年",
-        "producer": "ブランド",
+        "specification": "モデル年",
+        "brand": "ブランド",
         "product": "商品",
         "color": "?",
-        "rating": "評価",
+        "feature": "評価",
         "list_price": "定価",
         "quote_price": "見積",
         "bundle": "セット",
@@ -1382,7 +1398,7 @@
       "success_intro": "{query} の依頼に対して、見積に使える候補セットを整理しました。",
       "success_bullet_count": "{count} 件の商品を直接比較できます",
       "bullet_quote_info": "各商品のコード、商品名、在庫、見積情報を含みます",
-      "bullet_wine_details": "色、評価、モデル年、ブランド情報を確認できます",
+      "bullet_product_details": "色、評価、モデル年、ブランド情報を確認できます",
       "bullet_compare": "商品を横並びで比較しやすい構成です",
       "success_closing": "優先して見積に入れる商品を素早く確認できるよう整理しています。",
       "closing_bullet_filter": "カテゴリ、ブランド、モデル年でさらに絞り込めます",
@@ -1427,11 +1443,11 @@
       "sheet_name": "見積返信",
       "columns": {
         "no": "No.",
-        "vintage": "モデル年",
-        "producer": "ブランド",
+        "specification": "モデル年",
+        "brand": "ブランド",
         "product": "商品",
         "color": "?",
-        "rating": "評価",
+        "feature": "評価",
         "list_price": "定価",
         "quote_price": "見積",
         "bundle": "容量",
@@ -1512,10 +1528,14 @@
       "more_options": "操作"
     },
     "stats": {
+      "brand": "ブランド",
+      "category": "カテゴリー",
+      "specification": "仕様",
+      "material": "素材",
       "color": "?",
-      "vintage": "モデル年",
-      "rating": "評価",
-      "producer": "ブランド"
+      "specification": "モデル年",
+      "feature": "評価",
+      "brand": "ブランド"
     },
     "status": {
       "stock": "在庫"
@@ -1525,7 +1545,7 @@
     "title": "棚ラベル",
     "step1": "ラベル",
     "step2": "ラベル",
-    "selectWines": "印刷する商品を選択",
+    "selectProducts": "印刷する商品を選択",
     "selectSize": "ラベル",
     "searchPlaceholder": "名称、ブランド、SKU を検索",
     "searchLoading": "検索中...",
@@ -1687,7 +1707,6 @@
       "lastTradeAt": "最終取引日時",
       "avgUnitPrice": "平均単価",
       "region": "希望カテゴリ",
-      "hasWineCabinet": "商品保管庫あり",
       "preferenceNote": "希望メモ",
       "title": "タイトル",
       "yes": "はい",
@@ -1744,7 +1763,6 @@
       "last_trade_at": "最終取引日時",
       "avg_unit_price": "平均単価",
       "region": "地域",
-      "has_wine_cabinet": "保管ロッカー契約",
       "yes": "あり",
       "no": "なし",
       "load_accounts_failed": "アカウント一覧の読み込みに失敗しました",
@@ -1793,7 +1811,7 @@
     "title": "ファイルリソース",
     "subtitle": "社内チーム向けの共有商品ラベル、画像、ドキュメントを管理します。",
     "tabs": {
-      "wine_label": "商品ラベル",
+      "product_label": "商品ラベル",
       "image": "画像",
       "document": "ドキュメント"
     },
@@ -1810,12 +1828,12 @@
       "add_rule": "並び替えを追加",
       "reset_rules": "並び替えをリセット",
       "remove_rule": "ルールを削除",
-      "group_by_producer": "ブランドでグループ化",
+      "group_by_brand": "ブランドでグループ化",
       "group_by_department": "部門別に項目をグループ化",
       "fields": {
         "uploaded_at": "アップロード日時",
         "display_name": "ファイル名",
-        "producer": "ブランド",
+        "brand": "ブランド",
         "product_code": "商品コード",
         "department": "部門",
         "file_type": "ファイル形式",
@@ -1833,7 +1851,7 @@
     "table": {
       "name": "ファイル名",
       "product_code": "商品コード",
-      "producer": "ブランド",
+      "brand": "ブランド",
       "department": "部門",
       "visibility": "公開設定",
       "uploaded_at": "アップロード日時",
@@ -1869,7 +1887,7 @@
     "errors": {
       "load": "ファイルリソースの読み込みに失敗しました。",
       "file_required": "少なくとも 1 つのファイルを選択してください。",
-      "wine_required": "このラベルに対応する商品を選択してください。",
+      "product_required": "このラベルに対応する商品を選択してください。",
       "upload_failed": "処理に失敗しました。",
       "create": "ファイルリソースの作成に失敗しました。",
       "update": "ファイルリソースの更新に失敗しました。",
@@ -1895,7 +1913,7 @@
       "per_page": "表示件数"
     },
     "upload_menu": {
-      "wine_label": {
+      "product_label": {
         "title": "商品ラベル",
         "description": "商品ラベル画像をアップロードし、商品在庫の品目に紐づけます。"
       },
@@ -1921,12 +1939,12 @@
       "step_image_title": "タイトル",
       "step_image_hint": "入力してください",
       "image_size_hint": "入力してください",
-      "step_wine_title": "対応商品を選択",
-      "step_wine_hint": "Bind the image to one スマートシステム product and reuse it across model years.",
-      "select_wine": "商品を選択",
+      "step_product_title": "対応商品を選択",
+      "step_product_hint": "Bind the image to one スマートシステム product and reuse it across model years.",
+      "select_product": "商品を選択",
       "related_title": "タイトル",
       "related_code": "商品コード",
-      "related_vintage": "モデル年",
+      "related_specification": "モデル年",
       "department": "部門",
       "visibility": "公開設定",
       "queue_title": "タイトル",
@@ -1940,7 +1958,7 @@
       "dropzone_hint": "入力してください",
       "upload_failed_retry": "処理に失敗しました。",
       "fields": {
-        "producer": "ブランド",
+        "brand": "ブランド",
         "region": "カテゴリ",
         "color": "?"
       }
@@ -1977,8 +1995,8 @@
       "visibility": "公開設定"
     },
     "delete_modal": {
-      "wine_label_title": "タイトル",
-      "wine_label_body": "この商品ラベルを削除すると元に戻せません。続行しますか？",
+      "product_label_title": "タイトル",
+      "product_label_body": "この商品ラベルを削除すると元に戻せません。続行しますか？",
       "image_title": "タイトル",
       "image_body": "この操作は元に戻せません。続行しますか？",
       "document_title": "タイトル",

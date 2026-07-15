@@ -90,6 +90,17 @@ export const sendChatMessage = (payload) => {
   })
 }
 
+export const fetchProductRecommendations = ({ conversationId, sourceMessageId, lang }) => {
+  return apiRequest('/chat/product-recommendations', {
+    method: 'POST',
+    body: {
+      conversation_id: conversationId,
+      source_message_id: sourceMessageId,
+      lang,
+    },
+  })
+}
+
 export const fetchCoreModules = () => {
   return apiRequest('/core/modules')
 }
@@ -539,7 +550,7 @@ export const deleteQuote = (quoteId) => {
 }
 
 export const fetchFileResources = ({
-  type = 'wine_label',
+  type = 'product_label',
   q = '',
   sort = 'uploaded_desc',
   sorts = [],
@@ -561,8 +572,8 @@ export const fetchFileResources = ({
   return apiRequest(`/file-resources?${params.toString()}`)
 }
 
-export const createWineLabelResource = (payload) => {
-  return apiRequest('/file-resources/wine-labels', {
+export const createProductLabelResource = (payload) => {
+  return apiRequest('/file-resources/product-labels', {
     method: 'POST',
     body: payload,
   })
@@ -586,7 +597,7 @@ export const fetchFileResourceDepartments = () => {
   return apiRequest('/file-resources/departments')
 }
 
-export const updateWineLabelResource = (resourceId, payload) => {
+export const updateProductLabelResource = (resourceId, payload) => {
   return apiRequest(`/file-resources/${resourceId}`, {
     method: 'PATCH',
     body: payload,

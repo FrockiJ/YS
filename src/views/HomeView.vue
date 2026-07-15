@@ -20,6 +20,7 @@ import QuoteResponseRenderer from '../components/QuoteResponseRenderer.vue'
 import { usePermissionSideMenu } from '../composables/usePermissionSideMenu'
 import {
   sendChatMessage,
+  fetchProductRecommendations,
   fetchConversationHistory,
   fetchConversationMessages,
   fetchProjects,
@@ -45,6 +46,12 @@ import {
   resolveChatFlowErrorMessage,
 } from '../utils/chatFlow'
 import { buildUserAvatarLabel, normalizeAuthorField } from '../utils/userAvatarLabel'
+import {
+  getProductBridge as resolveProductBridge,
+  getProductBridgeSourceId as resolveProductBridgeSourceId,
+  isPendingProductBridge,
+  formatProductRecommendationReason,
+} from '../utils/productBridge'
 import { resolveCerpColor, resolveCerpStock } from '../utils/cerpFields'
 import {
   QUOTE_ACTION_PIVOT_TO_QUOTE,
@@ -782,6 +789,8 @@ const shareEmail = ref('')
 const shareInputRef = ref(null)
 const shareMessageOverride = ref('')
 const isSending = ref(false)
+const productBridgeLoadingIds = ref(new Set())
+const productBridgeFulfilledIds = ref(new Set())
 const chatError = ref('')
 const chatMessages = ref([])
 const expandedReferenceMessageIds = ref(new Set())
@@ -1685,7 +1694,7 @@ const resolveReferenceTitle = (meta, entry, idx) =>
   meta.source_site ||
   meta.code ||
   meta.sku ||
-  [meta.producer, meta.name || meta.wine_name].filter(Boolean).join(' ') ||
+  [meta.brand, meta.name || meta.product_name].filter(Boolean).join(' ') ||
   meta.filename ||
   entry.title ||
   entry.source ||
@@ -1693,7 +1702,7 @@ const resolveReferenceTitle = (meta, entry, idx) =>
   entry.source_site ||
   entry.code ||
   entry.sku ||
-  [entry.producer, entry.name || entry.wine_name].filter(Boolean).join(' ') ||
+  [entry.brand, entry.name || entry.product_name].filter(Boolean).join(' ') ||
   entry.filename ||
   t('home.references.reference_label', { index: idx + 1 })
 
@@ -2103,11 +2112,11 @@ function buildProductCard(product = {}) {
   }
   const rows = [
     { label: t('home.product_card.labels.number'), value: product.no },
-    { label: t('home.product_card.labels.vintage'), value: product.vintage || '-' },
-    { label: t('home.product_card.labels.producer'), value: product.producer || '-' },
+    { label: t('home.product_card.labels.specification'), value: product.specification || '-' },
+    { label: t('home.product_card.labels.brand'), value: product.brand || '-' },
     { label: t('home.product_card.labels.product'), value: product.name || '-' },
     { label: t('home.product_card.labels.color'), value: resolveCerpColor(product, '-') },
-    { label: t('home.product_card.labels.rating'), value: product.rating || '-' },
+    { label: t('home.product_card.labels.feature'), value: product.feature || '-' },
     { label: t('home.product_card.labels.stock'), value: product.stock ?? 0 },
     { label: t('home.product_card.labels.list_price'), value: formatCurrency(product.price) || '-' },
     { label: t('home.product_card.labels.vip_quote'), value: formatCurrency(product.vip_price) || '-' },
@@ -2135,16 +2144,16 @@ function buildProductCard(product = {}) {
   const stockCount = toNumber(resolveCerpStock(product))
   const productName =
     product.name || product.name_en || product.name_ch || product.invn005 || product.no
-  const displayTitle = [product.producer, productName].filter(Boolean).join(' ')
+  const displayTitle = [product.brand, productName].filter(Boolean).join(' ')
   const resolvedColor = resolveCerpColor(product, '-')
   return {
     id: `cerp-${product.no}-${Date.now()}`,
     sku: product.no,
     title: displayTitle || t('home.product_card.default_title'),
-    vintage: product.vintage || t('home.product_card.non_vintage'),
+    specification: product.specification || t('home.product_card.non_specification'),
     color: resolvedColor,
-    rating: product.rating || product.invn804 || '-',
-    producer: product.producer || '-',
+    feature: product.feature || product.invn804 || '-',
+    brand: product.brand || '-',
     price: listPrice,
     vipPrice,
     stock: stockCount,
@@ -2452,7 +2461,10 @@ const latestQuoteResultTarget = computed(() => {
 const latestActionableQuoteRows = computed(() => latestQuoteResultTarget.value?.rows || [])
 
 const showQuoteResultToggle = computed(
-  () => isChatActive.value && Boolean(latestQuoteResultTarget.value)
+  () =>
+    isChatActive.value &&
+    Boolean(latestQuoteResultTarget.value) &&
+    !messageHasCerpResults(latestQuoteResultTarget.value?.message)
 )
 
 const persistQuoteChatUiReturnPayload = (payload) => {
@@ -2503,21 +2515,15 @@ const clearQuoteChatUiReturnPayload = () => {
   window.sessionStorage.removeItem(QUOTE_CHATUI_RETURN_KEY)
 }
 
-const routeToLatestQuoteView = async () => {
-  const target = latestQuoteResultTarget.value
-  if (!target) {
-    showGeneratedResults.value = false
-    return
-  }
-  const latestQuote = target.message
-  const actionableQuoteRows = target.rows
+const routeToQuoteView = async (message) => {
+  const actionableQuoteRows = getActionableQuoteRows(message?.metadata || {})
   if (!actionableQuoteRows.length) {
     showGeneratedResults.value = false
     chatError.value = t('home.errors.quote_results_unavailable')
     return
   }
   const quoteContinuity =
-    buildQuoteContinuityFromMessage(latestQuote, {
+    buildQuoteContinuityFromMessage(message, {
       conversationId: activeConversationId.value || null,
       project: activeProjectPayload.value || null,
       lang: languagePreference.value,
@@ -2540,6 +2546,15 @@ const routeToLatestQuoteView = async () => {
     quote_continuity: quoteContinuity,
   })
   await router.push({ name: 'quote', query: { tab: QUOTE_DEFAULT_TAB } })
+}
+
+const routeToLatestQuoteView = async () => {
+  const target = latestQuoteResultTarget.value
+  if (!target) {
+    showGeneratedResults.value = false
+    return
+  }
+  await routeToQuoteView(target.message)
 }
 
 const handleHomeQuoteResultToggleChange = () => {
@@ -2785,6 +2800,70 @@ const applyChatResponse = (response, question) => {
   isChatActive.value = true
 }
 
+const getProductBridgeForMessage = (message) => {
+  return resolveProductBridge(message)
+}
+
+const getProductBridgeSourceId = (message) => {
+  return resolveProductBridgeSourceId(message)
+}
+
+const messageHasPendingProductBridge = (message) => {
+  return isPendingProductBridge(message, productBridgeFulfilledIds.value)
+}
+
+const isProductBridgeLoading = (message) =>
+  productBridgeLoadingIds.value.has(getProductBridgeSourceId(message))
+
+const handleProductBridgeClick = async (message) => {
+  const sourceMessageId = getProductBridgeSourceId(message)
+  const conversationId = activeConversationId.value
+  if (!sourceMessageId || !conversationId || isProductBridgeLoading(message)) return
+
+  const nextLoading = new Set(productBridgeLoadingIds.value)
+  nextLoading.add(sourceMessageId)
+  productBridgeLoadingIds.value = nextLoading
+  chatError.value = ''
+  const actionLabel = t('home.product_bridge.action')
+  const pendingUserMessageId = addUserMessageToThread(actionLabel)
+  try {
+    const response = await fetchProductRecommendations({
+      conversationId,
+      sourceMessageId,
+      lang: languagePreference.value,
+    })
+    if (!response?.ok) {
+      throw new Error(response?.error || t('home.product_bridge.error'))
+    }
+    const fulfilled = new Set(productBridgeFulfilledIds.value)
+    fulfilled.add(sourceMessageId)
+    productBridgeFulfilledIds.value = fulfilled
+    if (message?.metadata?.product_bridge) {
+      message.metadata.product_bridge.fulfilled = true
+    }
+    applyChatResponse(response, actionLabel)
+  } catch (error) {
+    removeMessageFromThread(pendingUserMessageId)
+    chatError.value = resolveChatFlowErrorMessage(error, t) || t('home.product_bridge.error')
+    if (shouldHandleSessionExpired(error)) {
+      handleSessionExpired()
+    }
+  } finally {
+    const loading = new Set(productBridgeLoadingIds.value)
+    loading.delete(sourceMessageId)
+    productBridgeLoadingIds.value = loading
+  }
+}
+
+const handleCerpResultToggleChange = (message, event) => {
+  if (!event?.target?.checked) return
+  persistQuoteDestinationPreference(true)
+  routeToQuoteView(message).catch((error) => {
+    event.target.checked = false
+    console.warn('Unable to route to quote view from ERP results', error)
+  })
+}
+
 const ensureConversationLabelForNewChat = (question) => {
   if (activeConversationId.value) {
     return conversationTitle.value
@@ -3023,6 +3102,7 @@ const messageHasCerpData = (message) => {
           message?.metadata?.is_cerp_data ||
           message?.metadata?.cerp_product ||
           message?.metadata?.cerp_results ||
+          message?.metadata?.product_results ||
           message?.cerp_product))
   )
 }
@@ -3062,6 +3142,7 @@ const messageAllowsCerpResults = (message) => {
     ''
   ).trim()
   return (
+    Array.isArray(metadata.product_results) ||
     CERP_RESULT_PROMPT_CATEGORIES.has(promptCategory) ||
     CERP_RESULT_KINDS.has(cerpKind) ||
     CERP_RESULT_INTENTS.has(intent) ||
@@ -3071,31 +3152,51 @@ const messageAllowsCerpResults = (message) => {
   )
 }
 
+const formatLegacyRecommendationReason = (item, message, rawReason) => {
+  return formatProductRecommendationReason(
+    item,
+    rawReason,
+    (key, params) => tMessage(message, key, params)
+  )
+}
+
 const normalizeCerpResultsForMessage = (message) => {
   if (!messageAllowsCerpResults(message)) return []
   const metadata = message?.metadata || {}
   const cerpResults = metadata?.cerp_results && typeof metadata.cerp_results === 'object'
     ? metadata.cerp_results
     : {}
-  const sourceItems = Array.isArray(cerpResults.items) ? cerpResults.items : []
+  const sourceItems = Array.isArray(metadata.product_results)
+    ? metadata.product_results
+    : Array.isArray(cerpResults.items)
+      ? cerpResults.items
+      : []
   return sourceItems
     .filter((item) => item && typeof item === 'object')
     .map((item, index) => {
-      const code = String(item.code || item.no || item.id || '').trim()
-      const producer = String(item.producer || '').trim()
+      const code = String(item.sku || item.code || item.no || item.id || '').trim()
+      const brand = String(item.brand || item.brand || '').trim()
       const name = String(item.name || item.name_en || item.name_ch || item.product || item.title || '').trim()
-      const vintage = item.vintage ?? ''
+      const specification = item.specification ?? item.spec ?? item.specification ?? ''
       const stock = item.stock ?? item.stock_qty ?? item.total_stock ?? ''
       const price = item.price ?? item.list_price ?? ''
       const vipPrice = item.vip_price ?? item.quote_price ?? ''
-      const status = String(item.status || item.availability || '').trim()
+      const status = String(item.status || item.availability || (Number(stock) > 0 ? tMessage(message, 'home.product_bridge.in_stock') : '')).trim()
       const category = String(item.category || item.recommendation_category_label || '').trim()
-      const reason = String(item.recommendation_group_reason || item.recommendation_reason || item.reason || '').trim()
+      const reason = formatLegacyRecommendationReason(
+        item,
+        message,
+        item.recommendation_group_reason || item.recommendation_reason || item.reason
+      )
       const usage = String(item.recommendation_usage || '').trim()
       const specialRecommended = Boolean(item.special_recommended || item.specialRecommended)
-      const matchKeywords = Array.isArray(item.match_keywords) ? item.match_keywords : []
+      const matchKeywords = Array.isArray(item.matched_requirements)
+        ? item.matched_requirements
+        : Array.isArray(item.match_keywords)
+          ? item.match_keywords
+          : []
       const sourceTrace = String(item.source_trace || item.sourceTrace || '').trim()
-      const timestamp = String(item.timestamp || item.updated_at || '').trim()
+      const timestamp = String(item.source_timestamp || item.timestamp || item.updated_at || '').trim()
       const proof = item.proof && typeof item.proof === 'object' ? item.proof : {}
       const businessFields = item.business_fields && typeof item.business_fields === 'object'
         ? item.business_fields
@@ -3104,9 +3205,9 @@ const normalizeCerpResultsForMessage = (message) => {
       return {
         key: `${code || name || 'cerp'}-${index}`,
         code,
-        producer,
+        brand,
         name,
-        vintage,
+        specification,
         stock,
         price,
         vipPrice,
@@ -3179,8 +3280,19 @@ const formatCerpResultValue = (value, message = null) => {
   return String(value)
 }
 
-const formatCerpResultPrice = (value, message = null) =>
-  formatCurrency(value) || formatCerpResultValue(value, message)
+const formatCerpResultPrice = (value, message = null) => {
+  if (Array.isArray(message?.metadata?.product_results)) {
+    const amount = Number(value)
+    if (Number.isFinite(amount)) {
+      return new Intl.NumberFormat('zh-TW', {
+        style: 'currency',
+        currency: 'TWD',
+        maximumFractionDigits: 0,
+      }).format(amount)
+    }
+  }
+  return formatCurrency(value) || formatCerpResultValue(value, message)
+}
 
 const formatCerpResultStock = (value, message = null) => formatCerpResultValue(value, message)
 
@@ -4951,6 +5063,28 @@ onBeforeUnmount(() => {
                         v-html="renderMessageContent(message)"
                       />
 
+                      <div
+                        v-if="messageHasPendingProductBridge(message)"
+                        class="product-bridge"
+                      >
+                        <p class="product-bridge__preview" v-if="getProductBridgeForMessage(message)?.preview_categories?.length">
+                          {{ tMessage(message, 'home.product_bridge.preview', {
+                            categories: getProductBridgeForMessage(message).preview_categories.join('、')
+                          }) }}
+                        </p>
+                        <button
+                          type="button"
+                          class="product-bridge__button"
+                          :disabled="isProductBridgeLoading(message)"
+                          @click="handleProductBridgeClick(message)"
+                        >
+                          <span v-if="isProductBridgeLoading(message)" class="product-bridge__spinner" aria-hidden="true" />
+                          {{ isProductBridgeLoading(message)
+                            ? tMessage(message, 'home.product_bridge.loading')
+                            : tMessage(message, 'home.product_bridge.action') }}
+                        </button>
+                      </div>
+
                       <ChatProductCard
                         v-if="messageHasCerpData(message) && getProductCardForMessage(message)"
                         :product="getProductCardForMessage(message)"
@@ -4974,6 +5108,14 @@ onBeforeUnmount(() => {
                               {{ getCerpResultLimitSummary(message) }}
                             </p>
                           </div>
+                          <label class="result-toggle chat-cerp-results__toggle">
+                            <span>{{ tMessage(message, 'quote.actions.show_generated') }}</span>
+                            <input
+                              type="checkbox"
+                              :aria-label="tMessage(message, 'quote.actions.show_generated')"
+                              @change="handleCerpResultToggleChange(message, $event)"
+                            />
+                          </label>
                         </div>
                         <div class="chat-cerp-results__scroller">
                           <table class="chat-cerp-results__table">
@@ -4981,9 +5123,9 @@ onBeforeUnmount(() => {
                               <tr>
                                 <th>{{ tMessage(message, 'home.cerp_results.columns.code') }}</th>
                                 <th v-if="messageHasCerpResultCategories(message)">{{ tMessage(message, 'home.cerp_results.columns.category') }}</th>
-                                <th>{{ tMessage(message, 'home.cerp_results.columns.producer') }}</th>
+                                <th>{{ tMessage(message, 'home.cerp_results.columns.brand') }}</th>
                                 <th>{{ tMessage(message, 'home.cerp_results.columns.name') }}</th>
-                                <th>{{ tMessage(message, 'home.cerp_results.columns.vintage') }}</th>
+                                <th>{{ tMessage(message, 'home.cerp_results.columns.specification') }}</th>
                                 <th>{{ tMessage(message, 'home.cerp_results.columns.stock') }}</th>
                                 <th>{{ tMessage(message, 'home.cerp_results.columns.price') }}</th>
                                 <th>{{ tMessage(message, 'home.cerp_results.columns.status') }}</th>
@@ -4998,7 +5140,7 @@ onBeforeUnmount(() => {
                                 <tr>
                                   <td>{{ formatCerpResultValue(item.code, message) }}</td>
                                   <td v-if="messageHasCerpResultCategories(message)">{{ formatCerpResultValue(item.category, message) }}</td>
-                                  <td>{{ formatCerpResultValue(item.producer, message) }}</td>
+                                  <td>{{ formatCerpResultValue(item.brand, message) }}</td>
                                   <td>
                                     <span
                                       v-if="item.specialRecommended"
@@ -5008,7 +5150,7 @@ onBeforeUnmount(() => {
                                     </span>
                                     {{ formatCerpResultValue(item.name, message) }}
                                   </td>
-                                  <td>{{ formatCerpResultValue(item.vintage, message) }}</td>
+                                  <td>{{ formatCerpResultValue(item.specification, message) }}</td>
                                   <td>{{ formatCerpResultStock(item.stock, message) }}</td>
                                   <td>{{ formatCerpResultPrice(item.vipPrice || item.price, message) }}</td>
                                   <td>{{ formatCerpResultValue(item.status, message) }}</td>
@@ -6344,6 +6486,58 @@ onBeforeUnmount(() => {
 
 .command-home-panel__empty {
   margin: 0;
+}
+
+.product-bridge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 6px;
+  padding: 12px;
+  border: 1px solid rgba(31, 87, 72, 0.18);
+  border-radius: 10px;
+  background: #f4faf7;
+}
+
+.product-bridge__preview {
+  flex: 1 1 280px;
+  margin: 0;
+  color: #49635c;
+  font-size: 13px;
+}
+
+.product-bridge__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 800;
+  background: #1f5748;
+  cursor: pointer;
+}
+
+.product-bridge__button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.product-bridge__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: productBridgeSpin 0.8s linear infinite;
+}
+
+@keyframes productBridgeSpin {
+  to { transform: rotate(360deg); }
 }
 
 @media (max-width: 720px) {

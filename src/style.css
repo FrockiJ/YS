@@ -1207,6 +1207,11 @@ body:hover::-webkit-scrollbar-thumb,
   border-bottom: 1px solid #d9e0ea;
 }
 
+.chat-cerp-results__toggle {
+  flex: 0 0 auto;
+  align-self: center;
+}
+
 .chat-cerp-results__title {
   margin: 0;
   color: #2d3f53;
@@ -2883,7 +2888,7 @@ body:hover::-webkit-scrollbar-thumb,
   z-index: 12;
 }
 
-.quote-sort__select--vintage {
+.quote-sort__select--specification {
   width: 100%;
   margin-top: 10px;
 }
@@ -3092,13 +3097,13 @@ body:hover::-webkit-scrollbar-thumb,
 }
 
 .quote-table__cell[data-column='no'],
-.quote-table__cell[data-column='vintage'],
+.quote-table__cell[data-column='specification'],
 .quote-table__cell[data-column='stock'] {
   min-width: 60px;
   max-width: 90px;
 }
 
-.quote-table__cell[data-column='producer'] {
+.quote-table__cell[data-column='brand'] {
   min-width: 100px;
 }
 
@@ -3108,7 +3113,7 @@ body:hover::-webkit-scrollbar-thumb,
 }
 
 .quote-table__cell[data-column='color'],
-.quote-table__cell[data-column='rating'] {
+.quote-table__cell[data-column='feature'] {
   min-width: 90px;
 }
 
@@ -3892,7 +3897,7 @@ body:hover::-webkit-scrollbar-thumb,
   border-radius: 999px;
 }
 
-.quote-slider__track.is-rating {
+.quote-slider__track.is-feature {
   background: #f7dede;
   height: 8px;
   margin-bottom: 14px;
@@ -3948,13 +3953,13 @@ body:hover::-webkit-scrollbar-thumb,
   background: #fff;
 }
 
-.quote-rating {
+.quote-feature {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.quote-rating__labels {
+.quote-feature__labels {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
@@ -4029,7 +4034,7 @@ body:hover::-webkit-scrollbar-thumb,
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.quote-vintage {
+.quote-specification {
   border: 1px solid #d4dde6;
   border-radius: var(--ys-control-radius);
   padding: 12px;
@@ -4038,7 +4043,7 @@ body:hover::-webkit-scrollbar-thumb,
   gap: 10px;
 }
 
-.quote-vintage__chips {
+.quote-specification__chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -5570,7 +5575,7 @@ select,
 .quote-toolbar__select select,
 .quote-slider__inputs label,
 .quote-select,
-.quote-vintage,
+.quote-specification,
 .quote-share-dialog__form input {
   border-radius: var(--ys-control-radius);
 }
