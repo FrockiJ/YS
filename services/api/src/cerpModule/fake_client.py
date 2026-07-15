@@ -40,20 +40,26 @@ class FakeCERPClient:
         }
 
     @staticmethod
-    def _producer_value(product: FakeCerpProduct) -> str:
+    def _brand_value(product: FakeCerpProduct) -> str:
         raw_row = product.raw_row or {}
-        return str(raw_row.get("producer") or raw_row.get("brand") or raw_row.get("supplier") or "").strip()
+        return str(raw_row.get("brand") or raw_row.get("supplier") or "").strip()
 
     @classmethod
     def _row(cls, product: FakeCerpProduct, *, include_warehouses: bool) -> Dict[str, Any]:
         amount = Decimal(product.amount or 0)
         vip_amount = resolve_fake_vip_price(amount)
-        producer = cls._producer_value(product)
+        brand = cls._brand_value(product)
         raw_row = product.raw_row or {}
+        photo_url = (
+            raw_row.get("photo_url")
+            or raw_row.get("photo")
+            or raw_row.get("image_url")
+            or ""
+        )
         row = {
             "invn002": product.code,
             "invn005": product.name,
-            "invn006": producer,
+            "invn006": brand,
             "invn008": raw_row.get("barcode") or "",
             "invn013": float(amount),
             "invn015": float(vip_amount),
@@ -65,13 +71,12 @@ class FakeCERPClient:
             "invn801": raw_row.get("color") or "",
             "invn802": raw_row.get("class") or raw_row.get("category") or "",
             "invn803": raw_row.get("material") or "",
-            "invn804": raw_row.get("rating") or "",
+            "invn804": raw_row.get("feature") or "",
             "invn805": raw_row.get("type") or "",
             "invn806": raw_row.get("size") or "",
             "invn807": raw_row.get("model_year") or product.spec1 or "",
-            "producer": producer,
-            "brand": producer,
-            "supplier": producer,
+            "brand": brand,
+            "supplier": brand,
             "product_name": product.name,
             "model_year": raw_row.get("model_year") or product.spec1 or "",
             "category": raw_row.get("category") or "",
@@ -79,6 +84,7 @@ class FakeCERPClient:
             "material": raw_row.get("material") or "",
             "size": raw_row.get("size") or "",
             "color": raw_row.get("color") or "",
+            "photo_url": photo_url,
             "spec": product.spec1 or "",
             "spec1": product.spec1 or "",
             "stock": int(product.stock or 0),
@@ -105,7 +111,6 @@ class FakeCERPClient:
             "invn002": [product.code],
             "invn005": [product.name],
             "invn006": [
-                str(raw_row.get("producer") or ""),
                 str(raw_row.get("brand") or ""),
                 str(raw_row.get("supplier") or ""),
             ],

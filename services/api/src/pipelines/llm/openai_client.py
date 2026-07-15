@@ -24,7 +24,14 @@ def _resolve_models() -> Tuple[str, Optional[str]]:
     return str(config["primary_model"]), config["fallback_model"]  # type: ignore[return-value]
 
 
-def _build_payload(model: str, system: str, user: str, history: list | None, temperature: float) -> Dict[str, object]:
+def _build_payload(
+    model: str,
+    system: str,
+    user: str,
+    history: list | None,
+    temperature: float,
+    response_format: Optional[Dict[str, Any]] = None,
+) -> Dict[str, object]:
     messages = [{"role": "system", "content": system}]
     if history:
         messages.extend(history)
@@ -39,6 +46,8 @@ def _build_payload(model: str, system: str, user: str, history: list | None, tem
             payload["temperature"] = float(temperature)
         except (TypeError, ValueError):
             pass
+    if response_format:
+        payload["response_format"] = response_format
     return payload
 
 
@@ -80,11 +89,12 @@ def _sync_chat_complete(
     history: list = None,
     temperature: float = 0.7,
     trace: Optional[Dict[str, Any]] = None,
+    response_format: Optional[Dict[str, Any]] = None,
 ) -> str:
     primary_model, fallback_model = _resolve_models()
     errors: list[str] = []
     for model in _model_attempts(primary_model, fallback_model):
-        payload = _build_payload(model, system, user, history, temperature)
+        payload = _build_payload(model, system, user, history, temperature, response_format)
         if trace is not None:
             trace["llm_request_payload"] = payload
             trace["llm_request_messages"] = payload.get("messages") or []
@@ -123,5 +133,14 @@ async def chat_complete(
     history: list = None,
     temperature: float = 0.7,
     trace: Optional[Dict[str, Any]] = None,
+    response_format: Optional[Dict[str, Any]] = None,
 ) -> str:
-    return await asyncio.to_thread(_sync_chat_complete, system, user, history, temperature, trace)
+    return await asyncio.to_thread(
+        _sync_chat_complete,
+        system,
+        user,
+        history,
+        temperature,
+        trace,
+        response_format,
+    )

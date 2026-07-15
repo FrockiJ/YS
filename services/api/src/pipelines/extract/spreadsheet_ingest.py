@@ -17,10 +17,20 @@ except ImportError:  # pragma: no cover
     xlrd = None
 
 
-IDENTITY_PATTERNS = ("producer", "domain", "ys", "estate", "brand", "name", "product", "wine", "label", "sku", "code")
-PROFILE_PATTERNS = ("region", "country", "village", "vineyard", "style", "classification", "grape", "variet", "vintage", "appellation")
+IDENTITY_PATTERNS = ("brand", "name", "product", "label", "sku", "code", "model")
+PROFILE_PATTERNS = (
+    "category",
+    "location",
+    "country",
+    "activity",
+    "use case",
+    "specification",
+    "material",
+    "size",
+    "feature",
+)
 QUOTE_PATTERNS = ("price", "stock", "inventory", "qty", "quantity", "cost", "margin", "offer", "quote", "available")
-SOURCE_PATTERNS = ("source", "critic", "score", "rating", "note", "notes", "url", "website", "reference")
+SOURCE_PATTERNS = ("source", "note", "notes", "url", "website", "reference", "document", "author", "date")
 
 
 def iter_spreadsheet_chunks(path: str | Path) -> Iterator[Dict[str, object]]:
@@ -183,7 +193,7 @@ def _render_group_text(
         return ""
     ordered_items = list(fields.items())[:18]
     lines = [
-        f"RAP spreadsheet source: {filename}",
+        f"Knowledge spreadsheet source: {filename}",
         f"Sheet: {sheet_name}",
         f"Record: {record_key}",
         f"Row: {row_number}",
@@ -197,41 +207,35 @@ def _render_group_text(
 
 
 def _extract_row_context(row: Dict[str, str]) -> Dict[str, str]:
-    producer = _pick_first_value(row, IDENTITY_PATTERNS)
-    region = _pick_first_value(row, ("region", "country", "village", "appellation"))
-    style = _pick_first_value(row, ("style", "classification", "grape", "variet"))
-    wine_name = _pick_first_value(row, ("wine", "label", "product", "name"))
-    vintage = _pick_first_value(row, ("vintage",))
-    vineyard = _pick_first_value(row, ("vineyard",))
+    brand = _pick_first_value(row, ("brand", "manufacturer", "supplier"))
+    product_name = _pick_first_value(row, ("product name", "product", "name", "label"))
+    category = _pick_first_value(row, ("category", "product type", "type"))
+    location = _pick_first_value(row, ("location", "country", "area"))
+    activity = _pick_first_value(row, ("activity", "use case", "purpose"))
+    specification = _pick_first_value(row, ("specification", "model", "material", "size", "feature"))
     page_url = _pick_first_value(row, ("url", "website", "reference", "source"))
-    reviewer = _pick_first_value(row, ("reviewer", "critic", "author"))
-    source_name = _pick_first_value(row, ("source name", "publication", "critic source", "website", "source"))
-    score = _pick_first_value(row, ("score", "rating", "points"))
-    issue_date = _pick_first_value(row, ("issue", "date", "published", "publication date"))
+    source_name = _pick_first_value(row, ("source name", "publication", "document", "website", "source"))
+    published_date = _pick_first_value(row, ("date", "published", "publication date", "updated"))
     page = _pick_first_value(row, ("page", "pdf page"))
     context: Dict[str, str] = {}
-    if producer:
-        context["producer"] = producer
-    if region:
-        context["region"] = region
-    if style:
-        context["style"] = style
-    if wine_name:
-        context["wine_name"] = wine_name
-    if vintage:
-        context["vintage"] = vintage
-    if vineyard:
-        context["vineyard"] = vineyard
+    if brand:
+        context["brand"] = brand
+    if product_name:
+        context["product_name"] = product_name
+    if category:
+        context["category"] = category
+    if location:
+        context["location"] = location
+    if activity:
+        context["activity"] = activity
+    if specification:
+        context["specification"] = specification
     if page_url:
         context["page_url"] = page_url
-    if reviewer:
-        context["reviewer"] = reviewer
     if source_name:
         context["source_name"] = source_name
-    if score:
-        context["score"] = score
-    if issue_date:
-        context["issue_date"] = issue_date
+    if published_date:
+        context["published_date"] = published_date
     if page:
         context["page"] = page
     return context
@@ -246,7 +250,7 @@ def _pick_first_value(row: Dict[str, str], patterns: Tuple[str, ...]) -> str:
 
 def _group_doc_type(group_name: str) -> str:
     mapping = {
-        "identity": "producer",
+        "identity": "product",
         "profile": "profile",
         "quote_inventory": "inventory",
         "source_notes": "source_note",

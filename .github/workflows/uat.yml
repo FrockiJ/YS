@@ -9,12 +9,84 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: ys_uat
+          POSTGRES_PASSWORD: ys_uat_ci
+          POSTGRES_DB: ys_uat
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ys_uat -d ys_uat"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      PYTHONPATH: services/api
+      PYTHON_DOTENV_DISABLED: "1"
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ys_uat
+      POSTGRES_PASSWORD: ys_uat_ci
+      POSTGRES_DB: ys_uat
+      ALEMBIC_DATABASE_URL: postgresql+psycopg2://ys_uat:ys_uat_ci@127.0.0.1:5432/ys_uat
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: services/api/requirements-test.txt
       - name: Validate Compose isolation
         shell: pwsh
         run: ./scripts/verify-isolation.ps1
-      - name: Run UAT contract tests
-        run: python -m unittest services/api/tests/test_ys_uat_contract.py
+      - name: Install backend test dependencies
+        run: pip install -r services/api/requirements-test.txt
+      - name: Run complete backend and Fake CERP tests
+        run: python -m pytest -q services/api/tests
+      - name: Validate PostgreSQL migrations
+        shell: bash
+        run: |
+          python - <<'PY'
+          import asyncio
+          import psycopg2
+          from src.core.models import Base
+          from src.core.database import engine
+          import src.main  # register every application model
+
+          connection = psycopg2.connect(
+              host="127.0.0.1",
+              port=5432,
+              user="ys_uat",
+              password="ys_uat_ci",
+              dbname="ys_uat",
+          )
+          connection.autocommit = True
+          with connection.cursor() as cursor:
+              cursor.execute("CREATE EXTENSION IF NOT EXISTS vector")
+          connection.close()
+
+          async def create_schema():
+              async with engine.begin() as connection:
+                  await connection.run_sync(Base.metadata.create_all)
+              await engine.dispose()
+
+          asyncio.run(create_schema())
+          PY
+          alembic stamp 0011_feedback_phase2
+          alembic upgrade head
+          test "$(alembic current 2>/dev/null | tail -n 1)" = "0014_knowledge_first_phase2 (head)"
+      - name: Scan active code for retired domain rules
+        shell: bash
+        run: |
+          if rg -n -i \
+            -g '*.py' -g '*.ts' -g '*.js' -g '*.vue' -g '*.html' -g '*.json' -g '*.yml' -g '*.yaml' \
+            -g '!alembic/versions/**' -g '!scripts/verify-isolation.ps1' \
+            'wine|domaine|producer|vintage|vineyard|grape|burghound|vinous|decanter|tasting.?note|酒款|酒類|葡萄|產區|酒評|年份|酒櫃|品酒' \
+            services scripts cerp; then
+            exit 1
+          fi
       - name: Build API image
         run: docker build -t ys-ai-uat-api -f services/api/Dockerfile .

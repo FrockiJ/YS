@@ -8,7 +8,7 @@ from .evidence_contracts import evidence_type_for_prompt_category
 
 CERP_INTENTS = {"QUOTE_LIST"}
 PERMISSION_BOUNDARY_CATEGORIES = {"permission_boundary"}
-CUSTOMER_FACT_CATEGORIES = {"brand_profile", "general_chat", "producer_ranking"}
+CUSTOMER_FACT_CATEGORIES = {"brand_profile", "general_chat"}
 
 
 def build_answer_route_policy(
@@ -77,16 +77,10 @@ def build_answer_route_policy(
 
 
 def _allowed_sources_for(category: str, evidence_type: str) -> list[str]:
-    if evidence_type == "licensed_review":
-        return ["licensed_review_dataset"]
-    if evidence_type == "book_ocr":
-        return ["ocr_book_corpus", "book"]
     if evidence_type == "cerp_snapshot":
         return ["cerp_snapshot", "CERP"]
     if evidence_type == "cerp_business_snapshot":
         return ["cerp_snapshot", "CERP"]
-    if evidence_type == "source_hierarchy":
-        return ["cerp_snapshot", "internal_official", "licensed_review_dataset", "ocr_book_corpus"]
     if evidence_type == "permission_boundary":
         return []
     if category in CUSTOMER_FACT_CATEGORIES:
@@ -95,16 +89,10 @@ def _allowed_sources_for(category: str, evidence_type: str) -> list[str]:
 
 
 def _required_sources_for(category: str, evidence_type: str) -> list[str]:
-    if evidence_type == "licensed_review":
-        return ["licensed_review_dataset"]
-    if evidence_type == "book_ocr":
-        return ["ocr_book_corpus"]
     if evidence_type == "cerp_snapshot":
         return ["cerp_snapshot"]
     if evidence_type == "cerp_business_snapshot":
         return ["cerp_snapshot"]
-    if evidence_type == "source_hierarchy":
-        return ["controlling_source"]
     return []
 
 

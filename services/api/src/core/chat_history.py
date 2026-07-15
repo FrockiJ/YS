@@ -112,9 +112,111 @@ async def get_conversation_meta(conversation_id: uuid.UUID) -> Optional[Dict[str
             "archived_at": conversation.archived_at.isoformat() if conversation.archived_at else None,
             "archived_by": conversation.archived_by,
             "archived_role": conversation.archived_role,
+            "context_state": conversation.context_state if isinstance(conversation.context_state, dict) else {},
+            "context_version": conversation.context_version or "outdoor-v1",
             "created_at": conversation.created_at.isoformat() if conversation.created_at else None,
             "updated_at": conversation.updated_at.isoformat() if conversation.updated_at else None,
         }
+
+
+async def get_message_in_conversation(
+    conversation_id: uuid.UUID,
+    message_id: uuid.UUID,
+) -> Optional[Dict[str, Any]]:
+    async with get_async_session() as session:
+        result = await session.execute(
+            select(Message).where(
+                and_(
+                    Message.id == message_id,
+                    Message.conversation_id == conversation_id,
+                )
+            )
+        )
+        message = result.scalars().first()
+        if not message:
+            return None
+        return {
+            "id": str(message.id),
+            "conversation_id": str(message.conversation_id),
+            "role": message.role,
+            "content": message.content,
+            "metadata": _normalize_message_metadata(message.message_metadata),
+            "created_at": message.created_at.isoformat() if message.created_at else None,
+        }
+
+
+async def find_product_bridge_response(
+    conversation_id: uuid.UUID,
+    source_message_id: uuid.UUID,
+) -> Optional[Dict[str, Any]]:
+    """Find a persisted ERP response for idempotent product-bridge requests."""
+    async with get_async_session() as session:
+        result = await session.execute(
+            select(Message)
+            .where(
+                and_(
+                    Message.conversation_id == conversation_id,
+                    Message.role == "assistant",
+                )
+            )
+            .order_by(desc(Message.created_at))
+        )
+        for message in result.scalars().all():
+            metadata = _normalize_message_metadata(message.message_metadata)
+            bridge = metadata.get("product_bridge")
+            if not isinstance(bridge, dict):
+                continue
+            if str(bridge.get("source_message_id") or "") != str(source_message_id):
+                continue
+            if not bridge.get("fulfilled"):
+                continue
+            return {
+                "id": str(message.id),
+                "conversation_id": str(message.conversation_id),
+                "role": message.role,
+                "content": message.content,
+                "metadata": metadata,
+                "created_at": message.created_at.isoformat() if message.created_at else None,
+            }
+    return None
+
+
+async def update_conversation_context_state(
+    conversation_id: uuid.UUID,
+    context_state: Dict[str, Any],
+    *,
+    context_version: str = "outdoor-v1",
+) -> bool:
+    async with get_async_session() as session:
+        result = await session.execute(select(Conversation).where(Conversation.id == conversation_id))
+        conversation = result.scalars().first()
+        if not conversation:
+            return False
+        conversation.context_state = dict(context_state or {})
+        conversation.context_version = context_version
+        conversation.updated_at = func.now()
+        await session.commit()
+        return True
+
+
+async def merge_conversation_context_state(
+    conversation_id: uuid.UUID,
+    updates: Dict[str, Any],
+    *,
+    context_version: str = "outdoor-v1",
+) -> bool:
+    """Merge top-level context keys without discarding unrelated saved state."""
+    async with get_async_session() as session:
+        result = await session.execute(select(Conversation).where(Conversation.id == conversation_id))
+        conversation = result.scalars().first()
+        if not conversation:
+            return False
+        existing = conversation.context_state if isinstance(conversation.context_state, dict) else {}
+        conversation.context_state = {**existing, **dict(updates or {})}
+        conversation.context_version = context_version
+        conversation.updated_at = func.now()
+        await session.commit()
+        return True
 
 
 async def add_message_to_conversation(

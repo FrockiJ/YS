@@ -1,7 +1,45 @@
+import os
 import re
 from typing import Any, Dict, List
 
-from ..nlp.embedder import EmbeddingUnavailableError, embed_texts, embedding_model_name
+from ..nlp.embedder import (
+    EmbeddingUnavailableError,
+    embed_texts,
+    embedding_dimension,
+    embedding_model_name,
+)
+
+RAG_MIN_SCORE = float(os.getenv("RAG_MIN_SCORE", "0.40"))
+
+
+async def rag_corpus_status(conn) -> Dict[str, Any]:
+    try:
+        row = await conn.fetchrow(
+            """
+            SELECT COUNT(*)::int AS row_count,
+                   MIN(vector_dims(embedding))::int AS min_dim,
+                   MAX(vector_dims(embedding))::int AS max_dim
+            FROM chunks
+            WHERE embedding IS NOT NULL
+            """
+        )
+    except Exception as exc:
+        return {"status": "error", "row_count": 0, "error": f"{type(exc).__name__}: {exc}"}
+    count = int((row or {}).get("row_count") or 0)
+    if count == 0:
+        return {"status": "empty_corpus", "row_count": 0, "embedding_dim": embedding_dimension()}
+    min_dim = int((row or {}).get("min_dim") or 0)
+    max_dim = int((row or {}).get("max_dim") or 0)
+    if min_dim != embedding_dimension() or max_dim != embedding_dimension():
+        return {
+            "status": "error",
+            "row_count": count,
+            "error": "embedding_dimension_mismatch",
+            "configured_dim": embedding_dimension(),
+            "stored_min_dim": min_dim,
+            "stored_max_dim": max_dim,
+        }
+    return {"status": "ready", "row_count": count, "embedding_dim": min_dim}
 
 
 def _to_pgvector_literal(vec: list[float]) -> str:
@@ -28,9 +66,20 @@ OCR_CONTENT_QUALITY_WHERE = """
 
 
 async def vector_search(conn, query: str, k: int = 5) -> List[Dict[str, Any]]:
+    corpus = await rag_corpus_status(conn)
+    if corpus.get("status") == "empty_corpus":
+        return []
+    if corpus.get("status") == "error":
+        raise EmbeddingUnavailableError(
+            str(corpus.get("error") or "RAG corpus validation failed"),
+            model=embedding_model_name(),
+            error_type="RagCorpusValidationError",
+        )
     try:
         qv = embed_texts([query])[0].tolist()
     except EmbeddingUnavailableError as exc:
+        if not _allows_text_fallback(query):
+            return []
         return await text_search(
             conn,
             query,
@@ -40,6 +89,8 @@ async def vector_search(conn, query: str, k: int = 5) -> List[Dict[str, Any]]:
             embedding_model=exc.model or embedding_model_name(),
         )
     except Exception as exc:
+        if not _allows_text_fallback(query):
+            return []
         return await text_search(
             conn,
             query,
@@ -62,6 +113,7 @@ async def vector_search(conn, query: str, k: int = 5) -> List[Dict[str, Any]]:
         FROM chunks
         WHERE {NON_GARBLED_WHERE}
           AND {OCR_CONTENT_QUALITY_WHERE}
+          AND 1 - (embedding <=> $1::vector) >= $4
         ORDER BY embedding <-> $1::vector,
                  COALESCE(NULLIF(meta->>'content_quality', '')::double precision, 1.0) DESC,
                  COALESCE(NULLIF(meta->>'encoding_quality', '')::double precision, 1.0) DESC
@@ -70,6 +122,7 @@ async def vector_search(conn, query: str, k: int = 5) -> List[Dict[str, Any]]:
         vec_str,
         k,
         embedding_model_name(),
+        RAG_MIN_SCORE,
     )
     return [dict(r) for r in rows]
 
@@ -86,6 +139,20 @@ def _text_search_terms(query: str) -> List[str]:
         if len(terms) >= 5:
             break
     return terms
+
+
+def _allows_text_fallback(query: str) -> bool:
+    text = str(query or "").strip()
+    if re.search(r"\b[A-Z]{2,}[A-Z0-9_-]*\d[A-Z0-9_-]*\b", text, re.IGNORECASE):
+        return True
+    if re.search(r"(?:品牌|分類|品類|brand|category)\s*[:：]?\s*[A-Za-z0-9\u4e00-\u9fff&\-]{2,}", text, re.IGNORECASE):
+        return True
+    category_terms = (
+        "帳篷", "天幕", "睡袋", "睡墊", "頭燈", "爐具", "背包", "釣竿", "魚線",
+        "tent", "tarp", "sleeping bag", "lantern", "stove", "backpack", "fishing rod",
+    )
+    lowered = text.casefold()
+    return any(term.casefold() in lowered for term in category_terms)
 
 
 async def text_search(

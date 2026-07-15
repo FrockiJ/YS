@@ -20,8 +20,6 @@ class Project(Base):
     avg_unit_price = Column(Integer, nullable=True)
     preference_note = Column(Text, nullable=True)
     region = Column(String(255), nullable=True)
-    has_wine_cabinet = Column(Boolean, nullable=True)
-
     is_archived = Column(Boolean, nullable=False, server_default="false")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

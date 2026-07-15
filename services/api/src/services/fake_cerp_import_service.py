@@ -40,6 +40,14 @@ class FakeCerpImportService:
                 return candidate
         return Path.cwd() / raw
 
+    @staticmethod
+    def resolve_camping_fixture_path() -> Path:
+        for parent in Path(__file__).resolve().parents:
+            candidate = parent / "cerp" / "fake_camping_products.json"
+            if candidate.exists():
+                return candidate
+        return Path.cwd() / "cerp" / "fake_camping_products.json"
+
     @classmethod
     def _normalize_header(cls, value: Any) -> str:
         return str(value or "").strip().lower()
@@ -251,9 +259,27 @@ class FakeCerpImportService:
             count = int(result.scalar() or 0)
             if count > 0:
                 backfill_result = await self.backfill_zero_prices(session=session)
-                if backfill_result.get("backfilled_price_rows"):
+                camping_count_result = await session.execute(
+                    select(func.count(FakeCerpProduct.id)).where(FakeCerpProduct.code.like("CAMP%"))
+                )
+                camping_count = int(camping_count_result.scalar() or 0)
+                camping_result: Dict[str, Any] = {}
+                fixture_path = self.resolve_camping_fixture_path()
+                fixture_payload: List[Dict[str, Any]] = []
+                if fixture_path.exists():
+                    fixture_payload = json.loads(fixture_path.read_text(encoding="utf-8"))
+                if camping_count < len(fixture_payload):
+                    camping_result = await self.import_json_rows(fixture_payload, session=session)
+                    camping_count = int(camping_result.get("imported_rows") or camping_count)
+                if backfill_result.get("backfilled_price_rows") or camping_result:
                     await session.commit()
-                return {"seeded": False, "product_count": count, **backfill_result}
+                return {
+                    "seeded": bool(camping_result),
+                    "product_count": count + int(camping_result.get("created_rows") or 0),
+                    "camping_product_count": camping_count,
+                    "supplemental_camping_seed": bool(camping_result),
+                    **backfill_result,
+                }
             path = self.resolve_default_workbook_path()
             if not path.exists():
                 return {
@@ -262,8 +288,20 @@ class FakeCerpImportService:
                     "missing_default_path": str(path),
                 }
             result_payload = await self.import_workbook(path.read_bytes(), session=session)
+            fixture_path = self.resolve_camping_fixture_path()
+            camping_result: Dict[str, Any] = {}
+            if fixture_path.exists():
+                camping_result = await self.import_json_rows(
+                    json.loads(fixture_path.read_text(encoding="utf-8")),
+                    session=session,
+                )
             await session.commit()
-            return {"seeded": True, **result_payload, "default_path": str(path)}
+            return {
+                "seeded": True,
+                **result_payload,
+                "camping_product_count": int(camping_result.get("imported_rows") or 0),
+                "default_path": str(path),
+            }
 
     async def status(self) -> Dict[str, Any]:
         async with SessionLocal() as session:

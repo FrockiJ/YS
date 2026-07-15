@@ -38,9 +38,8 @@ from .models.extract_job import ExtractJob  # noqa: F401
 from .models.file_resource import FileResource  # noqa: F401
 from .models.fake_cerp_product import FakeCerpProduct  # noqa: F401
 from .models.official_product_profile import OfficialProductProfile  # noqa: F401
-from .models.producer_source_domain import ProducerSourceDomain  # noqa: F401
+from .models.brand_source_domain import BrandSourceDomain  # noqa: F401
 from .models.project import Project, ProjectInvitation, ConversationInvitation  # noqa: F401
-from .models.rap_record import RapRecord  # noqa: F401
 from .core.database import engine as async_engine, SessionLocal
 from .core.security import get_password_hash, verify_password
 from .core.config import _env
@@ -390,6 +389,18 @@ async def ensure_conversation_schema(conn):
     ))
     await conn.execute(text(
         """
+        ALTER TABLE IF EXISTS conversations
+        ADD COLUMN IF NOT EXISTS context_state JSONB NOT NULL DEFAULT '{}'::jsonb
+        """
+    ))
+    await conn.execute(text(
+        """
+        ALTER TABLE IF EXISTS conversations
+        ADD COLUMN IF NOT EXISTS context_version VARCHAR(32) NOT NULL DEFAULT 'outdoor-v1'
+        """
+    ))
+    await conn.execute(text(
+        """
         UPDATE conversations
         SET visibility = 'private'
         WHERE visibility IS NULL OR visibility NOT IN ('private','public')
@@ -732,7 +743,6 @@ async def ensure_project_schema(conn):
             avg_unit_price INTEGER,
             preference_note TEXT,
             region VARCHAR(255),
-            has_wine_cabinet BOOLEAN,
             is_archived BOOLEAN NOT NULL DEFAULT false,
             created_at TIMESTAMPTZ DEFAULT NOW(),
             updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -850,9 +860,9 @@ async def ensure_file_resource_schema(conn):
         """
         CREATE TABLE IF NOT EXISTS file_resources (
             id UUID PRIMARY KEY,
-            resource_type VARCHAR(32) NOT NULL DEFAULT 'wine_label',
+            resource_type VARCHAR(32) NOT NULL DEFAULT 'product_label',
             display_name VARCHAR(255) NOT NULL,
-            producer VARCHAR(255),
+            brand VARCHAR(255),
             department_role VARCHAR(100),
             visibility VARCHAR(20) NOT NULL DEFAULT 'public',
             attachment_path TEXT NOT NULL,
@@ -866,6 +876,12 @@ async def ensure_file_resource_schema(conn):
             created_at TIMESTAMPTZ DEFAULT NOW(),
             updated_at TIMESTAMPTZ DEFAULT NOW()
         )
+        """
+    ))
+    await conn.execute(text(
+        """
+        ALTER TABLE file_resources
+        ADD COLUMN IF NOT EXISTS brand VARCHAR(255)
         """
     ))
     await conn.execute(text(
@@ -885,6 +901,12 @@ async def ensure_file_resource_schema(conn):
         UPDATE file_resources
         SET visibility = 'public'
         WHERE visibility IS NULL OR LOWER(COALESCE(visibility, '')) NOT IN ('private', 'public')
+        """
+    ))
+    await conn.execute(text(
+        """
+        CREATE INDEX IF NOT EXISTS ix_file_resources_brand
+        ON file_resources(brand)
         """
     ))
     await conn.execute(text(

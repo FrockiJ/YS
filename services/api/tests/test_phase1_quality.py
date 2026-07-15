@@ -21,8 +21,8 @@ class QualityHeuristicTests(unittest.TestCase):
         self.assertGreater(payload["content_quality"], 0.35)
 
     def test_merge_quality_metadata_preserves_existing_meta(self):
-        meta = merge_quality_metadata({"producer": "Jean Marshall"}, "Jean Marshall official producer profile.")
-        self.assertEqual(meta["producer"], "Jean Marshall")
+        meta = merge_quality_metadata({"brand": "TrailForge"}, "TrailForge official product profile.")
+        self.assertEqual(meta["brand"], "TrailForge")
         self.assertIn("content_quality", meta)
         self.assertIn("encoding_quality", meta)
         self.assertIn("is_garbled", meta)

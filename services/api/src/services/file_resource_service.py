@@ -72,7 +72,7 @@ def derive_display_name(display_name: Optional[str], filename: Optional[str], fa
     return stem or "Untitled product label"
 
 
-async def resolve_wine_label_resource(
+async def resolve_product_label_resource(
     session: AsyncSession,
     cerp_code_full: Optional[str],
 ) -> Optional[FileResource]:
@@ -83,7 +83,7 @@ async def resolve_wine_label_resource(
     exact_stmt = (
         select(FileResource)
         .where(
-            FileResource.resource_type == "wine_label",
+            FileResource.resource_type == "product_label",
             FileResource.cerp_code_full == normalized_code,
         )
         .order_by(desc(FileResource.updated_at), desc(FileResource.created_at))
@@ -101,7 +101,7 @@ async def resolve_wine_label_resource(
     family_stmt = (
         select(FileResource)
         .where(
-            FileResource.resource_type == "wine_label",
+            FileResource.resource_type == "product_label",
             FileResource.cerp_code_family == family_code,
         )
         .order_by(desc(FileResource.updated_at), desc(FileResource.created_at))
@@ -139,7 +139,7 @@ def build_file_resource_search_stmt(
                 FileResource.display_name.ilike(pattern),
                 FileResource.cerp_code_full.ilike(pattern),
                 FileResource.cerp_code_family.ilike(pattern),
-                FileResource.producer.ilike(pattern),
+                FileResource.brand.ilike(pattern),
                 FileResource.department_role.ilike(pattern),
                 FileResource.attachment_filename.ilike(pattern),
             )

@@ -24,21 +24,21 @@ from ..services.file_resource_service import (
     normalize_role_name,
     normalize_visibility,
     normalize_cerp_code,
-    resolve_wine_label_resource,
+    resolve_product_label_resource,
 )
 
 router = APIRouter(prefix="/file-resources", tags=["FileResources"])
 require_file_resource_access = require_permissions("admin.files.access")
 
-_RESOURCE_TYPE_WINE_LABEL = "wine_label"
+_RESOURCE_TYPE_PRODUCT_LABEL = "product_label"
 _RESOURCE_TYPE_IMAGE = "image"
 _RESOURCE_TYPE_DOCUMENT = "document"
 _SUPPORTED_RESOURCE_TYPES = {
-    _RESOURCE_TYPE_WINE_LABEL,
+    _RESOURCE_TYPE_PRODUCT_LABEL,
     _RESOURCE_TYPE_IMAGE,
     _RESOURCE_TYPE_DOCUMENT,
 }
-_ALLOWED_WINE_LABEL_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
+_ALLOWED_PRODUCT_LABEL_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 _ALLOWED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp"}
 _ALLOWED_DOCUMENT_SUFFIXES = {
     ".pdf",
@@ -55,8 +55,8 @@ _SORT_UPLOADED_DESC = "uploaded_desc"
 _SORT_UPLOADED_ASC = "uploaded_asc"
 _SORT_DISPLAY_NAME_ASC = "display_name_asc"
 _SORT_DISPLAY_NAME_DESC = "display_name_desc"
-_SORT_PRODUCER_ASC = "producer_asc"
-_SORT_PRODUCER_DESC = "producer_desc"
+_SORT_BRAND_ASC = "brand_asc"
+_SORT_BRAND_DESC = "brand_desc"
 _SORT_CERP_CODE_ASC = "cerp_code_full_asc"
 _SORT_CERP_CODE_DESC = "cerp_code_full_desc"
 _SORT_DEPARTMENT_ASC = "department_role_asc"
@@ -65,17 +65,17 @@ _SORT_FILE_TYPE_ASC = "attachment_mime_asc"
 _SORT_FILE_TYPE_DESC = "attachment_mime_desc"
 _SORT_VISIBILITY_ASC = "visibility_asc"
 _SORT_VISIBILITY_DESC = "visibility_desc"
-_GROUP_BY_PRODUCER = "producer"
+_GROUP_BY_BRAND = "brand"
 _GROUP_BY_DEPARTMENT = "department_role"
 
 _ALLOWED_SORTS_BY_RESOURCE_TYPE = {
-    _RESOURCE_TYPE_WINE_LABEL: {
+    _RESOURCE_TYPE_PRODUCT_LABEL: {
         _SORT_UPLOADED_DESC,
         _SORT_UPLOADED_ASC,
         _SORT_DISPLAY_NAME_ASC,
         _SORT_DISPLAY_NAME_DESC,
-        _SORT_PRODUCER_ASC,
-        _SORT_PRODUCER_DESC,
+        _SORT_BRAND_ASC,
+        _SORT_BRAND_DESC,
         _SORT_CERP_CODE_ASC,
         _SORT_CERP_CODE_DESC,
     },
@@ -121,7 +121,7 @@ def _resolve_upload_root() -> Path:
 
 
 def _normalize_resource_type(value: str) -> str:
-    normalized = str(value or _RESOURCE_TYPE_WINE_LABEL).strip().lower() or _RESOURCE_TYPE_WINE_LABEL
+    normalized = str(value or _RESOURCE_TYPE_PRODUCT_LABEL).strip().lower() or _RESOURCE_TYPE_PRODUCT_LABEL
     if normalized not in _SUPPORTED_RESOURCE_TYPES:
         raise HTTPException(status_code=422, detail="Unsupported file resource type")
     return normalized
@@ -129,8 +129,8 @@ def _normalize_resource_type(value: str) -> str:
 
 def _allowed_suffixes_for_resource_type(resource_type: str) -> set[str]:
     normalized = _normalize_resource_type(resource_type)
-    if normalized == _RESOURCE_TYPE_WINE_LABEL:
-        return _ALLOWED_WINE_LABEL_SUFFIXES
+    if normalized == _RESOURCE_TYPE_PRODUCT_LABEL:
+        return _ALLOWED_PRODUCT_LABEL_SUFFIXES
     if normalized == _RESOURCE_TYPE_IMAGE:
         return _ALLOWED_IMAGE_SUFFIXES
     return _ALLOWED_DOCUMENT_SUFFIXES
@@ -152,7 +152,7 @@ def _normalize_group_by(resource_type: str, value: Optional[str]) -> Optional[st
     normalized = str(value or "").strip().lower()
     if not normalized:
         return None
-    if normalized == _GROUP_BY_PRODUCER and resource_type == _RESOURCE_TYPE_WINE_LABEL:
+    if normalized == _GROUP_BY_BRAND and resource_type == _RESOURCE_TYPE_PRODUCT_LABEL:
         return normalized
     if normalized == _GROUP_BY_DEPARTMENT and resource_type in {_RESOURCE_TYPE_IMAGE, _RESOURCE_TYPE_DOCUMENT}:
         return normalized
@@ -176,10 +176,10 @@ def _sort_clause(token: str):
         return _text_sort_expression(FileResource.display_name).asc()
     if token == _SORT_DISPLAY_NAME_DESC:
         return _text_sort_expression(FileResource.display_name).desc()
-    if token == _SORT_PRODUCER_ASC:
-        return _text_sort_expression(FileResource.producer).asc()
-    if token == _SORT_PRODUCER_DESC:
-        return _text_sort_expression(FileResource.producer).desc()
+    if token == _SORT_BRAND_ASC:
+        return _text_sort_expression(FileResource.brand).asc()
+    if token == _SORT_BRAND_DESC:
+        return _text_sort_expression(FileResource.brand).desc()
     if token == _SORT_CERP_CODE_ASC:
         return _text_sort_expression(FileResource.cerp_code_full).asc()
     if token == _SORT_CERP_CODE_DESC:
@@ -200,8 +200,8 @@ def _sort_clause(token: str):
 
 
 def _group_by_clause(group_by: Optional[str]):
-    if group_by == _GROUP_BY_PRODUCER:
-        return _text_sort_expression(FileResource.producer).asc()
+    if group_by == _GROUP_BY_BRAND:
+        return _text_sort_expression(FileResource.brand).asc()
     if group_by == _GROUP_BY_DEPARTMENT:
         return _text_sort_expression(FileResource.department_role).asc()
     return None
@@ -215,8 +215,8 @@ def _ensure_uploaded_file_path(raw_path: str, *, resource_type: str) -> Path:
     if not target.exists() or not target.is_file():
         raise HTTPException(status_code=422, detail="Uploaded attachment file was not found")
     if target.suffix.lower() not in _allowed_suffixes_for_resource_type(resource_type):
-        if resource_type == _RESOURCE_TYPE_WINE_LABEL:
-            raise HTTPException(status_code=422, detail="Wine label uploads must be image files")
+        if resource_type == _RESOURCE_TYPE_PRODUCT_LABEL:
+            raise HTTPException(status_code=422, detail="Product label uploads must be image files")
         if resource_type == _RESOURCE_TYPE_IMAGE:
             raise HTTPException(status_code=422, detail="Image uploads must be image files")
         raise HTTPException(status_code=422, detail="Document uploads must use a supported file type")
@@ -258,13 +258,13 @@ class UploadedAttachmentPayload(BaseModel):
     size: Optional[int] = None
 
 
-class WineLabelCreatePayload(BaseModel):
+class ProductLabelCreatePayload(BaseModel):
     display_name: Optional[str] = None
     cerp_code_full: Optional[str] = None
     attachment: UploadedAttachmentPayload
 
 
-class WineLabelUpdatePayload(BaseModel):
+class ProductLabelUpdatePayload(BaseModel):
     display_name: Optional[str] = None
     cerp_code_full: Optional[str] = None
     attachment: Optional[UploadedAttachmentPayload] = None
@@ -292,7 +292,7 @@ class FileResourceItem(BaseModel):
     id: str
     resource_type: str
     display_name: str
-    producer: str = ""
+    brand: str = ""
     department_role: Optional[str] = None
     visibility: str = "public"
     attachment_filename: str
@@ -318,7 +318,7 @@ def _serialize_resource(resource: FileResource) -> FileResourceItem:
         id=str(resource.id),
         resource_type=resource.resource_type,
         display_name=resource.display_name,
-        producer=resource.producer or "",
+        brand=resource.brand or "",
         department_role=resource.department_role,
         visibility=normalize_visibility(resource.visibility, default="public"),
         attachment_filename=resource.attachment_filename,
@@ -341,10 +341,10 @@ async def _get_file_resource_or_404(session: AsyncSession, resource_id: UUID) ->
     return resource
 
 
-def _require_wine_label_create_code(raw_code: Optional[str]) -> str:
+def _require_product_label_create_code(raw_code: Optional[str]) -> str:
     normalized_code = normalize_cerp_code(raw_code)
     if not normalized_code:
-        raise HTTPException(status_code=422, detail="cerp_code_full is required for wine label creation")
+        raise HTTPException(status_code=422, detail="cerp_code_full is required for product label creation")
     return normalized_code
 
 
@@ -354,16 +354,16 @@ async def _resolve_cerp_product(normalized_code: str) -> tuple[Optional[Dict[str
     cerp_product = await cerp_service.fetch_product_info(normalized_code, None, strict_lookup=True)
     if not cerp_product:
         raise HTTPException(status_code=422, detail="CERP code not found")
-    producer = str(cerp_product.get("producer") or "").strip()
+    brand = str(cerp_product.get("brand") or cerp_product.get("supplier") or "").strip()
     fallback_display_name = str(
         cerp_product.get("name_ch") or cerp_product.get("name") or cerp_product.get("name_en") or ""
     ).strip()
-    return cerp_product, producer, fallback_display_name
+    return cerp_product, brand, fallback_display_name
 
 
 @router.get("", response_model=FileResourceListResponse)
 async def list_file_resources(
-    type: str = Query(default="wine_label", alias="type"),
+    type: str = Query(default="product_label", alias="type"),
     q: str = Query(default="", max_length=200),
     sort: Optional[list[str]] = Query(default=None),
     group_by: Optional[str] = Query(default=None),
@@ -412,24 +412,24 @@ async def list_file_resources(
     )
 
 
-@router.post("/wine-labels", response_model=FileResourceItem, status_code=status.HTTP_201_CREATED)
-async def create_wine_label_resource(
-    payload: WineLabelCreatePayload,
+@router.post("/product-labels", response_model=FileResourceItem, status_code=status.HTTP_201_CREATED)
+async def create_product_label_resource(
+    payload: ProductLabelCreatePayload,
     user: Dict[str, Any] = Depends(require_file_resource_access),
     session: AsyncSession = Depends(get_db),
 ) -> FileResourceItem:
     attachment_path = _ensure_uploaded_file_path(
         payload.attachment.path,
-        resource_type=_RESOURCE_TYPE_WINE_LABEL,
+        resource_type=_RESOURCE_TYPE_PRODUCT_LABEL,
     )
 
-    normalized_code = _require_wine_label_create_code(payload.cerp_code_full)
-    _, producer, fallback_display_name = await _resolve_cerp_product(normalized_code)
+    normalized_code = _require_product_label_create_code(payload.cerp_code_full)
+    _, brand, fallback_display_name = await _resolve_cerp_product(normalized_code)
 
     resource = FileResource(
-        resource_type=_RESOURCE_TYPE_WINE_LABEL,
+        resource_type=_RESOURCE_TYPE_PRODUCT_LABEL,
         display_name=derive_display_name(payload.display_name, payload.attachment.filename, fallback_display_name),
-        producer=producer or None,
+        brand=brand or None,
         visibility="public",
         attachment_path=str(attachment_path),
         attachment_filename=payload.attachment.filename,
@@ -520,14 +520,14 @@ async def list_file_resource_departments(
 @router.patch("/{resource_id}", response_model=FileResourceItem)
 async def update_file_resource(
     resource_id: UUID,
-    payload: WineLabelUpdatePayload | SharedFileResourceUpdatePayload,
+    payload: ProductLabelUpdatePayload | SharedFileResourceUpdatePayload,
     user: Dict[str, Any] = Depends(require_file_resource_access),
     session: AsyncSession = Depends(get_db),
 ) -> FileResourceItem:
     resource = await _get_file_resource_or_404(session, resource_id)
     _ensure_resource_access(resource, user)
 
-    if resource.resource_type != _RESOURCE_TYPE_WINE_LABEL:
+    if resource.resource_type != _RESOURCE_TYPE_PRODUCT_LABEL:
         attachment = payload.attachment
         if attachment:
             attachment_path = _ensure_uploaded_file_path(
@@ -552,13 +552,13 @@ async def update_file_resource(
         return _serialize_resource(resource)
 
     normalized_code = normalize_cerp_code(payload.cerp_code_full or resource.cerp_code_full)
-    _, producer, fallback_display_name = await _resolve_cerp_product(normalized_code)
+    _, brand, fallback_display_name = await _resolve_cerp_product(normalized_code)
 
     attachment = payload.attachment
     if attachment:
         attachment_path = _ensure_uploaded_file_path(
             attachment.path,
-            resource_type=_RESOURCE_TYPE_WINE_LABEL,
+            resource_type=_RESOURCE_TYPE_PRODUCT_LABEL,
         )
         resource.attachment_path = str(attachment_path)
         resource.attachment_filename = attachment.filename
@@ -570,7 +570,7 @@ async def update_file_resource(
         resource.attachment_filename,
         fallback_display_name or resource.display_name,
     )
-    resource.producer = producer or None
+    resource.brand = brand or None
     resource.cerp_code_full = normalized_code or None
     resource.cerp_code_family = extract_cerp_code_family(normalized_code) or None
 
@@ -615,12 +615,12 @@ async def preview_file_resource(
 
 
 @router.get("/resolve/by-code/{cerp_code}")
-async def resolve_wine_label_by_code(
+async def resolve_product_label_by_code(
     cerp_code: str,
     user: Dict[str, Any] = Depends(require_file_resource_access),
     session: AsyncSession = Depends(get_db),
 ):
-    match = await resolve_wine_label_resource(session, cerp_code)
+    match = await resolve_product_label_resource(session, cerp_code)
     if not match:
         raise HTTPException(status_code=404, detail="File resource not found")
     return {"ok": True, "item": _serialize_resource(match).model_dump()}

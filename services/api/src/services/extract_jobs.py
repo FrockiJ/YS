@@ -26,7 +26,7 @@ from ..pipelines.extract.official_site import (
 from ..pipelines.extract.ingest_log import compute_file_signature, log_ingest_result
 from ..pipelines.extract.pdf_ingest import iter_pages_text
 from ..pipelines.extract.quality import merge_quality_metadata
-from ..pipelines.extract.rap_tabular import build_record_chunk_meta, iter_rap_tabular_payloads
+from ..pipelines.extract.spreadsheet_ingest import iter_spreadsheet_chunks
 from ..pipelines.nlp.embedder import embed_texts
 from ..pipelines.nlp.ner_alias import extract_entities_and_alias
 from ..pipelines.rag.indexer import (
@@ -37,60 +37,14 @@ from ..pipelines.rag.indexer import (
     insert_entities,
     upsert_document,
 )
-from ..utils.cerp_export_lookup import list_export_producers
+from ..utils.cerp_export_lookup import list_export_brands
 
 logger = logging.getLogger(__name__)
 
 _EMBED_BATCH_SIZE = 32
 _PDF_CHUNK_SIZE = 1000
 _PROGRESS_UPDATE_INTERVAL = 50
-_RAP_SPREADSHEET_PROTECTED_META_KEYS = {
-    "producer",
-    "wine_name",
-    "full_wine_name",
-    "vintage",
-    "region",
-    "country",
-    "appellation",
-    "classification",
-    "vineyard",
-    "grape",
-    "color",
-    "style",
-    "record_key",
-    "source_site",
-    "page_url",
-}
-_COLOR_TOKEN_ALIASES = {
-    "red": "red",
-    "white": "white",
-    "while": "white",
-    "rose": "rose",
-    "rose wine": "rose",
-    "rosé": "rose",
-    "pink": "rose",
-    "orange": "orange",
-}
-_STYLE_TOKEN_ALIASES = {
-    "sparkling": "sparkling",
-    "champagne": "sparkling",
-    "mousseux": "sparkling",
-    "pet nat": "sparkling",
-    "pet-nat": "sparkling",
-    "still": "still",
-    "tranquil": "still",
-    "fortified": "fortified",
-    "dessert": "dessert",
-    "sweet": "sweet",
-    "semi sweet": "semi-sweet",
-    "semisweet": "semi-sweet",
-    "off dry": "off-dry",
-    "offdry": "off-dry",
-    "dry": "dry",
-}
-
-
-def normalize_official_producer_name(value: Any) -> str:
+def normalize_official_brand_name(value: Any) -> str:
     text = str(value or "").strip().lower()
     return " ".join(part for part in "".join(ch if ch.isalnum() else " " for ch in text).split() if part)
 
@@ -101,7 +55,7 @@ def official_site_delay_seconds() -> float:
 
 
 class ExtractRequest(BaseModel):
-    source_scope: str = "rap"
+    source_scope: str = "knowledge"
     file_types: List[str] = Field(default_factory=list)
     rebuild_mode: str = "incremental"
     input_roots: List[str] = Field(default_factory=list)
@@ -123,8 +77,8 @@ def default_books_root() -> Path:
     return preferred if preferred.exists() else current_data_dir
 
 
-def default_rap_tabular_root() -> Optional[Path]:
-    raw = (config.RAP_TABULAR_DIR or "").strip()
+def default_spreadsheet_root() -> Optional[Path]:
+    raw = (config.EXTRACT_SPREADSHEET_DIR or "").strip()
     if not raw:
         return None
     return Path(raw).resolve()
@@ -142,7 +96,7 @@ def normalize_file_types(file_types: Sequence[str]) -> List[str]:
 
 def normalize_scope(scope: str) -> str:
     value = str(scope or "").strip().lower()
-    return value if value in {"all", "rap", "books", "spreadsheets", "official_site"} else "rap"
+    return value if value in {"all", "knowledge", "books", "spreadsheets", "official_site"} else "knowledge"
 
 
 def normalize_rebuild_mode(value: str) -> str:
@@ -196,20 +150,20 @@ def resolve_input_roots(request: ExtractRequest) -> List[Path]:
     if scope == "books":
         return [default_books_root()]
     if scope == "spreadsheets":
-        rap_tabular = default_rap_tabular_root()
-        return [rap_tabular] if rap_tabular else []
+        spreadsheet_root = default_spreadsheet_root()
+        return [spreadsheet_root] if spreadsheet_root else []
     if scope == "official_site":
         return []
-    if scope == "rap":
+    if scope == "knowledge":
         roots = [default_books_root()]
-        rap_tabular = default_rap_tabular_root()
-        if rap_tabular:
-            roots.append(rap_tabular)
+        spreadsheet_root = default_spreadsheet_root()
+        if spreadsheet_root:
+            roots.append(spreadsheet_root)
         return roots
     roots = [data_root()]
-    rap_tabular = default_rap_tabular_root()
-    if rap_tabular:
-        roots.append(rap_tabular)
+    spreadsheet_root = default_spreadsheet_root()
+    if spreadsheet_root:
+        roots.append(spreadsheet_root)
     return roots
 
 
@@ -250,8 +204,8 @@ async def collect_official_site_seeds(request: ExtractRequest) -> List[OfficialS
             logger.exception("Failed to load existing official product handles")
         for handle in existing_handles[:200]:
             seeds.append(f"/products/{handle}")
-        for producer in list_export_producers()[:200]:
-            seeds.append(producer)
+        for brand in list_export_brands()[:200]:
+            seeds.append(brand)
 
     normalized: List[OfficialSiteSeed] = []
     seen: set[str] = set()
@@ -323,7 +277,7 @@ def document_meta_for(path: Path) -> Dict[str, Any]:
     kind = classify_source_kind(path)
     return {
         "filetype": kind,
-        "source_group": "rap",
+        "source_group": "knowledge",
         "source_kind": kind,
         "source_path": str(path.resolve()),
         "filename": path.name,
@@ -342,7 +296,7 @@ def official_document_meta(profile: Dict[str, Any]) -> Dict[str, Any]:
         "source_path": profile.get("official_url"),
         "official_url": profile.get("official_url"),
         "product_handle": profile.get("product_handle"),
-        "producer": profile.get("producer"),
+        "brand": profile.get("brand"),
         "availability": profile.get("availability"),
         "source_tier": "internal_official",
         "filename": official_document_filename(str(profile.get("product_handle") or "")),
@@ -400,55 +354,12 @@ def _normalize_contract_token(value: Any) -> str:
     return " ".join(text.replace("-", " ").split())
 
 
-def _is_rap_spreadsheet_meta(base_meta: Dict[str, Any]) -> bool:
-    return (
-        str(base_meta.get("source_group") or "").strip().lower() == "rap"
-        and str(base_meta.get("source_kind") or "").strip().lower() == "spreadsheet"
-    )
-
-
 def _filter_extracted_fields_for_contract(base_meta: Dict[str, Any], fields: Dict[str, Any]) -> Dict[str, Any]:
-    if not _is_rap_spreadsheet_meta(base_meta):
-        return dict(fields)
-    return {
-        key: value
-        for key, value in fields.items()
-        if key not in _RAP_SPREADSHEET_PROTECTED_META_KEYS
-    }
-
-
-def _normalize_spreadsheet_color(value: Any) -> Optional[str]:
-    token = _normalize_contract_token(value)
-    if not token:
-        return None
-    return _COLOR_TOKEN_ALIASES.get(token)
-
-
-def _normalize_spreadsheet_style(value: Any) -> Optional[str]:
-    token = _normalize_contract_token(value)
-    if not token:
-        return None
-    if token in _COLOR_TOKEN_ALIASES:
-        return None
-    return _STYLE_TOKEN_ALIASES.get(token)
+    return dict(fields)
 
 
 def _normalize_chunk_meta_contract(meta: Dict[str, Any]) -> Dict[str, Any]:
-    if not _is_rap_spreadsheet_meta(meta):
-        return meta
-
-    normalized = dict(meta)
-    normalized_color = _normalize_spreadsheet_color(normalized.get("color"))
-    if normalized_color:
-        normalized["color"] = normalized_color
-
-    normalized_style = _normalize_spreadsheet_style(normalized.get("style"))
-    if normalized_style and normalized_style != normalized_color:
-        normalized["style"] = normalized_style
-    else:
-        normalized.pop("style", None)
-
-    return normalized
+    return dict(meta)
 
 
 def dedupe_alias_rows(chunk_records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -490,7 +401,7 @@ def build_pdf_chunk_records_sync(file_path: Path) -> List[Dict[str, Any]]:
             base_meta = {
                 "filename": file_path.name,
                 "page": page_no,
-                "source_group": "rap",
+                "source_group": "knowledge",
                 "source_kind": "pdf",
                 "source_path": source_path,
             }
@@ -508,19 +419,16 @@ def build_pdf_chunk_records_sync(file_path: Path) -> List[Dict[str, Any]]:
 
 def build_spreadsheet_records_sync(file_path: Path) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     source_path = str(file_path.resolve())
-    payloads = list(iter_rap_tabular_payloads(file_path))
+    payloads = list(iter_spreadsheet_chunks(file_path))
     if not payloads:
         return [], []
 
     chunk_records: List[Dict[str, Any]] = []
-    rap_records: List[Dict[str, Any]] = []
     for chunk_idx, payload in enumerate(payloads):
-        record = dict(payload.get("record") or {})
-        rap_records.append(record)
-        chunk_meta = build_record_chunk_meta(record)
+        chunk_meta = dict(payload.get("meta") or {})
         base_meta = {
             "filename": file_path.name,
-            "source_group": "rap",
+            "source_group": "knowledge",
             "source_kind": "spreadsheet",
             "source_path": source_path,
         }
@@ -533,115 +441,14 @@ def build_spreadsheet_records_sync(file_path: Path) -> tuple[List[Dict[str, Any]
                 alias_source=source_path,
             )
         )
-    return rap_records, chunk_records
-
-
-async def insert_rap_records(
-    conn,
-    *,
-    document_id: int,
-    records: List[Dict[str, Any]],
-    progress_cb: Optional[Any] = None,
-) -> None:
-    if not records:
-        return
-    total = len(records)
-    for index, record in enumerate(records, start=1):
-        await conn.execute(
-            """
-            INSERT INTO rap_records (
-                document_id, record_key, source_file, source_sheet, source_row, source_site,
-                producer, wine_name, full_wine_name, vintage, region, country, appellation,
-                classification, vineyard_name, wine_color, grape_blend, score_raw, score_numeric,
-                reviewer, reviewer_title, drinking_window, drink_date, tasting_note, producer_note,
-                published_date, tasting_date, selling_price, page_url, image_urls, raw_row,
-                mapped_fields, unmapped_fields, mapping_confidence, schema_version
-            )
-            VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
-                $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29,
-                $30::jsonb, $31::jsonb, $32::jsonb, $33::jsonb, $34, $35
-            )
-            ON CONFLICT (record_key) DO UPDATE
-            SET
-                document_id = EXCLUDED.document_id,
-                source_site = EXCLUDED.source_site,
-                producer = EXCLUDED.producer,
-                wine_name = EXCLUDED.wine_name,
-                full_wine_name = EXCLUDED.full_wine_name,
-                vintage = EXCLUDED.vintage,
-                region = EXCLUDED.region,
-                country = EXCLUDED.country,
-                appellation = EXCLUDED.appellation,
-                classification = EXCLUDED.classification,
-                vineyard_name = EXCLUDED.vineyard_name,
-                wine_color = EXCLUDED.wine_color,
-                grape_blend = EXCLUDED.grape_blend,
-                score_raw = EXCLUDED.score_raw,
-                score_numeric = EXCLUDED.score_numeric,
-                reviewer = EXCLUDED.reviewer,
-                reviewer_title = EXCLUDED.reviewer_title,
-                drinking_window = EXCLUDED.drinking_window,
-                drink_date = EXCLUDED.drink_date,
-                tasting_note = EXCLUDED.tasting_note,
-                producer_note = EXCLUDED.producer_note,
-                published_date = EXCLUDED.published_date,
-                tasting_date = EXCLUDED.tasting_date,
-                selling_price = EXCLUDED.selling_price,
-                page_url = EXCLUDED.page_url,
-                image_urls = EXCLUDED.image_urls,
-                raw_row = EXCLUDED.raw_row,
-                mapped_fields = EXCLUDED.mapped_fields,
-                unmapped_fields = EXCLUDED.unmapped_fields,
-                mapping_confidence = EXCLUDED.mapping_confidence,
-                schema_version = EXCLUDED.schema_version,
-                updated_at = NOW()
-            """,
-            document_id,
-            record.get("record_key"),
-            record.get("source_file"),
-            record.get("source_sheet"),
-            record.get("source_row"),
-            record.get("source_site"),
-            record.get("producer"),
-            record.get("wine_name"),
-            record.get("full_wine_name"),
-            record.get("vintage"),
-            record.get("region"),
-            record.get("country"),
-            record.get("appellation"),
-            record.get("classification"),
-            record.get("vineyard_name"),
-            record.get("wine_color"),
-            record.get("grape_blend"),
-            record.get("score_raw"),
-            record.get("score_numeric"),
-            record.get("reviewer"),
-            record.get("reviewer_title"),
-            record.get("drinking_window"),
-            record.get("drink_date"),
-            record.get("tasting_note"),
-            record.get("producer_note"),
-            record.get("published_date"),
-            record.get("tasting_date"),
-            record.get("selling_price"),
-            record.get("page_url"),
-            json.dumps(record.get("image_urls") or [], ensure_ascii=False),
-            json.dumps(record.get("raw_row") or {}, ensure_ascii=False),
-            json.dumps(record.get("mapped_fields") or {}, ensure_ascii=False),
-            json.dumps(record.get("unmapped_fields") or {}, ensure_ascii=False),
-            record.get("mapping_confidence"),
-            record.get("schema_version") or "rap_tabular_hybrid_v1",
-        )
-        if progress_cb and (index % _PROGRESS_UPDATE_INTERVAL == 0 or index == total):
-            await progress_cb(index, total)
+    return [], chunk_records
 
 
 async def upsert_official_product_profile(conn, profile: Dict[str, Any]) -> None:
     await conn.execute(
         """
         INSERT INTO official_product_profiles (
-            product_handle, product_title, producer, product_type, official_url, product_json_hash,
+            product_handle, product_title, brand, product_type, official_url, product_json_hash,
             availability, price_min, price_max, images_json, variants_json, tags_json,
             description_html, description_text, search_terms_json, source_payload_json,
             source_tier, last_seen_at, is_active
@@ -655,7 +462,7 @@ async def upsert_official_product_profile(conn, profile: Dict[str, Any]) -> None
         ON CONFLICT (product_handle) DO UPDATE
         SET
             product_title = EXCLUDED.product_title,
-            producer = EXCLUDED.producer,
+            brand = EXCLUDED.brand,
             product_type = EXCLUDED.product_type,
             official_url = EXCLUDED.official_url,
             product_json_hash = EXCLUDED.product_json_hash,
@@ -676,7 +483,7 @@ async def upsert_official_product_profile(conn, profile: Dict[str, Any]) -> None
         """,
         profile.get("product_handle"),
         profile.get("product_title"),
-        profile.get("producer"),
+        profile.get("brand"),
         profile.get("product_type"),
         profile.get("official_url"),
         profile.get("product_json_hash"),
@@ -695,11 +502,11 @@ async def upsert_official_product_profile(conn, profile: Dict[str, Any]) -> None
     )
 
 
-async def sync_official_producer_domain(conn, profile: Dict[str, Any]) -> None:
-    producer = str(profile.get("producer") or "").strip()
-    if not producer:
+async def sync_official_brand_domain(conn, profile: Dict[str, Any]) -> None:
+    brand = str(profile.get("brand") or "").strip()
+    if not brand:
         return
-    normalized = normalize_official_producer_name(producer)
+    normalized = normalize_official_brand_name(brand)
     if not normalized:
         return
     domain = urlparse(str(profile.get("official_url") or "")).netloc.lower().lstrip("www.")
@@ -709,8 +516,8 @@ async def sync_official_producer_domain(conn, profile: Dict[str, Any]) -> None:
         """
         SELECT EXISTS(
             SELECT 1
-            FROM producer_source_domains
-            WHERE producer_name_normalized = $1
+            FROM brand_source_domains
+            WHERE brand_name_normalized = $1
               AND domain = $2
               AND source_origin = 'ys_site'
         )
@@ -722,33 +529,16 @@ async def sync_official_producer_domain(conn, profile: Dict[str, Any]) -> None:
         return
     await conn.execute(
         """
-        INSERT INTO producer_source_domains (
-            producer_name_raw, producer_name_normalized, source_kind, domain, source_tier,
+        INSERT INTO brand_source_domains (
+            brand_name_raw, brand_name_normalized, source_kind, domain, source_tier,
             source_origin, verification_status, region_scope, notes, created_at, updated_at
         )
         VALUES ($1, $2, 'official', $3, 'internal_official', 'ys_site', 'verified', NULL, 'synced from official product profile', NOW(), NOW())
         """,
-        producer,
+        brand,
         normalized,
         domain,
     )
-
-
-async def delete_rap_records(conn, *, document_ids: Sequence[int] | None = None, source_files: Sequence[str] | None = None) -> None:
-    ids = [int(item) for item in (document_ids or []) if item is not None]
-    files = [str(item) for item in (source_files or []) if str(item or "").strip()]
-    if ids and files:
-        await conn.execute(
-            "DELETE FROM rap_records WHERE document_id = ANY($1::int[]) OR source_file = ANY($2::text[])",
-            ids,
-            files,
-        )
-        return
-    if ids:
-        await conn.execute("DELETE FROM rap_records WHERE document_id = ANY($1::int[])", ids)
-        return
-    if files:
-        await conn.execute("DELETE FROM rap_records WHERE source_file = ANY($1::text[])", files)
 
 
 async def delete_official_product_profiles(
@@ -773,19 +563,17 @@ async def delete_official_product_profiles(
         await conn.execute("DELETE FROM official_product_profiles WHERE official_url = ANY($1::text[])", normalized_urls)
 
 
-async def spreadsheet_has_rap_records(conn, *, document_id: int, source_file: str) -> bool:
+async def spreadsheet_has_chunks(conn, *, document_id: int, source_file: str) -> bool:
     return bool(
         await conn.fetchval(
             """
             SELECT EXISTS(
                 SELECT 1
-                FROM rap_records
+                FROM chunks
                 WHERE document_id = $1
-                   OR source_file = $2
             )
             """,
             document_id,
-            source_file,
         )
     )
 
@@ -837,7 +625,7 @@ async def backup_snapshot(conn, *, files: Sequence[Path], docs: Sequence[Dict[st
     upload_root = Path(config.UPLOAD_STORAGE_PATH or "py/S3")
     if not upload_root.is_absolute():
         upload_root = (Path.cwd() / upload_root).resolve()
-    snapshot_dir = upload_root / "rap_backups" / utcnow().strftime("%Y%m%dT%H%M%SZ")
+    snapshot_dir = upload_root / "knowledge_backups" / utcnow().strftime("%Y%m%dT%H%M%SZ")
     snapshot_dir.mkdir(parents=True, exist_ok=True)
 
     doc_ids = [int(doc["id"]) for doc in docs]
@@ -855,12 +643,6 @@ async def backup_snapshot(conn, *, files: Sequence[Path], docs: Sequence[Dict[st
         "SELECT * FROM ingest_log WHERE filename = ANY($1::text[])",
         filenames or [""],
     )
-    rap_rows = await conn.fetch(
-        "SELECT * FROM rap_records WHERE document_id = ANY($1::int[]) OR source_file = ANY($2::text[])",
-        doc_ids,
-        filenames or [""],
-    )
-
     manifest = {
         "created_at": utcnow().isoformat(),
         "files": source_paths,
@@ -869,7 +651,6 @@ async def backup_snapshot(conn, *, files: Sequence[Path], docs: Sequence[Dict[st
         "entity_count": len(entity_rows),
         "alias_count": len(alias_rows),
         "ingest_log_count": len(ingest_rows),
-        "rap_record_count": len(rap_rows),
     }
     (snapshot_dir / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2, default=str),
@@ -880,7 +661,6 @@ async def backup_snapshot(conn, *, files: Sequence[Path], docs: Sequence[Dict[st
     await write_jsonl(snapshot_dir / "entities.jsonl", [dict(row) for row in entity_rows])
     await write_jsonl(snapshot_dir / "aliases.jsonl", [dict(row) for row in alias_rows])
     await write_jsonl(snapshot_dir / "ingest_log.jsonl", [dict(row) for row in ingest_rows])
-    await write_jsonl(snapshot_dir / "rap_records.jsonl", [dict(row) for row in rap_rows])
     return str(snapshot_dir)
 
 
@@ -929,7 +709,6 @@ async def delete_existing_documents(conn, *, files: Sequence[Path], docs: Sequen
         return {"documents": 0, "chunks": 0, "entities": 0}
     doc_ids = [int(doc["id"]) for doc in docs]
     filenames = [path.name for path in files]
-    await delete_rap_records(conn, document_ids=doc_ids, source_files=filenames)
     return await delete_documents_by_ids(conn, doc_ids, filenames=filenames)
 
 
@@ -995,7 +774,6 @@ async def process_pdf_file(conn, file_path: Path, *, job_id: Optional[str] = Non
 
     if doc_status == "updated":
         await clear_document_payload(conn, [doc_id], filenames=[file_path.name], source_paths=[source_path])
-        await delete_rap_records(conn, document_ids=[doc_id], source_files=[file_path.name])
 
     await mark_current_work(
         conn,
@@ -1078,15 +856,14 @@ async def process_spreadsheet_file(conn, file_path: Path, *, job_id: Optional[st
         file_mtime=signature.get("file_mtime"),
     )
     if doc_status == "unchanged":
-        has_records = await spreadsheet_has_rap_records(conn, document_id=doc_id, source_file=file_path.name)
-        if has_records:
+        has_chunks = await spreadsheet_has_chunks(conn, document_id=doc_id, source_file=file_path.name)
+        if has_chunks:
             await log_ingest_result(conn, file_path.name, "skipped", "Skipped (checksum already ingested)", signature)
             return {"file": file_path.name, "status": "skipped", "detail": "checksum unchanged", "source_kind": "spreadsheet"}
         doc_status = "updated"
 
     if doc_status == "updated":
         await clear_document_payload(conn, [doc_id], filenames=[file_path.name], source_paths=[source_path])
-        await delete_rap_records(conn, document_ids=[doc_id], source_files=[file_path.name])
 
     await mark_current_work(
         conn,
@@ -1095,12 +872,11 @@ async def process_spreadsheet_file(conn, file_path: Path, *, job_id: Optional[st
         current_source_kind="spreadsheet",
         current_phase="loading",
     )
-    rap_records, chunk_records = await asyncio.to_thread(build_spreadsheet_records_sync, file_path)
+    _, chunk_records = await asyncio.to_thread(build_spreadsheet_records_sync, file_path)
     if not chunk_records:
-        await delete_rap_records(conn, document_ids=[doc_id], source_files=[file_path.name])
         await delete_documents_by_ids(conn, [doc_id], filenames=[file_path.name])
-        await log_ingest_result(conn, file_path.name, "skipped", "No review rows found", signature)
-        return {"file": file_path.name, "status": "skipped", "detail": "no review rows", "source_kind": "spreadsheet"}
+        await log_ingest_result(conn, file_path.name, "skipped", "No knowledge rows found", signature)
+        return {"file": file_path.name, "status": "skipped", "detail": "no knowledge rows", "source_kind": "spreadsheet"}
 
     total_chunks = len(chunk_records)
     await mark_current_work(
@@ -1142,30 +918,13 @@ async def process_spreadsheet_file(conn, file_path: Path, *, job_id: Optional[st
     chunk_ids = await insert_chunks(conn, doc_id, chunk_records)
     await insert_entities(conn, chunk_ids, [chunk.get("entities") or [] for chunk in chunk_records])
     await insert_alias(conn, dedupe_alias_rows(chunk_records))
-    async def _rap_record_progress(done: int, total: int) -> None:
-        await mark_current_work(
-            conn,
-            job_id,
-            current_file=file_path.name,
-            current_source_kind="spreadsheet",
-            current_phase="writing_records",
-            current_items_done=total_chunks,
-            current_items_total=total_chunks,
-            current_chunks_done=total_chunks,
-            current_records_done=done,
-        )
-    try:
-        await insert_rap_records(conn, document_id=doc_id, records=rap_records, progress_cb=_rap_record_progress)
-    finally:
-        pass
-
     detail = f"{len(chunk_records)} chunks indexed"
     await log_ingest_result(conn, file_path.name, "completed", detail, signature)
     return {
         "file": file_path.name,
         "status": "completed",
         "chunks": len(chunk_records),
-        "records": len(rap_records),
+        "records": 0,
         "source_kind": "spreadsheet",
         "document_status": doc_status,
     }
@@ -1215,7 +974,7 @@ async def hydrate_official_product(
     )
     if doc_status == "unchanged":
         await upsert_official_product_profile(conn, profile)
-        await sync_official_producer_domain(conn, profile)
+        await sync_official_brand_domain(conn, profile)
         await log_ingest_result(
             conn,
             filename,
@@ -1289,7 +1048,7 @@ async def hydrate_official_product(
         await insert_alias(conn, dedupe_alias_rows(chunk_records))
 
     await upsert_official_product_profile(conn, profile)
-    await sync_official_producer_domain(conn, profile)
+    await sync_official_brand_domain(conn, profile)
     await log_ingest_result(
         conn,
         filename,
@@ -1676,12 +1435,8 @@ async def enrich_job_with_db_fallback(conn, job: Dict[str, Any]) -> Dict[str, An
     chunks_done = int((chunk_row["count"] if chunk_row else 0) or 0)
 
     if source_kind == "spreadsheet":
-        record_row = await conn.fetchrow(
-            "SELECT COUNT(*) AS count FROM rap_records WHERE source_file = $1",
-            filename,
-        )
-        records_done = int((record_row["count"] if record_row else 0) or 0)
-        current_items_done = chunks_done or records_done
+        records_done = 0
+        current_items_done = chunks_done
     elif source_kind == "pdf":
         current_items_done = chunks_done
     else:

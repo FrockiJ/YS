@@ -11,9 +11,9 @@ class FileResource(Base):
     __tablename__ = "file_resources"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    resource_type = Column(String(32), nullable=False, default="wine_label", index=True)
+    resource_type = Column(String(32), nullable=False, default="product_label", index=True)
     display_name = Column(String(255), nullable=False)
-    producer = Column(String(255), nullable=True)
+    brand = Column(String(255), nullable=True, index=True)
     department_role = Column(String(100), nullable=True, index=True)
     visibility = Column(String(20), nullable=False, default="public", index=True)
     attachment_path = Column(Text, nullable=False)

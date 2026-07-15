@@ -25,6 +25,7 @@ async def compose_answer(
     guardrail_message: Optional[str] = None,
     lang: Optional[str] = None,
     benchmark_trace: bool = False,
+    persist: bool = True,
 ) -> Dict:
     """
     Composes an answer using RAG hits and an LLM.
@@ -50,7 +51,14 @@ async def compose_answer(
         history_messages = await get_messages_by_conversation(conv_id_uuid)
         if history_cutoff:
             history_messages = _filter_history_after_cutoff(history_messages, history_cutoff)
-        history_messages = history_messages[-10:]
+        history_messages = [
+            {
+                "role": str(item.get("role") or "user"),
+                "content": str(item.get("content") or ""),
+            }
+            for item in history_messages[-12:]
+            if str(item.get("content") or "").strip()
+        ]
 
     context_sections: List[str] = []
     rag_lines: List[str] = []
@@ -171,7 +179,7 @@ async def compose_answer(
     # Save the current exchange to the database using the UUID object
     new_conv_id_uuid = conv_id_uuid
     assistant_message_id = None
-    if response_text:
+    if response_text and persist:
         # If it was a new conversation, add_message_to_conversation will create it and return the new ID.
         project_id = None
         project_label = None
@@ -219,99 +227,23 @@ async def compose_answer(
 
 
 def _prompt_profile_instruction(prompt_category: Optional[str], lang: Optional[str]) -> str:
-    category = str(prompt_category or "").strip()
-    if category == "brand_profile":
-        if lang == "zh-Hant":
-            return (
-                "- \u5148\u4ee5 internal approved / internal official \u8b49\u64da\u7d44\u7e54\u7d50\u8ad6\u3002\n"
-                "- \u82e5\u78ba\u5be6\u9700\u8981\u5b98\u7db2\u6216\u6700\u65b0\u4e8b\u5be6\uff0c\u518d\u4ee5 external authoritative \u88dc\u5f37\uff0c\u4e0d\u53ef\u53cd\u5ba2\u70ba\u4e3b\u3002\n"
-                "- \u82e5\u5167\u90e8\u8b49\u64da\u4e0d\u8db3\uff0c\u8aaa\u660e coverage gap\uff0c\u4e0d\u8981\u628a\u5916\u90e8\u8cc7\u6599\u5f37\u884c\u7576\u6210\u4e3b\u7d50\u8ad6\u3002"
-            )
+    category = str(prompt_category or "general_chat").strip()
+    if category == "source_validation":
         return (
-            "- Build the answer from internal approved and internal official evidence first.\n"
-            "- Use external authoritative evidence only as reinforcement when the user asks for official or latest validation.\n"
-            "- If internal coverage is thin, state the evidence gap instead of letting external snippets dominate the answer."
+            "- Use only the retrieved authoritative sources for time-sensitive or verified claims.\n"
+            "- If verification is unavailable, say so explicitly and provide only non-current general guidance.\n"
+            "- Never invent URLs, citations, dates, regulations, prices, stock, or SKU facts."
         )
-    if category == "producer_ranking":
-        if lang == "zh-Hant":
-            return (
-                "- \u8f38\u51fa 3-6 \u5bb6 grounded shortlist\uff0c\u4e0d\u8981\u56de\u6210\u300c\u554f\u984c\u592a\u5ee3\u300d\u3002\n"
-                "- \u6bcf\u5bb6\u7528 1 \u884c\u8aaa\u660e\u7406\u7531\uff0c\u4e26\u8a3b\u660e\u9019\u662f\u4f9d\u64da\u76ee\u524d\u5df2\u6536\u9304\u8b49\u64da\u7684 shortlist\uff0c\u4e0d\u662f\u7d55\u5c0d\u6392\u540d\u3002\n"
-                "- \u82e5\u8b49\u64da\u8986\u84cb\u4e0d\u8db3\uff0c\u4ecd\u8981\u8aaa\u660e\u9650\u5236\u8207 coverage gap\u3002"
-            )
+    if category in {"quote_recommendation", "inventory_lookup"}:
         return (
-            "- Produce a grounded shortlist of 3-6 producers instead of refusing a broad producer-ranking query.\n"
-            "- Give one concise reason per producer and state that this is an evidence-based shortlist, not an absolute ranking.\n"
-            "- If coverage is incomplete, keep the shortlist but explain the limitation."
+            "- Treat ERP results as the only source for SKU, price, stock, and sellable status.\n"
+            "- Do not create or infer products that are absent from ERP results."
         )
-    if category == "tasting_note_generation":
-        if lang == "zh-Hant":
-            return (
-                "- 優先使用 tasting note、critic note、producer note 或 source notes。\n"
-                "- 如果 retrieved passages 沒有品飲筆記，不要補寫 generic tasting note；請明確說明資料缺口。\n"
-                "- 每個香氣、口感、尾韻描述都必須能回到引用片段。"
-            )
-        return (
-            "- Prioritize tasting notes, critic notes, producer notes, or source notes.\n"
-            "- If retrieved passages do not contain tasting-note evidence, do not invent a generic note; state the data gap.\n"
-            "- Every aroma, palate, and finish claim must be grounded in the cited passages."
-        )
-    if category == "vineyard_lookup":
-        if lang == "zh-Hant":
-            return (
-                "- 只使用明確提到目標 vineyard / climat / lieu-dit / region 的片段。\n"
-                "- Vintage overview 或泛用 Burgundy 內容不能取代 vineyard-specific source。\n"
-                "- 若片段沒有提到目標地名，請說明沒有足夠對應來源。"
-            )
-        return (
-            "- Use only passages that explicitly mention the target vineyard, climat, lieu-dit, or region.\n"
-            "- Vintage overviews or generic Burgundy content must not substitute for vineyard-specific evidence.\n"
-            "- If passages do not mention the target place, state that the source coverage is insufficient."
-        )
-    if category in {"source_validation", "critic_score_lookup"}:
-        return (
-            "- Fail closed when authoritative citations are missing.\n"
-            "- Do not invent scores, sources, page references, URLs, or critic claims."
-        )
-    if category == "internal_rag_only_validation":
-        return (
-            "- Answer only from internal RAG, OCR book corpus, internal documents, and authorized licensed review rows supplied in context.\n"
-            "- Every factual claim must carry an inline citation marker tied to a retrieved source.\n"
-            "- Include a Sources section listing source title/name plus page, row, or source_trace when available.\n"
-            "- If a claim is not supported by the supplied internal sources, omit it or place it under Missing / not verified.\n"
-            "- Do not use external web knowledge, model memory, or uncited assumptions."
-        )
-    if category == "exact_review_lookup":
-        return (
-            "- Use licensed review rows, RAG passages, and authoritative external evidence as the verified layer.\n"
-            "- If the exact requested critic/source row is missing, still provide a useful partial answer from authorized alternatives.\n"
-            "- Clearly separate Verified facts, Missing / not verified, and Next data needed.\n"
-            "- Never invent an exact score, reviewer, tasting note, issue/date, row, page, URL, or drinking window for a missing source."
-        )
-    if category == "multi_review_compare":
-        return (
-            "- Build a detailed critic comparison from the retrieved licensed review rows and source traces.\n"
-            "- Use these sections: Critic Score & Profile Overview, Source-by-source notes, Where reviewers agree, Where reviewers differ, YS AI professional read, Missing / not verified, Sources.\n"
-            "- Compare only exact wine/vintage evidence; do not substitute adjacent vintages or other producers.\n"
-            "- Professional interpretation is allowed only after the verified source-by-source facts are shown."
-        )
-    if category == "source_hierarchy_conflict":
-        return (
-            "- Produce an analytical answer, not a product list.\n"
-            "- Use these sections: Answer, Controlling source by fact type, Example, Evidence comparison, Missing / not verified, Sources.\n"
-            "- Current SKU, stock, price, and sellable product-name facts are controlled by CERP/current ERP rows.\n"
-            "- Producer-owned current facts are controlled by newer official producer material when it is present in evidence.\n"
-            "- Older books and RAG passages may support historical or background context, but must not override current operational product facts.\n"
-            "- If CERP rows are present, use them as example evidence while still explaining the source hierarchy decision.\n"
-            "- If producer website evidence is missing, state that gap instead of pretending a website comparison was performed."
-        )
-    if category == "quote_recommendation":
-        return (
-            "- Recommendations must stay within official, CERP, or portfolio-backed inventory evidence.\n"
-            "- Do not use unverified external material for sellable quote decisions."
-        )
-    return ""
-
+    return (
+        "- Use qualified retrieved passages when they are available and cite them.\n"
+        "- When no qualified passage exists, answer from general knowledge without citations.\n"
+        "- Keep facts from the user and conversation distinct from model-generated suggestions."
+    )
 
 def _language_instruction(lang: Optional[str]) -> str:
     if lang == "ja":

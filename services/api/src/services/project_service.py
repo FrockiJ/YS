@@ -499,7 +499,6 @@ async def list_projects(
                     "avg_unit_price": project.avg_unit_price,
                     "preference_note": project.preference_note,
                     "region": project.region,
-                    "has_wine_cabinet": project.has_wine_cabinet,
                 },
             }
         )
@@ -540,7 +539,6 @@ async def create_project(
         avg_unit_price=profile.get("avg_unit_price"),
         preference_note=profile.get("preference_note"),
         region=profile.get("region"),
-        has_wine_cabinet=profile.get("has_wine_cabinet"),
     )
 
     session.add(project)
@@ -591,9 +589,6 @@ async def update_project(
         project.preference_note = profile.get("preference_note")
     if "region" in profile:
         project.region = profile.get("region")
-    if "has_wine_cabinet" in profile:
-        project.has_wine_cabinet = profile.get("has_wine_cabinet")
-
     project.updated_at = func.now()
     await session.commit()
     await session.refresh(project)

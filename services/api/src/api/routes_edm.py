@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 from urllib.parse import urlsplit
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,13 +38,15 @@ class EdmSendPayload(BaseModel):
 
 
 class EdmPreviewRow(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     id: str = ""
     no: str = ""
-    vintage: str = ""
-    producer: str = ""
-    product: str = ""
+    specification: str = ""
+    brand: str = ""
+    product_name: str = ""
     color: str = ""
-    rating: str = ""
+    feature: str = ""
     list_price: Optional[float] = None
     quote_price: Optional[float] = None
     vip_price: Optional[float] = None
@@ -59,6 +61,12 @@ class EdmPreviewRow(BaseModel):
     product_link: str = ""
 
 
+class EdmTableColumn(BaseModel):
+    key: str
+    label: str = ""
+    width: Optional[int] = None
+
+
 class EdmPreviewCreatePayload(BaseModel):
     conversation_id: Optional[str] = None
     sales_rep: str = ""
@@ -66,6 +74,7 @@ class EdmPreviewCreatePayload(BaseModel):
     project: Optional[Dict[str, Any]] = None
     quote_date: Optional[datetime] = None
     rows: List[EdmPreviewRow] = Field(default_factory=list)
+    table_columns: List[EdmTableColumn] = Field(default_factory=list)
 
 
 class EdmShareEmailPayload(BaseModel):
@@ -74,6 +83,31 @@ class EdmShareEmailPayload(BaseModel):
 
 class EdmPreviewUpdatePayload(BaseModel):
     rows: List[EdmPreviewRow] = Field(default_factory=list)
+
+
+def _normalize_preview_row(row: EdmPreviewRow) -> Dict[str, Any]:
+    payload = row.model_dump()
+    specification = ""
+    for key in (
+        "specification",
+        "spec",
+        "spec1",
+        "model",
+        "model_name",
+        "model_year",
+        "invn807",
+        "invn051",
+        "size",
+    ):
+        value = str(payload.get(key) or "").strip()
+        if value:
+            specification = value
+            break
+    payload["specification"] = specification
+    payload.pop("spec", None)
+    if not str(payload.get("product_name") or "").strip():
+        payload["product_name"] = str(payload.get("product") or payload.get("name") or "").strip()
+    return payload
 
 
 def _require_user(user: Optional[dict]) -> dict:
@@ -243,6 +277,7 @@ def _serialize_preview(preview: EdmPreview) -> Dict[str, Any]:
         "hero_text": preview.hero_text or "",
         "banner": preview.banner_snapshot or {},
         "rows": preview.rows_snapshot or [],
+        "table_columns": preview.table_columns_snapshot or [],
         "project": shared_context["project"],
         "conversation_id": shared_context["conversation_id"],
         "customer": shared_context["customer"],
@@ -259,7 +294,7 @@ async def create_edm_preview(
 ):
     auth_user = _require_user(user)
 
-    rows = [row.model_dump() for row in payload.rows if row.no or row.product]
+    rows = [_normalize_preview_row(row) for row in payload.rows if row.no or row.product_name or getattr(row, "product", "")]
     if not rows:
         raise HTTPException(status_code=400, detail="Preview rows are required")
 
@@ -292,6 +327,7 @@ async def create_edm_preview(
         hero_text=(payload.hero_text or "").strip(),
         banner_snapshot=banner_snapshot,
         rows_snapshot=rows,
+        table_columns_snapshot=[column.model_dump() for column in payload.table_columns],
         project_snapshot=_merge_project_snapshot(payload.project, shared_context),
         share_url=share_url,
     )
@@ -324,7 +360,7 @@ async def update_edm_preview(
 ):
     _require_user(user)
 
-    rows = [row.model_dump() for row in payload.rows if row.no or row.product]
+    rows = [_normalize_preview_row(row) for row in payload.rows if row.no or row.product_name or getattr(row, "product", "")]
     if not rows:
         raise HTTPException(status_code=400, detail="Preview rows are required")
 

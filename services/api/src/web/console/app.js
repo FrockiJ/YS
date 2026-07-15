@@ -132,7 +132,7 @@ if (extractStatus) {
   $('#run-extract').onclick = async () => {
     extractStatus.textContent = 'Queueing...';
     try {
-      const result = await authPost('/extract', { source_scope: 'rap', execution_mode: 'async', rebuild_mode: 'incremental' });
+      const result = await authPost('/extract', { source_scope: 'spreadsheets', execution_mode: 'async', rebuild_mode: 'incremental' });
       if (!result.job_id) {
         extractStatus.textContent = 'No job id returned';
         return;

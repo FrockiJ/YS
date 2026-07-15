@@ -97,23 +97,7 @@ BEHAVIOR_PROFILES: Dict[str, Dict[str, Any]] = {
     },
 }
 
-
-LEGACY_PROFILE_ALIASES: Dict[str, str] = {
-    "critic_score_lookup": "source_validation",
-    "exact_review_lookup": "internal_rag_only_validation",
-    "book_corpus_lookup": "internal_rag_only_validation",
-    "multi_review_compare": "source_validation",
-    "source_hierarchy_conflict": "source_validation",
-    "terroir_comparison": "source_validation",
-    "vintage_region_overview": "general_chat",
-    "tasting_note_generation": "general_chat",
-    "vineyard_lookup": "source_validation",
-    "producer_ranking": "brand_profile",
-}
-
-
 def get_behavior_profile(prompt_category: str | None) -> Dict[str, Any]:
     key = str(prompt_category or "").strip()
-    key = LEGACY_PROFILE_ALIASES.get(key, key)
     profile = BEHAVIOR_PROFILES.get(key) or BEHAVIOR_PROFILES["general_chat"]
     return deepcopy(profile)

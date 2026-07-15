@@ -1,83 +1,72 @@
-from typing import Dict, Any, List, Tuple
-import re
+from __future__ import annotations
 
-from src.utils.cerp_export_lookup import (
-    find_best_matching_product,
-    find_best_matching_producer,
-)
+import re
+from typing import Any, Dict, List, Tuple
+
+from ...utils.cerp_export_lookup import find_best_matching_product
+
 
 FILTER_FIELD_MAP = {
-    "region": "region",
-    "village": "village",
-    "vineyard": "vineyard",
-    "producer": "producer",
-    "classification": "classification",
-    "style": "style",
-    "grape": "grape_varieties",
+    "brand": "brand",
+    "product": "product_name",
+    "category": "category",
+    "specification": "specification",
+    "location": "location",
+    "activity": "activity",
 }
 
 
-def _tokens(q: str) -> List[str]:
-    if not q:
-        return []
-    # Split by whitespace and common Chinese/English punctuation so tokens like
-    # "Lafarge Vial、甜味" can still be detected individually.
-    return [t for t in re.split(r"[\s,;\\/、，。；；：!！?？]+", q.strip()) if t]
+def _tokens(query: str) -> List[str]:
+    return [token for token in re.split(r"[\s,;\\/、，；。！？?!]+", str(query or "").strip()) if token]
 
 
 def _push_filter(filters: Dict[str, Any], key: str, value: str) -> None:
-    if not value:
+    normalized = str(value or "").strip()
+    if not normalized:
         return
-    if key not in filters:
-        filters[key] = value
-        return
-    existing = filters[key]
-    if isinstance(existing, list):
-        if value not in existing:
-            existing.append(value)
-    else:
-        if existing != value:
-            filters[key] = [existing, value]
+    current = filters.get(key)
+    if current is None:
+        filters[key] = normalized
+    elif isinstance(current, list):
+        if normalized not in current:
+            current.append(normalized)
+    elif current != normalized:
+        filters[key] = [current, normalized]
 
 
-async def expand_aliases(conn, query: str) -> Tuple[List[str], Dict[str, str]]:
-    toks = _tokens(query)
-    rewrites = set([query])
-    filters: Dict[str, str] = {}
-    if not toks:
-        return list(rewrites), filters
-    for t in toks:
+async def expand_aliases(conn, query: str) -> Tuple[List[str], Dict[str, Any]]:
+    rewrites = {str(query or "").strip()}
+    filters: Dict[str, Any] = {}
+    for token in _tokens(query):
         rows = []
         if conn:
             rows = await conn.fetch(
                 "SELECT canonical, variant, type FROM alias WHERE variant ILIKE $1 LIMIT 10",
-                f"%{t}%",
+                f"%{token}%",
             )
-        for r in rows or []:
-            rewrites.add(query.replace(t, r["canonical"]))
-            tp = (r.get("type") or "").lower()
-            field = FILTER_FIELD_MAP.get(tp)
+        for row in rows or []:
+            canonical = str(row.get("canonical") or "").strip()
+            if not canonical:
+                continue
+            rewrites.add(str(query).replace(token, canonical))
+            field = FILTER_FIELD_MAP.get(str(row.get("type") or "").strip().lower())
             if field:
-                _push_filter(filters, field, r["canonical"])
-
-        # Fallback to CERP export lookup when alias table misses the token
-        producer = find_best_matching_producer(t)
-        if producer:
-            rewrites.add(query.replace(t, producer))
-            _push_filter(filters, "invn006", producer)
-        product_row = find_best_matching_product(t)
-        if product_row:
-            name = product_row.get("invn005")
-            code = product_row.get("invn002")
-            barcode = product_row.get("invn008")
-            producer_name = product_row.get("invn006")
-            if name:
-                rewrites.add(query.replace(t, name))
-                _push_filter(filters, "invn005", name)
-            if producer_name:
-                _push_filter(filters, "invn006", producer_name)
-            if code:
-                _push_filter(filters, "invn002", code)
-            if barcode:
-                _push_filter(filters, "invn008", barcode)
-    return list(rewrites)[:5], filters
+                _push_filter(filters, field, canonical)
+        product = find_best_matching_product(token)
+        if not product:
+            continue
+        for field, raw_key in (
+            ("product_name", "invn005"),
+            ("brand", "invn006"),
+            ("sku", "invn002"),
+            ("barcode", "invn008"),
+            ("category", "invn030"),
+            ("specification", "invn051"),
+        ):
+            value = str(product.get(raw_key) or "").strip()
+            if value:
+                _push_filter(filters, field, value)
+        name = str(product.get("invn005") or "").strip()
+        if name:
+            rewrites.add(str(query).replace(token, name))
+    return [item for item in rewrites if item][:5], filters

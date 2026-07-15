@@ -16,7 +16,7 @@ class CerpServiceLimitTests(unittest.IsolatedAsyncioTestCase):
         service._map_row = Mock(side_effect=lambda row, _: {"no": row["invn002"], "stock_qty": 1})
         service._score_keyword = Mock(return_value=1.0)
 
-        products = await service.search_products("wine", limit=3, page_size=50)
+        products = await service.search_products("tent", limit=3, page_size=50)
 
         self.assertEqual(len(products), 3)
         self.assertEqual([product["no"] for product in products], ["SKU-0", "SKU-1", "SKU-2"])

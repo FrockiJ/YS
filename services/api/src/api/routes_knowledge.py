@@ -95,22 +95,19 @@ def _resize_embedding(values: Any) -> List[float]:
     except Exception:
         vector = []
     target_dim = int(getattr(config, "PGVECTOR_DIM", 384) or 384)
-    if len(vector) == target_dim:
-        return vector
-    if len(vector) > target_dim:
-        return vector[:target_dim]
-    return vector + [0.0] * (target_dim - len(vector))
+    if len(vector) != target_dim:
+        raise ValueError(
+            f"Embedding dimension mismatch: configured={target_dim}, actual={len(vector)}. "
+            "Rebuild the RAG index after changing embedding models."
+        )
+    return vector
 
 
 def _embed_or_zero(texts: List[str]) -> List[List[float]]:
     if not texts:
         return []
-    try:
-        vectors = embed_texts(texts)
-        return [_resize_embedding(vector) for vector in vectors]
-    except Exception:
-        zero = _resize_embedding([])
-        return [list(zero) for _ in texts]
+    vectors = embed_texts(texts)
+    return [_resize_embedding(vector) for vector in vectors]
 
 
 def _decode_csv(data: bytes) -> str:

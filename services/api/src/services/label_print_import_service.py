@@ -16,8 +16,8 @@ class LabelPrintImportService:
     TEMPLATE_HEADERS = [
         "產品編號",
         "品名",
-        "Producer",
-        "年份",
+        "品牌",
+        "規格",
         "價格",
         "大尺寸",
         "中尺寸",
@@ -169,8 +169,8 @@ class LabelPrintImportService:
     def _normalize_row(cls, raw_row: Dict[str, Any]) -> Dict[str, Any]:
         code = cls._normalize_text(raw_row.get("產品編號")).upper()
         name = cls._normalize_text(raw_row.get("品名"))
-        producer = cls._normalize_text(raw_row.get("Producer"))
-        vintage = cls._normalize_text(raw_row.get("年份"))
+        brand = cls._normalize_text(raw_row.get("品牌"))
+        specification = cls._normalize_text(raw_row.get("規格"))
         if not any([code, name]):
             raise RowImportError("missing_identifier", "至少需要填寫 產品編號、品名 其中之一")
 
@@ -185,8 +185,8 @@ class LabelPrintImportService:
         return {
             "code": code,
             "name": name,
-            "producer": producer,
-            "vintage": vintage,
+            "brand": brand,
+            "specification": specification,
             "price_override": price_override,
             "sizes": sizes,
         }
@@ -252,10 +252,10 @@ class LabelPrintImportService:
         exact_name_matches = self._filter_exact_name_matches(candidates, name)
         if exact_name_matches:
             candidates = exact_name_matches
-        if normalized_row["producer"]:
-            candidates = self._filter_by_producer(candidates, normalized_row["producer"])
-        if normalized_row["vintage"]:
-            candidates = self._filter_by_vintage(candidates, normalized_row["vintage"])
+        if normalized_row["brand"]:
+            candidates = self._filter_by_brand(candidates, normalized_row["brand"])
+        if normalized_row["specification"]:
+            candidates = self._filter_by_specification(candidates, normalized_row["specification"])
 
         unique_candidates = self._dedupe_candidates(candidates)
         if not unique_candidates:
@@ -292,16 +292,16 @@ class LabelPrintImportService:
         return cls._dedupe_candidates(exact)
 
     @classmethod
-    def _filter_by_producer(cls, candidates: List[Dict[str, Any]], producer: str) -> List[Dict[str, Any]]:
-        normalized_producer = cls._normalize_label(producer)
+    def _filter_by_brand(cls, candidates: List[Dict[str, Any]], brand: str) -> List[Dict[str, Any]]:
+        normalized_brand = cls._normalize_label(brand)
         matched = [
-            row for row in candidates if cls._normalize_label(row.get("invn006")) == normalized_producer
+            row for row in candidates if cls._normalize_label(row.get("invn006")) == normalized_brand
         ]
         return cls._dedupe_candidates(matched)
 
     @staticmethod
-    def _filter_by_vintage(candidates: List[Dict[str, Any]], vintage: str) -> List[Dict[str, Any]]:
-        target = str(vintage or "").strip()
+    def _filter_by_specification(candidates: List[Dict[str, Any]], specification: str) -> List[Dict[str, Any]]:
+        target = str(specification or "").strip()
         matched = []
         for row in candidates:
             candidate_values = [

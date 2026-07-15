@@ -217,10 +217,10 @@ class LabelDescriptionService:
         *,
         price_override: Optional[int] = None,
     ) -> Dict[str, str]:
-        brand = str(product.get("brand") or product.get("supplier") or product.get("producer") or product.get("invn006") or "").strip()
+        brand = str(product.get("brand") or product.get("supplier") or product.get("invn006") or "").strip()
         product_name = self._resolve_name(product)
         category = str(product.get("category") or product.get("region") or product.get("invn030") or "").strip()
-        version = str(product.get("model_year") or product.get("version") or product.get("vintage") or product.get("invn051") or "").strip()
+        version = str(product.get("specification") or product.get("model_year") or product.get("version") or product.get("invn051") or "").strip()
         rating = str(product.get("rating") or product.get("invn804") or product.get("invn805") or "").strip()
         price_value = None
         if isinstance(price_override, int) and price_override > 0:

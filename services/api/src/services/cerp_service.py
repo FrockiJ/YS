@@ -17,25 +17,12 @@ from ..utils.cerp_export_lookup import (
     find_export_row_by_barcode,
     find_export_row_by_code,
     find_best_matching_product,
-    find_products_by_producer,
     search_export_rows,
-)
-from ..utils.quote_search import (
-    build_quote_query_variants,
-    has_quote_semantic_filters,
-    normalize_quote_color,
-    normalize_quote_style,
-    quote_product_alternative_score,
-    quote_product_identity_score,
-    quote_product_match_score,
-    quote_product_matches_criteria,
 )
 from ..utils.webphoto import lookup_product_photo
 
 logger = logging.getLogger(__name__)
 
-_QUOTE_MAX_QUERY_VARIANTS = 1
-_QUOTE_MAX_ALIAS_TERMS = 1
 _STORE_WAREHOUSE_KEYWORDS = ("精品", "門市", "門店", "店面", "retail", "boutique", "shop", "store")
 
 
@@ -55,15 +42,13 @@ class CerpService:
         limit: int = 100,
         page_size: int = 50,
         desired_quantity: int = 1,
-        quote_criteria: Optional[Dict[str, Any]] = None,
         raise_on_error: bool = False,
     ) -> List[Dict[str, Any]]:
         """
-        Search CERP products by producer or name and return merged product + stock info.
+        Search CERP products by SKU, name, brand, category, or specification.
         """
         query = (keyword or "").strip()
-        criteria_enabled = has_quote_semantic_filters(quote_criteria)
-        if not query and not criteria_enabled:
+        if not query:
             return []
 
         requested_limit = max(int(limit or 1), 1)
@@ -147,12 +132,7 @@ class CerpService:
             if not mapped:
                 continue
             score = self._score_keyword(row, query) if query else 0.0
-            if criteria_enabled:
-                semantic_score = quote_product_match_score(mapped, quote_criteria)
-                if semantic_score <= 0:
-                    continue
-                score += semantic_score
-            elif score <= 0:
+            if score <= 0:
                 continue
             stock_qty = mapped.get("stock_qty", 0) or 0
             scored_products.append((score, stock_qty, mapped))
@@ -176,10 +156,6 @@ class CerpService:
                 mapped = self._map_row(row, desired_quantity)
                 if not mapped:
                     continue
-                if criteria_enabled:
-                    semantic_score = quote_product_match_score(mapped, quote_criteria)
-                    if semantic_score <= 0:
-                        continue
                 products.append(mapped)
                 if len(products) >= requested_limit:
                     break
@@ -187,393 +163,6 @@ class CerpService:
         if products:
             return products[:requested_limit]
         return []
-
-    async def search_quote_candidates(
-        self,
-        keyword: str,
-        *,
-        query_variants: Optional[List[str]] = None,
-        alias_search_terms: Optional[List[str]] = None,
-        limit: int = 100,
-        page_size: int = 50,
-        desired_quantity: int = 1,
-        quote_criteria: Optional[Dict[str, Any]] = None,
-        max_pages_per_term: int = 1,
-        raise_on_error: bool = False,
-    ) -> List[Dict[str, Any]]:
-        criteria = quote_criteria if isinstance(quote_criteria, dict) else {}
-        variants = build_quote_query_variants(
-            keyword,
-            criteria,
-            supplied_variants=query_variants,
-        )
-        criteria_enabled = has_quote_semantic_filters(criteria)
-        if not variants and not criteria_enabled:
-            return []
-
-        max_results = max(limit, page_size, 1)
-        rows_by_code: Dict[str, Dict[str, Any]] = {}
-        identity_rows_by_code = self._collect_export_identity_rows(
-            [keyword, *variants, *(alias_search_terms or [])],
-            max_results=min(max_results, 5),
-        )
-
-        criteria_rows_found = False
-        try:
-            if identity_rows_by_code:
-                live_identity_rows = await self._collect_rows_by_paramchar(
-                    {"invn002": list(identity_rows_by_code.keys())},
-                    max_results=max(max_results, len(identity_rows_by_code)),
-                    page_size=page_size,
-                    max_pages=1,
-                )
-                rows_by_code.update(live_identity_rows)
-                for code, row in identity_rows_by_code.items():
-                    rows_by_code.setdefault(code, row)
-
-            if criteria_enabled:
-                rows_by_code.update(
-                    await self._collect_rows_by_quote_criteria(
-                        criteria,
-                        max_results=max(max_results * 2, max_results),
-                        page_size=page_size,
-                        max_pages=max_pages_per_term,
-                    )
-                )
-                criteria_rows_found = bool(rows_by_code)
-
-            if len(rows_by_code) < max_results and not criteria_rows_found:
-                for variant in variants[:_QUOTE_MAX_QUERY_VARIANTS]:
-                    query = (variant or "").strip()
-                    if not query:
-                        continue
-                    if self._is_code_query(query):
-                        rows_by_code.update(
-                            await self._collect_rows_by_code(
-                                query,
-                                max_results=max_results,
-                                page_size=page_size,
-                                max_pages=max_pages_per_term,
-                            )
-                        )
-                    rows_by_code.update(
-                        await self._collect_rows_by_keyword(
-                            query,
-                            max_results=max_results,
-                            page_size=page_size,
-                            max_pages=max_pages_per_term,
-                        )
-                    )
-                    if len(rows_by_code) >= max_results:
-                        break
-
-            if len(rows_by_code) < max_results and not criteria_rows_found:
-                for alias_term in (alias_search_terms or [])[:_QUOTE_MAX_ALIAS_TERMS]:
-                    if self._is_code_query(alias_term):
-                        rows_by_code.update(
-                            await self._collect_rows_by_code(
-                                alias_term,
-                                max_results=max_results,
-                                page_size=page_size,
-                                max_pages=max_pages_per_term,
-                            )
-                        )
-                    rows_by_code.update(
-                        await self._collect_rows_by_keyword(
-                            alias_term,
-                            max_results=max_results,
-                            page_size=page_size,
-                            max_pages=max_pages_per_term,
-                        )
-                    )
-                    if len(rows_by_code) >= max_results:
-                        break
-        except CERPClientError as exc:
-            logger.warning("CERP quote candidate lookup failed, using export fallback only: %s", exc)
-            if raise_on_error:
-                raise
-
-        for row in self._collect_export_quote_rows(criteria, variants, max_results=max_results):
-            code = self._normalize_code(row.get("invn002"))
-            if not code:
-                continue
-            rows_by_code.setdefault(code, row)
-
-        if raise_on_error:
-            live_rows = await self._require_live_stock_for_rows(list(rows_by_code.values()))
-            rows_by_code = {
-                self._normalize_code(row.get("invn002")): row
-                for row in live_rows
-                if self._normalize_code(row.get("invn002"))
-            }
-
-        scored_products: List[tuple[int, float, int, Dict[str, Any]]] = []
-        for row in rows_by_code.values():
-            mapped = self._map_row(row, desired_quantity)
-            if not mapped:
-                continue
-            text_score = max((self._score_keyword(row, variant) for variant in variants), default=0.0)
-            exact_score = quote_product_match_score(mapped, criteria)
-            alternative_score = quote_product_alternative_score(mapped, criteria)
-            is_exact = 1 if quote_product_matches_criteria(mapped, criteria) else 0
-            if criteria_enabled:
-                if exact_score <= 0 and alternative_score <= 0:
-                    continue
-            elif text_score <= 0:
-                continue
-            stock_qty = int(mapped.get("stock_qty") or 0)
-            combined_score = (exact_score * 10.0) + (alternative_score * 4.0) + text_score
-            scored_products.append((is_exact, combined_score, stock_qty, mapped))
-
-        scored_products.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
-        return [item[3] for item in scored_products[:max_results]]
-
-    @staticmethod
-    def _iter_alias_search_terms(alias_filters: Any) -> List[str]:
-        if not isinstance(alias_filters, dict):
-            return []
-        terms: List[str] = []
-        seen = set()
-        for value in alias_filters.values():
-            if isinstance(value, str):
-                candidates = [value]
-            elif isinstance(value, (list, tuple, set)):
-                candidates = [str(item) for item in value if item]
-            else:
-                candidates = []
-            for candidate in candidates:
-                normalized = candidate.strip()
-                if not normalized:
-                    continue
-                key = normalized.casefold()
-                if key in seen:
-                    continue
-                seen.add(key)
-                terms.append(normalized)
-        return terms
-
-    def _collect_export_identity_rows(
-        self,
-        terms: List[str],
-        *,
-        max_results: int,
-    ) -> Dict[str, Dict[str, Any]]:
-        rows_by_code: Dict[str, Dict[str, Any]] = {}
-        seen_terms = set()
-        for term in terms or []:
-            query = (term or "").strip()
-            if not query:
-                continue
-            term_key = query.casefold()
-            if term_key in seen_terms:
-                continue
-            seen_terms.add(term_key)
-            if not self._looks_like_product_identity_query(query):
-                continue
-            row = find_best_matching_product(query)
-            code = self._normalize_code((row or {}).get("invn002"))
-            if row and code:
-                rows_by_code.setdefault(code, row)
-                if len(rows_by_code) >= max_results:
-                    break
-        return rows_by_code
-
-    def _looks_like_product_identity_query(self, query: str) -> bool:
-        tokens = [
-            token
-            for token in self._extract_query_tokens(query)
-            if token not in {"red", "white", "rose", "wine", "wines", "still", "sparkling", "quote", "stock"}
-        ]
-        alpha_tokens = [token for token in tokens if not token.isdigit()]
-        return len(tokens) >= 4 and len(alpha_tokens) >= 3
-
-    @staticmethod
-    def _quote_color_param_values(color: Optional[str]) -> List[str]:
-        normalized = normalize_quote_color(color)
-        if normalized == "red":
-            return ["Red", "red"]
-        if normalized == "white":
-            return ["White", "white", "While", "while"]
-        if normalized == "rose":
-            return ["Rose", "rose", "Pink", "pink"]
-        if normalized == "orange":
-            return ["Orange", "orange"]
-        return []
-
-    @staticmethod
-    def _quote_style_param_values(style: Optional[str]) -> List[str]:
-        normalized = normalize_quote_style(style)
-        if normalized == "sparkling":
-            return ["Sparkling", "sparkling", "Champagne", "champagne"]
-        if normalized == "still":
-            return ["Still", "still"]
-        return []
-
-    async def _collect_rows_by_quote_criteria(
-        self,
-        criteria: Dict[str, Any],
-        *,
-        max_results: int,
-        page_size: int,
-        max_pages: int,
-    ) -> Dict[str, Dict[str, Any]]:
-        alias_filters = criteria.get("alias_filters") if isinstance(criteria.get("alias_filters"), dict) else {}
-        producer = str(criteria.get("producer") or "").strip()
-        wine_name = str(criteria.get("wine_name") or "").strip()
-        region = str(criteria.get("region") or "").strip()
-        vintage = str(criteria.get("vintage") or "").strip()
-        color_values = self._quote_color_param_values(criteria.get("color"))
-        code = self._first_alias_term(alias_filters.get("invn002"))
-        barcode = self._first_alias_term(alias_filters.get("invn008"))
-
-        full_paramchar: Dict[str, List[str]] = {}
-        if producer:
-            full_paramchar["invn006"] = [producer]
-        if wine_name:
-            full_paramchar["invn005"] = [wine_name]
-        if vintage:
-            full_paramchar["invn051"] = [vintage]
-        if color_values:
-            full_paramchar["invn801"] = color_values
-        if code:
-            full_paramchar["invn002"] = [code]
-        if barcode:
-            full_paramchar["invn008"] = [barcode]
-
-        primary_payloads: List[Dict[str, List[str]]] = []
-        if full_paramchar:
-            primary_payloads.append(full_paramchar)
-        fallback_payloads: List[Dict[str, List[str]]] = []
-        for field in ("invn002", "invn008", "invn006", "invn005", "invn051", "invn801"):
-            values = full_paramchar.get(field)
-            if not values:
-                continue
-            fallback_payloads.append({field: list(values)})
-
-        seen = set()
-        rows_by_code: Dict[str, Dict[str, Any]] = {}
-        for payload_group in (primary_payloads, fallback_payloads if not rows_by_code else []):
-            for payload in payload_group:
-                marker = tuple(sorted((key, tuple(value)) for key, value in payload.items()))
-                if marker in seen:
-                    continue
-                seen.add(marker)
-                rows_by_code.update(
-                    await self._collect_rows_by_paramchar(
-                        payload,
-                        max_results=max_results,
-                        page_size=page_size,
-                        max_pages=max_pages,
-                    )
-                )
-                if rows_by_code:
-                    break
-                if len(rows_by_code) >= max_results:
-                    break
-            if rows_by_code:
-                break
-        return rows_by_code
-
-    @staticmethod
-    def _first_alias_term(value: Any) -> Optional[str]:
-        if isinstance(value, str):
-            term = value.strip()
-            return term or None
-        if isinstance(value, (list, tuple, set)):
-            for entry in value:
-                if isinstance(entry, str) and entry.strip():
-                    return entry.strip()
-        return None
-
-    async def _collect_rows_by_paramchar(
-        self,
-        paramchar: Dict[str, Any],
-        *,
-        max_results: int,
-        page_size: int,
-        max_pages: int,
-    ) -> Dict[str, Dict[str, Any]]:
-        if not paramchar:
-            return {}
-        perpage = max(min(page_size, max_results), 1)
-        page = 1
-        rows_by_code: Dict[str, Dict[str, Any]] = {}
-        while len(rows_by_code) < max_results and page <= max(1, max_pages):
-            products_response, info_response = await asyncio.gather(
-                self._client.export_products(
-                    custid=None,
-                    supplier=None,
-                    compid=None,
-                    exprange=0,
-                    paramchar1=paramchar,
-                    perpage=perpage,
-                    page=page,
-                ),
-                self._client.export_products_info(
-                    custid=None,
-                    supplier=None,
-                    compid=None,
-                    exprange=0,
-                    paramchar1=paramchar,
-                    perpage=perpage,
-                    page=page,
-                ),
-            )
-            merged_rows = await self.enrich_product_rows(
-                self._merge_rows(products_response, info_response),
-                include_product_fields=False,
-            )
-            if not merged_rows:
-                break
-            for row in merged_rows:
-                code = self._normalize_code(row.get("invn002"))
-                if not code:
-                    continue
-                rows_by_code[code] = row
-            if len(rows_by_code) >= max_results or len(merged_rows) < perpage:
-                break
-            page += 1
-        return rows_by_code
-
-    def _collect_export_quote_rows(
-        self,
-        criteria: Dict[str, Any],
-        query_variants: List[str],
-        *,
-        max_results: int,
-    ) -> List[Dict[str, Any]]:
-        rows_by_code: Dict[str, Dict[str, Any]] = {}
-        for variant in query_variants:
-            query = (variant or "").strip()
-            if not query:
-                continue
-            for row in search_export_rows(query, limit=max(max_results * 3, max_results)):
-                code = self._normalize_code(row.get("invn002"))
-                if code:
-                    rows_by_code[code] = row
-
-        producer = str(criteria.get("producer") or "").strip()
-        if producer:
-            for row in find_products_by_producer(producer):
-                code = self._normalize_code(row.get("invn002"))
-                if code:
-                    rows_by_code[code] = row
-
-        alias_filters = criteria.get("alias_filters") if isinstance(criteria.get("alias_filters"), dict) else {}
-        code_alias = self._first_alias_term(alias_filters.get("invn002"))
-        if code_alias:
-            row = find_export_row_by_code(code_alias)
-            code = self._normalize_code((row or {}).get("invn002"))
-            if row and code:
-                rows_by_code[code] = row
-        barcode_alias = self._first_alias_term(alias_filters.get("invn008"))
-        if barcode_alias:
-            row = find_export_row_by_barcode(barcode_alias)
-            code = self._normalize_code((row or {}).get("invn002"))
-            if row and code:
-                rows_by_code[code] = row
-
-        return list(rows_by_code.values())
 
     async def _collect_rows_by_keyword(
         self,
@@ -587,7 +176,7 @@ class CerpService:
         page = 1
         rows_by_code: Dict[str, Dict[str, Any]] = {}
         while len(rows_by_code) < max_results and page <= max(1, max_pages):
-            producer_paramchar = {"invn006": [keyword]}
+            brand_paramchar = {"invn006": [keyword]}
             name_paramchar = {"invn005": [keyword]}
             (
                 prod_products_response,
@@ -600,7 +189,7 @@ class CerpService:
                     supplier=None,
                     compid=None,
                     exprange=0,
-                    paramchar1=producer_paramchar,
+                    paramchar1=brand_paramchar,
                     perpage=perpage,
                     page=page,
                 ),
@@ -609,7 +198,7 @@ class CerpService:
                     supplier=None,
                     compid=None,
                     exprange=0,
-                    paramchar1=producer_paramchar,
+                    paramchar1=brand_paramchar,
                     perpage=perpage,
                     page=page,
                 ),
@@ -967,7 +556,7 @@ class CerpService:
         if not normalized:
             return False
         # Natural language list markers such as "1) 2) 3)" should not match CERP
-        # product codes, vintages, or prices.
+        # product codes, model numbers, or prices.
         if normalized.isdigit() and len(normalized) < 4:
             if value is not None and start is not None and end is not None:
                 previous_char = value[start - 1] if start > 0 else ""
@@ -989,16 +578,16 @@ class CerpService:
     def _score_keyword(self, row: Dict[str, Any], keyword: str) -> float:
         tokens = self._extract_query_tokens(keyword)
         fields = [
-            row.get("invn006"),  # producer
+            row.get("invn006"),  # brand
             row.get("invn005"),  # product name
             row.get("invn077"),  # alt name
             row.get("invn002"),  # code
             row.get("invn008"),  # barcode
-            row.get("invn030"),  # region
-            row.get("invn051"),  # vintage
+            row.get("invn030"),  # category/location
+            row.get("invn051"),  # specification
             row.get("invn801"),  # color
-            row.get("invn804"),  # rating/style
-            row.get("invn805"),  # style alt
+            row.get("invn804"),  # feature
+            row.get("invn805"),  # product type
         ]
         normalized_fields = [self._normalize_text(val) for val in fields if val]
         combined = "".join(normalized_fields)
@@ -1038,10 +627,11 @@ class CerpService:
         name_alt = row.get("invn077") or ""
         name_en = name_alt or name_primary
         name_ch = name_primary or name_alt
-        vintage = row.get("invn807") or row.get("invn051") or ""
-        alcohol = row.get("invn803") or ""
-        wine_type = row.get("invn805") or ""
-        wine_class = row.get("invn802") or ""
+        specification = row.get("invn807") or row.get("invn051") or ""
+        material = row.get("material") or row.get("invn803") or ""
+        product_type = row.get("type") or row.get("invn805") or ""
+        product_class = row.get("category") or row.get("invn802") or row.get("invn030") or ""
+        brand = row.get("brand") or row.get("invn006") or ""
 
         return {
             "id": code,
@@ -1049,14 +639,14 @@ class CerpService:
             "name_en": name_en,
             "name_ch": name_ch,
             "name": name_ch or name_en,
-            "vintage": vintage,
-            "producer": row.get("invn006") or "",
-            "brand": row.get("brand") or row.get("producer") or row.get("invn006") or "",
-            "supplier": row.get("supplier") or row.get("producer") or row.get("invn006") or "",
+            "specification": specification,
+            "brand": brand,
+            "supplier": row.get("supplier") or brand,
             "price": standard_price,
             "list_price": standard_price,
             "region": row.get("invn030") or "",
-            "category": row.get("category") or row.get("invn030") or "",
+            "category": product_class,
+            "photo_url": row.get("photo_url") or row.get("photo") or row.get("image_url") or "",
             "vip_price": vip_price,
             "fb_price": fb_price,
             "wholesale_price": wholesale_price,
@@ -1074,15 +664,11 @@ class CerpService:
             "wd4inv1as": raw_warehouses,
             "warehouses": warehouses,
             "color": row.get("invn801") or "",
-            "rating": row.get("invn804") or "",
-            "review_score": row.get("invn804") or "",
-            "alcohol": alcohol,
-            "wine_type": wine_type,
-            "type": row.get("type") or wine_type,
-            "material": row.get("material") or alcohol,
+            "feature": row.get("invn804") or "",
+            "type": product_type,
+            "material": material,
             "size": row.get("size") or row.get("invn806") or "",
-            "spec": row.get("spec") or row.get("spec1") or vintage,
-            "wine_class": wine_class,
+            "spec": row.get("spec") or row.get("spec1") or specification,
             "bundle": row.get("invn048") or "",
             "promo": row.get("invn048") or "",
             "capacity_ml": self._safe_float(row.get("invn806")),
@@ -1325,7 +911,7 @@ class CerpService:
                     merged_code = requested_code
         warehouses = warehouse_rows or merged_row.get("wd4inv1as") or []
         product = self.map_row_to_product(merged_row, warehouses)
-        if product:
+        if product and not product.get("photo_url"):
             photo_url = await lookup_product_photo(
                 merged_row.get("invn002") or "",
                 merged_row.get("invn008"),
@@ -1350,36 +936,35 @@ class CerpService:
             wholesale_price = cls._safe_float(row.get("invn080"))
         margin = cls._calculate_margin(standard_price, wholesale_price)
         margin_rate = cls._calculate_margin_rate(standard_price, wholesale_price)
-        rating = row.get("invn804") or ""
+        feature = row.get("invn804") or ""
         color = row.get("invn801") or ""
         bundle = row.get("invn048") or ""
-        wine_class = row.get("invn802") or ""
-        alcohol = row.get("invn803") or ""
-        wine_type = row.get("invn805") or ""
+        product_class = row.get("category") or row.get("invn802") or row.get("invn030") or ""
+        material = row.get("material") or row.get("invn803") or ""
+        product_type = row.get("type") or row.get("invn805") or ""
+        specification = row.get("invn807") or row.get("invn051") or ""
+        brand = row.get("brand") or row.get("invn006") or ""
         name_primary = row.get("invn005") or ""
         name_alt = row.get("invn077") or ""
         has_bundle = bool(str(bundle).strip())
         return {
             "no": row.get("invn002"),
             "barcode": row.get("invn008"),
-            "vintage": row.get("invn807") or row.get("invn051"),
-            "producer": row.get("invn006"),
-            "brand": row.get("brand") or row.get("producer") or row.get("invn006") or "",
-            "supplier": row.get("supplier") or row.get("producer") or row.get("invn006") or "",
+            "specification": specification,
+            "brand": brand,
+            "supplier": row.get("supplier") or brand,
             "name": name_primary or name_alt,
             "name_en": name_alt or name_primary,
             "name_ch": name_primary or name_alt,
             "region": row.get("invn030") or "",
-            "category": row.get("category") or row.get("invn030") or "",
+            "category": product_class,
+            "photo_url": row.get("photo_url") or row.get("photo") or row.get("image_url") or "",
             "color": color,
-            "rating": rating,
-            "wine_class": wine_class,
-            "alcohol": alcohol,
-            "wine_type": wine_type,
-            "type": row.get("type") or wine_type,
-            "material": row.get("material") or alcohol,
+            "feature": feature,
+            "type": product_type,
+            "material": material,
             "size": row.get("size") or row.get("invn806") or "",
-            "spec": row.get("spec") or row.get("spec1") or row.get("invn051") or "",
+            "spec": row.get("spec") or row.get("spec1") or specification,
             "stock": stock,
             "stock_qty": stock,
             "total_stock": stock,
@@ -1402,14 +987,13 @@ class CerpService:
             "promo": bundle,
             "gift": has_bundle,
             "capacity_ml": cls._safe_float(row.get("invn806")),
-            "review_score": rating,
             "photo_placeholder": "Photo placeholder (attach later)",
         }
 
     async def fetch_top_stock_products(
         self,
         limit: int = 10,
-        producer: Optional[str] = None,
+        brand: Optional[str] = None,
         allow_zero_stock: bool = False,
         raise_on_error: bool = False,
     ) -> List[Dict[str, Any]]:
@@ -1426,7 +1010,7 @@ class CerpService:
                 compid=None,
                 exprange=0,
                 perpage=perpage,
-                paramchar1={"invn006": [producer]} if producer else None,
+                paramchar1={"invn006": [brand]} if brand else None,
             )
             info_data = info_response.get("data") or {}
             rows = info_data.get("wd4invnas") or []
@@ -1443,7 +1027,7 @@ class CerpService:
                     compid=None,
                     exprange=0,
                     perpage=perpage,
-                    paramchar1={"invn006": [producer]} if producer else None,
+                    paramchar1={"invn006": [brand]} if brand else None,
                 )
                 info_data = info_response.get("data") or {}
                 rows = info_data.get("wd4invnas") or []
@@ -1460,7 +1044,7 @@ class CerpService:
                     compid=None,
                     exprange=0,
                     perpage=perpage,
-                    paramchar1={"invn006": [producer]} if producer else None,
+                    paramchar1={"invn006": [brand]} if brand else None,
                 )
                 product_data = product_response.get("data") or {}
                 rows = product_data.get("wd4invnas") or []
@@ -1475,7 +1059,7 @@ class CerpService:
                     compid=None,
                     exprange=0,
                     perpage=perpage,
-                    paramchar1={"invn006": [producer]} if producer else None,
+                    paramchar1={"invn006": [brand]} if brand else None,
                 )
                 product_data = product_response.get("data") or {}
                 rows = product_data.get("wd4invnas") or []
@@ -1512,70 +1096,6 @@ class CerpService:
                     if code:
                         seen_codes.add(code)
         return products
-
-    async def fetch_products_by_producer(
-        self,
-        producer: str,
-        *,
-        require_stock: bool = True,
-        limit: int = 5,
-    ) -> List[Dict[str, Any]]:
-        """
-        Fetch products filtered by producer; optionally require stock > 0.
-        Includes fallback to local export rows.
-        """
-        def _producer_match(row_producer: Any) -> bool:
-            if not producer:
-                return True
-            if not row_producer:
-                return False
-            row_p = str(row_producer).strip()
-            target = producer.strip()
-            if not row_p or not target:
-                return False
-            if row_p.lower() == target.lower():
-                return True
-            norm = lambda s: re.sub(r"[^a-z0-9]", "", s.lower())
-            rp_norm = norm(row_p)
-            tgt_norm = norm(target)
-            if rp_norm and tgt_norm and (rp_norm in tgt_norm or tgt_norm in rp_norm):
-                return True
-            return False
-
-        results: List[Dict[str, Any]] = []
-        try:
-            response = await self._client.export_products_info(
-                custid=None,
-                supplier=None,
-                compid=None,
-                exprange=0,
-                paramchar1={"invn006": [producer]},
-                perpage=max(limit * 2, 10),
-            )
-            data = response.get("data") or {}
-            rows = data.get("wd4invnas") or []
-            rows = await self.enrich_product_rows(rows)
-            for row in rows:
-                mapped = self.map_row_to_product(row, row.get("wd4inv1as") or [])
-                if mapped and require_stock and (mapped.get("stock") or 0) <= 0:
-                    continue
-                if mapped and _producer_match(mapped.get("producer") or row.get("invn006")):
-                    results.append(mapped)
-        except CERPClientError:
-            results = []
-
-        if not results:
-            local_rows = find_products_by_producer(producer)
-            for row in local_rows:
-                mapped = self.map_row_to_product(row, row.get("wd4inv1as") or [])
-                if mapped:
-                    if require_stock and (mapped.get("stock") or 0) <= 0:
-                        continue
-                    if not _producer_match(mapped.get("producer") or row.get("invn006")):
-                        continue
-                    results.append(mapped)
-
-        return results[:limit]
 
     @staticmethod
     def _stock_value(row: Dict[str, Any]) -> float:
@@ -1621,21 +1141,21 @@ class CerpService:
         segments = []
         code = product.get("no")
         name = product.get("name")
-        producer = product.get("producer")
-        vintage = product.get("vintage")
+        brand = product.get("brand")
+        specification = product.get("specification") or product.get("spec")
         if code and name:
             segments.append(f"{code} - {name}")
         elif name:
             segments.append(name)
         elif code:
             segments.append(code)
-        if producer:
-            segments.append(f"Brand: {producer}")
-        if vintage:
-            segments.append(f"Version: {vintage}")
-        rating = product.get("rating")
-        if rating:
-            segments.append(f"Rating: {rating}")
+        if brand:
+            segments.append(f"Brand: {brand}")
+        if specification:
+            segments.append(f"Specification: {specification}")
+        feature = product.get("feature")
+        if feature:
+            segments.append(f"Feature: {feature}")
         color = product.get("color")
         if color:
             segments.append(f"Color: {color}")

@@ -24,9 +24,9 @@ class ConfigBootstrapTests(unittest.TestCase):
             env_path = Path(tmpdir) / "test.env"
             env_path.write_text("APP_HOST=127.0.0.1\nUPLOAD_STORAGE_PATH=tmp-storage\n", encoding="utf-8")
             with mock.patch.dict(os.environ, {}, clear=False):
-                for key in ["APP_HOST", "UPLOAD_STORAGE_PATH", "DOMAINAI_ENV_FILE", "PYTHON_DOTENV_DISABLED"]:
+                for key in ["APP_HOST", "UPLOAD_STORAGE_PATH", "YS_ENV_FILE", "PYTHON_DOTENV_DISABLED"]:
                     os.environ.pop(key, None)
-                os.environ["DOMAINAI_ENV_FILE"] = str(env_path)
+                os.environ["YS_ENV_FILE"] = str(env_path)
                 module = _execute_config_module()
         self.assertEqual(module["APP_HOST"], "127.0.0.1")
         self.assertEqual(module["UPLOAD_STORAGE_PATH"], "tmp-storage")
@@ -36,9 +36,9 @@ class ConfigBootstrapTests(unittest.TestCase):
             env_path = Path(tmpdir) / "test.env"
             env_path.write_text("APP_HOST=127.0.0.1\n", encoding="utf-8")
             with mock.patch.dict(os.environ, {}, clear=False):
-                for key in ["APP_HOST", "DOMAINAI_ENV_FILE", "PYTHON_DOTENV_DISABLED"]:
+                for key in ["APP_HOST", "YS_ENV_FILE", "PYTHON_DOTENV_DISABLED"]:
                     os.environ.pop(key, None)
-                os.environ["DOMAINAI_ENV_FILE"] = str(env_path)
+                os.environ["YS_ENV_FILE"] = str(env_path)
                 os.environ["PYTHON_DOTENV_DISABLED"] = "1"
                 module = _execute_config_module()
         self.assertEqual(module["APP_HOST"], "0.0.0.0")
@@ -48,9 +48,9 @@ class ConfigBootstrapTests(unittest.TestCase):
             env_path = Path(tmpdir) / "cp950.env"
             env_path.write_bytes("APP_HOST=127.0.0.1\nNOTE=測試\n".encode("cp950"))
             with mock.patch.dict(os.environ, {}, clear=False):
-                for key in ["APP_HOST", "NOTE", "DOMAINAI_ENV_FILE", "PYTHON_DOTENV_DISABLED"]:
+                for key in ["APP_HOST", "NOTE", "YS_ENV_FILE", "PYTHON_DOTENV_DISABLED"]:
                     os.environ.pop(key, None)
-                os.environ["DOMAINAI_ENV_FILE"] = str(env_path)
+                os.environ["YS_ENV_FILE"] = str(env_path)
                 module = _execute_config_module()
                 note = os.getenv("NOTE")
         self.assertEqual(module["APP_HOST"], "127.0.0.1")

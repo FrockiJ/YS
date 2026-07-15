@@ -8,16 +8,16 @@ router = APIRouter()
 
 @router.get('/search')
 async def search(q: Optional[str] = None,
-                 region: Optional[str] = None,
-                 village: Optional[str] = None,
-                 vineyard: Optional[str] = None,
+                 category: Optional[str] = None,
+                 brand: Optional[str] = None,
+                 location: Optional[str] = None,
                  k: int = 5):
     conn = await db.get_conn()
     try:
         hits = []
         # structured first (if filters provided)
-        if region or village or vineyard:
-            filters = {'region': region, 'village': village, 'vineyard': vineyard}
+        if category or brand or location:
+            filters = {'category': category, 'brand': brand, 'location': location}
             hits = await structured_search(conn, filters, k=k)
 
         # then vector

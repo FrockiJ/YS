@@ -11,7 +11,7 @@ class OfficialProductProfile(Base):
     id = Column(Integer, primary_key=True, index=True)
     product_handle = Column(Text, nullable=False, unique=True, index=True)
     product_title = Column(Text, nullable=False)
-    producer = Column(Text, nullable=True, index=True)
+    brand = Column(Text, nullable=True, index=True)
     product_type = Column(Text, nullable=True)
     official_url = Column(Text, nullable=False)
     product_json_hash = Column(Text, nullable=True)

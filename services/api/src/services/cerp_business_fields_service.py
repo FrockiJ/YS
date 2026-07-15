@@ -18,7 +18,6 @@ FIELD_PATTERNS: Dict[str, re.Pattern[str]] = {
     "depletion": re.compile(r"\bdepletion\b|去化", re.IGNORECASE),
     "allocation": re.compile(r"\ballocation\b|配額", re.IGNORECASE),
     "order_history": re.compile(r"\b(?:order history|purchase history|reorder|next order)\b|訂貨|補貨|下次訂貨", re.IGNORECASE),
-    "review_score": re.compile(r"\b(?:review score|rating|score|points?)\b|評分|分數", re.IGNORECASE),
 }
 
 CERP_SIGNAL_RE = re.compile(
@@ -35,12 +34,11 @@ FIELD_LABELS = {
     "depletion": "Depletion",
     "allocation": "Allocation",
     "order_history": "Order history",
-    "review_score": "Review score",
 }
 
 QUERY_STOP_RE = re.compile(
     r"\b(?:show|give|list|tell|me|all|for|from|of|the|and|with|cerp|data|field|fields|cost|margin|gross|landed|"
-    r"supplier|payment|terms|sales|velocity|depletion|allocation|order|history|reorder|next|review|score|rating|points?)\b",
+    r"supplier|payment|terms|sales|velocity|depletion|allocation|order|history|reorder|next)\b",
     re.IGNORECASE,
 )
 
@@ -65,8 +63,6 @@ class CerpBusinessFieldsService:
     def should_handle(cls, query: str) -> bool:
         fields = cls.requested_fields(query)
         if not fields:
-            return False
-        if set(fields).issubset({"review_score"}) and not CERP_SIGNAL_RE.search(query or ""):
             return False
         return True
 
@@ -237,8 +233,8 @@ class CerpBusinessFieldsService:
                     "code": code,
                     "no": code,
                     "name": product.get("name") or product.get("name_en") or product.get("name_ch") or "",
-                    "producer": product.get("producer") or "",
-                    "vintage": product.get("vintage"),
+                    "brand": product.get("brand") or "",
+                    "specification": product.get("specification") or product.get("spec"),
                     "stock": product.get("stock") or product.get("stock_qty") or product.get("total_stock"),
                     "price": product.get("price") or product.get("list_price"),
                     "list_price": product.get("list_price") or product.get("price"),
@@ -263,8 +259,6 @@ class CerpBusinessFieldsService:
             return product.get("margin")
         if field == "margin_rate":
             return product.get("margin_rate")
-        if field == "review_score":
-            return product.get("review_score") or product.get("rating")
         return product.get(field)
 
     @staticmethod
@@ -319,8 +313,8 @@ class CerpBusinessFieldsService:
                 for field, value in fields.items()
             )
             name = item.get("name") or item.get("code") or ""
-            producer = item.get("producer") or ""
-            lines.append(f"{index}. {producer} {name} ({item.get('code')}) - {field_text}".strip())
+            brand = item.get("brand") or ""
+            lines.append(f"{index}. {brand} {name} ({item.get('code')}) - {field_text}".strip())
         if missing_fields:
             lines.append(t("cerp.business.missing_fields", language, fields=", ".join(FIELD_LABELS.get(field, field) for field in missing_fields)))
         return "\n".join(lines)
@@ -336,7 +330,7 @@ class CerpBusinessFieldsService:
     ) -> str:
         requested = ", ".join(FIELD_LABELS.get(field, field) for field in requested_fields)
         missing = ", ".join(FIELD_LABELS.get(field, field) for field in (missing_fields or requested_fields))
-        subject = product_query or "[producer]"
+        subject = product_query or "[brand]"
         return "\n".join(
             [
                 t("chat_templates.sections.verified", language),

@@ -4,12 +4,12 @@ from sqlalchemy.sql import func
 from ..core.models import Base
 
 
-class ProducerSourceDomain(Base):
-    __tablename__ = "producer_source_domains"
+class BrandSourceDomain(Base):
+    __tablename__ = "brand_source_domains"
 
     id = Column(Integer, primary_key=True, index=True)
-    producer_name_raw = Column(Text, nullable=False)
-    producer_name_normalized = Column(Text, nullable=False, index=True)
+    brand_name_raw = Column(Text, nullable=False)
+    brand_name_normalized = Column(Text, nullable=False, index=True)
     source_kind = Column(Text, nullable=False)
     domain = Column(Text, nullable=True, index=True)
     source_tier = Column(Text, nullable=False)

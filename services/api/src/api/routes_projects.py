@@ -36,7 +36,6 @@ class CustomerProfilePayload(BaseModel):
     avg_unit_price: Optional[int] = None
     preference_note: Optional[str] = None
     region: Optional[str] = None
-    has_wine_cabinet: Optional[bool] = None
 
 
 class ProjectCreatePayload(BaseModel):
@@ -156,7 +155,6 @@ async def post_project(
                 "avg_unit_price": project.avg_unit_price,
                 "preference_note": project.preference_note,
                 "region": project.region,
-                "has_wine_cabinet": project.has_wine_cabinet,
             },
         },
     }
@@ -195,7 +193,6 @@ async def patch_project(
                 "avg_unit_price": updated.avg_unit_price,
                 "preference_note": updated.preference_note,
                 "region": updated.region,
-                "has_wine_cabinet": updated.has_wine_cabinet,
             },
         },
     }

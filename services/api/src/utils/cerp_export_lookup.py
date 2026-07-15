@@ -44,7 +44,7 @@ _SEARCH_FIELDS = (
     "invn805",
 )
 _QUERY_NOISE_RE = re.compile(
-    r"\b(?:quote|quotation|stock|inventory|list|wine|wines)\b|\u9152\u6b3e|\u5831\u50f9|\u6e05\u55ae|\u63a8\u85a6|\u627e|\u67e5\u8a62",
+    r"\b(?:quote|quotation|stock|inventory|list|product|products)\b|\u5831\u50f9|\u6e05\u55ae|\u63a8\u85a6|\u627e|\u67e5\u8a62",
     re.IGNORECASE,
 )
 
@@ -127,11 +127,11 @@ def _build_barcode_index() -> Dict[str, Dict[str, Any]]:
 
 
 @lru_cache(maxsize=1)
-def _build_producer_index() -> Dict[str, List[Dict[str, Any]]]:
+def _build_brand_index() -> Dict[str, List[Dict[str, Any]]]:
     index: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     for row in _load_export_rows():
-        producer = row.get("invn006")
-        normalized = _normalize_label(producer)
+        brand = row.get("invn006")
+        normalized = _normalize_label(brand)
         if normalized:
             index[normalized].append(row)
     return index
@@ -190,17 +190,17 @@ def find_best_matching_product(name: str) -> Optional[Dict[str, Any]]:
     return None
 
 
-def find_best_matching_producer(name: str) -> Optional[str]:
+def find_best_matching_brand(name: str) -> Optional[str]:
     """
-    Return the closest producer name (invn006) using normalized token overlap.
+    Return the closest brand name (invn006) using normalized token overlap.
     """
     normalized_query = _normalize_label(name)
     if not normalized_query:
         return None
 
-    producer_index = _build_producer_index()
-    if normalized_query in producer_index:
-        first = producer_index[normalized_query][0]
+    brand_index = _build_brand_index()
+    if normalized_query in brand_index:
+        first = brand_index[normalized_query][0]
         return (first.get("invn006") or "").strip() or None
 
     query_tokens = set(normalized_query.split())
@@ -209,7 +209,7 @@ def find_best_matching_producer(name: str) -> Optional[str]:
 
     best_name: Optional[str] = None
     best_score = 0.0
-    for raw_name, rows in producer_index.items():
+    for raw_name, rows in brand_index.items():
         if not raw_name:
             continue
         tokens = set(raw_name.split())
@@ -228,35 +228,35 @@ def find_best_matching_producer(name: str) -> Optional[str]:
     return best_name
 
 
-def find_products_by_producer(name: str) -> List[Dict[str, Any]]:
+def find_products_by_brand(name: str) -> List[Dict[str, Any]]:
     """
-    Return all export rows whose producer matches (normalized) the provided name.
+    Return all export rows whose brand matches (normalized) the provided name.
     """
     normalized_query = _normalize_label(name)
     if not normalized_query:
         return []
-    producer_index = _build_producer_index()
-    exact = producer_index.get(normalized_query)
+    brand_index = _build_brand_index()
+    exact = brand_index.get(normalized_query)
     if exact:
         return exact
-    best_name = find_best_matching_producer(name)
+    best_name = find_best_matching_brand(name)
     if not best_name:
         return []
     normalized_best = _normalize_label(best_name)
-    return producer_index.get(normalized_best, [])
+    return brand_index.get(normalized_best, [])
 
 
-def list_export_producers() -> List[str]:
-    producers: List[str] = []
+def list_export_brands() -> List[str]:
+    brands: List[str] = []
     seen: set[str] = set()
     for row in _load_export_rows():
-        producer = str(row.get("invn006") or "").strip()
-        normalized = _normalize_label(producer)
-        if not producer or not normalized or normalized in seen:
+        brand = str(row.get("invn006") or "").strip()
+        normalized = _normalize_label(brand)
+        if not brand or not normalized or normalized in seen:
             continue
         seen.add(normalized)
-        producers.append(producer)
-    return producers
+        brands.append(brand)
+    return brands
 
 
 def search_export_rows(query: str, limit: int = 20) -> List[Dict[str, Any]]:

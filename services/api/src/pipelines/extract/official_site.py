@@ -143,8 +143,8 @@ def normalize_tags(tags: Any) -> List[str]:
     return results
 
 
-def producer_from_payload(payload: Dict[str, Any]) -> str:
-    for key in ("vendor", "brand", "producer"):
+def brand_from_payload(payload: Dict[str, Any]) -> str:
+    for key in ("vendor", "brand"):
         value = str(payload.get(key) or "").strip()
         if value:
             return value
@@ -224,7 +224,7 @@ def build_profile_from_product_page(
     profile = {
         "product_handle": handle,
         "product_title": str(payload.get("title") or handle).strip(),
-        "producer": producer_from_payload(payload),
+        "brand": brand_from_payload(payload),
         "product_type": str(payload.get("type") or "").strip() or None,
         "official_url": normalized_url,
         "product_json_hash": payload_hash,
@@ -251,14 +251,14 @@ def build_profile_chunks(profile: Dict[str, Any]) -> List[Dict[str, Any]]:
         "source_kind": "product_json",
         "official_url": profile.get("official_url"),
         "product_handle": profile.get("product_handle"),
-        "producer": profile.get("producer"),
+        "brand": profile.get("brand"),
         "availability": profile.get("availability"),
     }
     chunks: List[Dict[str, Any]] = []
 
     identity_lines = [
         f"Official product: {profile.get('product_title')}",
-        f"Producer: {profile.get('producer')}" if profile.get("producer") else "",
+        f"Brand: {profile.get('brand')}" if profile.get("brand") else "",
         f"Handle: {profile.get('product_handle')}",
         f"Official URL: {profile.get('official_url')}",
         f"Product Type: {profile.get('product_type')}" if profile.get("product_type") else "",
@@ -333,4 +333,3 @@ def parse_q_param(url_or_path: str) -> str:
     if not match:
         return ""
     return unescape(match.group(1).replace("+", " ")).strip()
-

@@ -26,7 +26,7 @@ def test_normalize_lang_supports_japanese_aliases():
 
 
 def test_backend_chat_locale_files_are_valid_for_answer_templates():
-    assert "smart inventory" in t("cerp.recommendation.no_results", "en", query="stock").lower()
-    assert "Smart inventory" in t("cerp.recommendation.no_results", "zh-Hant", query="庫存")
-    assert "Smart inventory" in t("cerp.recommendation.no_results", "ja", query="在庫")
+    assert "product inventory" in t("cerp.recommendation.no_results", "en", query="stock").lower()
+    assert "商品庫存" in t("cerp.recommendation.no_results", "zh-Hant", query="庫存")
+    assert "商品在庫" in t("cerp.recommendation.no_results", "ja", query="在庫")
     assert "同じ言語" in t("compose.long_prompt", "ja", context="ctx", query="q", weight=0.0)

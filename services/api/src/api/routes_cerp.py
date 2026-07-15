@@ -32,7 +32,7 @@ class ProductExportRequest(CERPRequestBase):
     paramchar1: ParamCharType = None
     invn002b: Optional[str] = None
     invn002e: Optional[str] = None
-    producer: Optional[str] = None
+    brand: Optional[str] = None
     name: Optional[str] = None
     stock_min: Optional[float] = None
     stock_max: Optional[float] = None
@@ -52,7 +52,7 @@ class ProductInfoRequest(CERPRequestBase):
     invn030e: Optional[str] = None
     invn008b: Optional[str] = None
     invn008e: Optional[str] = None
-    producer: Optional[str] = None
+    brand: Optional[str] = None
     name: Optional[str] = None
     stock_min: Optional[float] = None
     stock_max: Optional[float] = None
@@ -114,29 +114,29 @@ def _default_cerp_schema() -> Dict[str, Any]:
         "columns": [
             {"key": "no", "label": "Code", "source_keys": ["no", "code", "id", "invn002"], "type": "text", "width": 110, "default_visible": True, "required": True},
             {"key": "product", "label": "Product", "source_keys": ["product", "product_name", "name", "name_en", "name_ch", "invn077", "invn005", "title"], "type": "text", "width": 220, "default_visible": True, "required": True},
-            {"key": "spec", "label": "Spec / Model", "source_keys": ["spec", "spec1", "model", "model_name", "invn051", "invn807"], "type": "text", "width": 130, "default_visible": True},
             {"key": "stock", "label": "Stock", "source_keys": ["stock", "stock_qty", "total_stock", "invn045"], "type": "number", "width": 80, "default_visible": True, "filter": "stock_status", "sort": True},
             {"key": "price", "label": "Price", "source_keys": ["list_price", "price", "amount", "invn013"], "type": "currency", "width": 110, "default_visible": True, "filter": "range", "sort": True},
             {"key": "vip", "label": "VIP Price", "source_keys": ["quote_price", "vip_price", "display_quote_price", "vip", "invn015", "amount", "invn013"], "type": "currency", "width": 110, "default_visible": True, "price_tier": "vip"},
-            {"key": "producer", "label": "Brand / Supplier", "source_keys": ["producer", "brand", "supplier", "invn006"], "type": "text", "width": 130, "default_visible": False, "filter": "option"},
-            {"key": "vintage", "label": "Model Year", "source_keys": ["model_year", "vintage", "invn807", "invn051"], "type": "text", "width": 100, "default_visible": False, "filter": "option"},
+            {"key": "brand", "label": "Brand", "source_keys": ["brand", "supplier", "invn006"], "type": "text", "width": 130, "default_visible": False, "filter": "option"},
+            {"key": "specification", "label": "Spec / Model", "source_keys": ["specification", "spec", "spec1", "model", "model_name", "model_year", "invn807", "invn051", "size"], "type": "text", "width": 130, "default_visible": True, "filter": "option", "sort": True},
             {"key": "color", "label": "Color", "source_keys": ["color", "invn801"], "type": "text", "width": 90, "default_visible": False, "filter": "option"},
             {"key": "rating", "label": "Rating", "source_keys": ["rating", "invn804"], "type": "text", "width": 100, "default_visible": False, "filter": "range"},
             {"key": "bundle", "label": "Bundle", "source_keys": ["bundle", "promo", "invn048"], "type": "text", "width": 90, "default_visible": False},
         ],
-        "default_visible_columns": ["no", "product", "spec", "stock", "price", "vip"],
+        "default_visible_columns": ["no", "product", "specification", "stock", "price", "vip"],
         "filters": [
             {"id": "keyword", "field": "product", "type": "search", "label": "Keyword"},
             {"id": "stock", "field": "stock", "type": "stock_status", "label": "Stock"},
             {"id": "price", "field": "price", "type": "range", "label": "Price"},
-            {"id": "spec", "field": "spec", "type": "option", "label": "Spec / Model"},
-            {"id": "producer", "field": "producer", "type": "option", "label": "Brand / Supplier", "optional": True},
+            {"id": "specification", "field": "specification", "type": "option", "label": "Spec / Model"},
+            {"id": "brand", "field": "brand", "type": "option", "label": "Brand", "optional": True},
         ],
-        "sort_fields": ["product", "spec", "stock", "price"],
+        "sort_fields": ["product", "specification", "stock", "price"],
         "price_tiers": price_tiers,
         "legacy_mappings": {
-            "producer": "brand_or_supplier",
-            "vintage": "model_year_or_spec",
+            "brand": "brand_or_supplier",
+            "spec": "specification",
+            "specification": "model_or_spec",
             "invn002": "code",
             "invn005": "name",
             "invn051": "spec",
@@ -240,9 +240,9 @@ def _normalize_paramchar_lists(raw: Optional[Dict[str, Any]]) -> Dict[str, list]
 
 def _merge_paramchar_with_search_terms(payload: Union["ProductExportRequest", "ProductInfoRequest"], base: Optional[Dict[str, Any]]) -> Dict[str, Any]:
     paramchar = _normalize_paramchar_lists(base)
-    producer = getattr(payload, "producer", None)
-    if isinstance(producer, str) and producer.strip():
-        paramchar.setdefault("invn006", []).append(producer.strip())
+    brand = getattr(payload, "brand", None)
+    if isinstance(brand, str) and brand.strip():
+        paramchar.setdefault("invn006", []).append(brand.strip())
     name = getattr(payload, "name", None)
     if isinstance(name, str) and name.strip():
         paramchar.setdefault("invn005", []).append(name.strip())
@@ -251,12 +251,12 @@ def _merge_paramchar_with_search_terms(payload: Union["ProductExportRequest", "P
 
 def _should_widen_exprange(payload: Union["ProductExportRequest", "ProductInfoRequest"]) -> bool:
     """
-    When using producer/name/stock/price filters, we want CERP to allow a broader search (exprange=0)
+    When using brand/name/stock/price filters, we want CERP to allow a broader search (exprange=0)
     instead of forcing an exact single-row match (exprange=2).
     """
     return any(
         getattr(payload, field, None) not in (None, "", [], {})
-        for field in ("producer", "name", "stock_min", "stock_max", "price_min", "price_max")
+        for field in ("brand", "name", "stock_min", "stock_max", "price_min", "price_max")
     )
 
 
@@ -408,7 +408,7 @@ async def export_products(payload: ProductExportRequest) -> Dict[str, Any]:
     if not effective_paramchar and requested_code:
         effective_paramchar = {"invn002": [requested_code]}
 
-    # CERP 端要求 exprange=2 才會按照 paramchar 精準回傳單筆；若使用 producer/name/範圍查詢則放寬為 0。
+    # CERP 端要求 exprange=2 才會按照 paramchar 精準回傳單筆；若使用 brand/name/範圍查詢則放寬為 0。
     effective_exprange = (
         payload.exprange
         if payload.exprange is not None
@@ -512,7 +512,7 @@ async def export_products_info(payload: ProductInfoRequest) -> Dict[str, Any]:
     if not effective_paramchar and requested_code:
         effective_paramchar = {"invn002": [requested_code]}
 
-    # CERP 端要求 exprange=2 才會按照 paramchar 精準回傳單筆；若使用 producer/name/範圍查詢則放寬為 0。
+    # CERP 端要求 exprange=2 才會按照 paramchar 精準回傳單筆；若使用 brand/name/範圍查詢則放寬為 0。
     effective_exprange = (
         payload.exprange
         if payload.exprange is not None
