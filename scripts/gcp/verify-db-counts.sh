@@ -14,7 +14,7 @@ container_id="$("${compose[@]}" ps -q postgres)"
 failed=0
 while IFS=$'\t' read -r table expected; do
   [[ "$table" =~ ^[a-z_][a-z0-9_]*$ ]] || { echo "Unsafe table name in manifest: $table" >&2; exit 1; }
-  actual="$("${compose[@]}" exec -T postgres sh -lc "psql -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DB\" -Atqc 'SELECT count(*) FROM public.${table};'")"
+  actual="$("${compose[@]}" exec -T postgres sh -lc "psql -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DB\" -Atqc 'SELECT count(*) FROM public.${table};'" </dev/null)"
   if [[ "$actual" != "$expected" ]]; then
     echo "Count mismatch for ${table}: expected=${expected}, actual=${actual}" >&2
     failed=1

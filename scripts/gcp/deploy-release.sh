@@ -71,9 +71,12 @@ import urllib.parse
 
 environment = os.environ.copy()
 password = urllib.parse.quote(environment["POSTGRES_PASSWORD"], safe="")
-environment["ALEMBIC_DATABASE_URL"] = (
-    f"postgresql+psycopg2://{environment[\"POSTGRES_USER\"]}:{password}"
-    f"@{environment[\"POSTGRES_HOST\"]}:{environment[\"POSTGRES_PORT\"]}/{environment[\"POSTGRES_DB\"]}"
+environment["ALEMBIC_DATABASE_URL"] = "postgresql+psycopg2://{}:{}@{}:{}/{}".format(
+    environment["POSTGRES_USER"],
+    password,
+    environment["POSTGRES_HOST"],
+    environment["POSTGRES_PORT"],
+    environment["POSTGRES_DB"],
 )
 subprocess.run(["alembic", "upgrade", "head"], env=environment, check=True)
 '
