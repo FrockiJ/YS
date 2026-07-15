@@ -100,7 +100,7 @@ def file_sha256(path: Path) -> str:
 
 def source_env_with_gcp_overrides(source: Path, destination: Path) -> None:
     values: list[str] = []
-    for line in source.read_text(encoding="utf-8").splitlines():
+    for line in source.read_text(encoding="utf-8-sig").splitlines():
         if line.strip().startswith(("YS_VUE_DIR=", "YS_BACKEND_ENV_FILE=", "YS_GCP_")):
             continue
         values.append(line)
