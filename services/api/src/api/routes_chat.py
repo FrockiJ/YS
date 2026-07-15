@@ -61,6 +61,7 @@ from ..services.ai.orchestrator import ChatOrchestrator
 from ..services.ai.retrieval import RetrievalService
 from ..services.ai.product_need_extractor import ProductNeedExtractor, ProductNeedResult, NEED_PROFILE_VERSION
 from ..services.ai.product_bridge import ProductBridgeService
+from ..services.ai.product_fact_lookup import ProductFactLookupService
 from ..services.ai.product_intent_analysis import ProductIntentAnalysisService, merge_need_profile_patch
 from ..services.ai.trip_plan import TripPlanService
 from ..services.project_service import can_read_conversation, can_write_conversation
@@ -74,6 +75,7 @@ chat_orchestrator = ChatOrchestrator(retrieval_service=retrieval_service)
 analysis_service = AnalysisService()
 product_need_extractor = ProductNeedExtractor()
 product_bridge_service = ProductBridgeService()
+product_fact_lookup_service = ProductFactLookupService()
 product_intent_analysis_service = ProductIntentAnalysisService()
 trip_plan_service = TripPlanService()
 chat_domain_hooks = get_chat_domain_hooks()
@@ -493,10 +495,12 @@ def _requires_external_verification(
         return True
     if task_type in {"destination_recommendation", "destination_filter"}:
         return True
+    if task_type in {"erp_lookup", "product_recommendation"}:
+        return False
     return bool(
         re.search(
-            r"(?:最新|目前|現在|即時|今天|本週|本月|查證|核實|官方|規範|法規|公告|警報|天氣|氣象|路況|封閉|開放|安全|風險)|"
-            r"\b(?:latest|current|today|real[- ]?time|verify|fact[- ]?check|official|closed|closure|regulation|permit|warning|forecast|weather|safety)\b",
+            r"(?:最新|即時|今天|本週|本月|查證|核實|官方(?:公告|規範|資料)|規範|法規|公告|警報|天氣|氣象|路況|封閉|開放狀態|安全警報|風險警報)|"
+            r"\b(?:latest|today|real[- ]?time|verify|fact[- ]?check|official (?:notice|rule|data)|closed|closure|regulation|permit|warning|forecast|weather|road conditions?)\b",
             str(text or ""),
             re.IGNORECASE,
         )
@@ -1895,22 +1899,30 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
             domain_cerp_enabled
             and product_need_result.explicit_product_intent
         ):
-            try:
-                recommendation = await product_bridge_service.recommend(
-                    product_need_result.profile,
-                    language=resolved_lang,
+            is_product_fact_lookup = product_intent_decision.task_type == "erp_lookup"
+            if is_product_fact_lookup:
+                recommendation = await product_fact_lookup_service.lookup(
+                    product_intent_decision.lookup_operation or "product_lookup",
+                    product_intent_decision.lookup_query or text,
+                    resolved_lang,
                 )
-            except CERPClientError:
-                recommendation = {
-                    "product_results": [],
-                    "source_timestamp": datetime.now(timezone.utc).isoformat(),
-                    "professional_guidance": ProductBridgeService.professional_guidance(
+            else:
+                try:
+                    recommendation = await product_bridge_service.recommend(
                         product_need_result.profile,
-                        resolved_lang,
-                    ),
-                    "text": ProductBridgeService._answer_text(False, resolved_lang),
-                    "erp_status": "error",
-                }
+                        language=resolved_lang,
+                    )
+                except CERPClientError:
+                    recommendation = {
+                        "product_results": [],
+                        "source_timestamp": datetime.now(timezone.utc).isoformat(),
+                        "professional_guidance": ProductBridgeService.professional_guidance(
+                            product_need_result.profile,
+                            resolved_lang,
+                        ),
+                        "text": ProductBridgeService._answer_text(False, resolved_lang),
+                        "erp_status": "error",
+                    }
             project_id = project_context.get("id") if project_context else None
             project_label = project_context.get("label") if project_context else None
             conv_uuid = uuid.UUID(str(knowledge_conversation_id)) if knowledge_conversation_id else None
@@ -1923,14 +1935,17 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
                 project_label=project_label,
             )
             product_results = list(recommendation.get("product_results") or [])
-            answer_text = "\n\n".join(
-                part
-                for part in (
-                    str(recommendation.get("professional_guidance") or "").strip(),
-                    str(recommendation.get("text") or "").strip(),
+            if is_product_fact_lookup:
+                answer_text = str(recommendation.get("text") or "").strip()
+            else:
+                answer_text = "\n\n".join(
+                    part
+                    for part in (
+                        str(recommendation.get("professional_guidance") or "").strip(),
+                        str(recommendation.get("text") or "").strip(),
+                    )
+                    if part
                 )
-                if part
-            )
             knowledge = {
                 "mode": "llm_only",
                 "rag_status": "empty_corpus",
@@ -1939,7 +1954,7 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
                 "external_status": "not_attempted",
             }
             metadata: Dict[str, Any] = {
-                "intent": "PRODUCT_RECOMMENDATION",
+                "intent": "ERP_PRODUCT_FACT_LOOKUP" if is_product_fact_lookup else "PRODUCT_RECOMMENDATION",
                 "knowledge": knowledge,
                 "product_bridge": _product_bridge_metadata(
                     product_need_result,
@@ -1951,19 +1966,34 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
                     intent_decision=product_intent_decision.decision,
                 ),
                 "product_results": product_results,
-                "erp_status": recommendation.get("erp_status"),
-                "erp_snapshot_timestamp": recommendation.get("source_timestamp"),
+                "erp_status": (
+                    (recommendation.get("erp_lookup") or {}).get("status")
+                    if is_product_fact_lookup
+                    else recommendation.get("erp_status")
+                ),
+                "erp_snapshot_timestamp": (
+                    (recommendation.get("erp_lookup") or {}).get("timestamp")
+                    if is_product_fact_lookup
+                    else recommendation.get("source_timestamp")
+                ),
                 "language": resolved_lang,
                 "lang": resolved_lang,
                 "detected_query_language": question_lang,
                 "requested_language": requested_lang,
-                "routing_path": "knowledge_first_immediate_product_bridge",
+                "routing_path": (
+                    "erp_product_fact_lookup"
+                    if is_product_fact_lookup
+                    else "knowledge_first_immediate_product_bridge"
+                ),
                 "intent_task_type": product_intent_decision.task_type,
                 "intent_decision": product_intent_decision.decision,
                 "intent_source": product_intent_decision.source,
                 "intent_confidence": round(float(product_intent_decision.confidence), 3),
+                "intent_lookup_operation": product_intent_decision.lookup_operation,
                 "project": project_context or {},
             }
+            if is_product_fact_lookup:
+                metadata["erp_lookup"] = dict(recommendation.get("erp_lookup") or {})
             _, assistant_message_id = await add_message_to_conversation(
                 conv_id,
                 "assistant",
@@ -1976,13 +2006,16 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
             )
             metadata["product_bridge"]["source_message_id"] = str(assistant_message_id)
             await update_message_enrichment(assistant_message_id, metadata=metadata)
+            context_update = {
+                "trip_plan": trip_plan_result.trip_plan,
+                "product_need_profile": product_need_result.profile,
+                "source_message_id": str(assistant_message_id),
+            }
+            if is_product_fact_lookup:
+                context_update["erp_lookup"] = dict(recommendation.get("erp_lookup") or {})
             await merge_conversation_context_state(
                 conv_id,
-                {
-                    "trip_plan": trip_plan_result.trip_plan,
-                    "product_need_profile": product_need_result.profile,
-                    "source_message_id": str(assistant_message_id),
-                },
+                context_update,
                 context_version=NEED_PROFILE_VERSION,
             )
             answer_payload = {
@@ -1995,7 +2028,9 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
             return {
                 "ok": True,
                 "kind": "chat",
-                "intent": {"name": "PRODUCT_RECOMMENDATION"},
+                "intent": {
+                    "name": "ERP_PRODUCT_FACT_LOOKUP" if is_product_fact_lookup else "PRODUCT_RECOMMENDATION"
+                },
                 "answer": answer_payload,
                 "content": answer_text,
                 "language": resolved_lang,
@@ -2116,6 +2151,7 @@ async def chat(request: Request, user: Optional[Dict[str, Any]] = Depends(get_cu
             answer_metadata["intent_decision"] = product_intent_decision.decision
             answer_metadata["intent_source"] = product_intent_decision.source
             answer_metadata["intent_confidence"] = round(float(product_intent_decision.confidence), 3)
+            answer_metadata["intent_lookup_operation"] = product_intent_decision.lookup_operation
             trigger = "button" if product_need_result.eligible else "none"
             answer_metadata["product_bridge"] = _product_bridge_metadata(
                 product_need_result,

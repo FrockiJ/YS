@@ -22,6 +22,32 @@ class CerpServiceLimitTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([product["no"] for product in products], ["SKU-0", "SKU-1", "SKU-2"])
         self.assertEqual(service._collect_rows_by_keyword.await_args.kwargs["max_results"], 50)
 
+    async def test_keyword_search_queries_name_brand_category_and_specification_fields(self):
+        client = Mock()
+        response = {
+            "data": {
+                "wd4invnas": [{"invn002": "SKU-1", "invn005": "Fishing rod"}],
+                "wd4inv1as": [],
+            }
+        }
+        client.export_products = AsyncMock(return_value=response)
+        client.export_products_info = AsyncMock(return_value=response)
+        service = CerpService(client=client)
+
+        rows = await service._collect_rows_by_keyword(
+            "rod", max_results=10, page_size=10, max_pages=1
+        )
+
+        self.assertEqual(set(rows), {"SKU-1"})
+        searched_fields = {
+            next(iter(call.kwargs["paramchar1"]))
+            for call in client.export_products.await_args_list
+        }
+        self.assertEqual(
+            searched_fields,
+            {"invn005", "invn006", "invn030", "invn051", "invn807"},
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

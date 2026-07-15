@@ -21,6 +21,7 @@ _DIRECT_ERP_RE = re.compile(
     r"\b(?:stock|inventory|price|quote|quotation|buy|purchase|order)\b)",
     re.IGNORECASE,
 )
+_INVENTORY_RE = re.compile(r"(?:庫存|現貨|\b(?:stock|inventory)\b)", re.IGNORECASE)
 _SKU_RE = re.compile(r"\b[A-Z]{2,}[A-Z0-9_-]*\d{2,}\b", re.IGNORECASE)
 _AMBIGUOUS_RECOMMENDATION_RE = re.compile(
     r"(?:推薦|推介|適合|挑選|選擇|建議(?:哪|什麼)|"
@@ -40,6 +41,23 @@ _FOLLOWUP_RE = re.compile(
 _OPERATIONAL_KNOWLEDGE_RE = re.compile(
     r"(?:策略|方法|原理|流程|制度|如何管理|如何計算|"
     r"\b(?:strategy|method|principle|process|management|how to calculate)\b)",
+    re.IGNORECASE,
+)
+_CATALOG_QUERY_RE = re.compile(
+    r"(?:(?:有哪些|有什麼|列出|清單|列表).{0,10}(?:品牌|型號|商品|產品)|"
+    r"(?:品牌|型號|商品|產品).{0,10}(?:有哪些|有什麼|清單|列表)|"
+    r"\b(?:what|which|list|show).{0,30}\b(?:brands?|models?|products?|items?)\b)",
+    re.IGNORECASE,
+)
+_LOOKUP_QUERY_CLEANUP_RE = re.compile(
+    r"(?:還有多少庫存|庫存還有多少|有多少庫存|有庫存嗎|是否有庫存|庫存(?:量)?|現貨|"
+    r"售價|價格|價錢|多少錢|報價|購買|採購|下單|請問|請幫我|幫我|查詢|查一下|"
+    r"\b(?:how much (?:stock|inventory)|in stock|stock|inventory|price|quote|quotation|buy|purchase|order|"
+    r"please|check|lookup|look up)\b)",
+    re.IGNORECASE,
+)
+_ENGLISH_LOOKUP_STOP_RE = re.compile(
+    r"\b(?:what|which|does|do|have|has|is|there|any|the|a|an|of|for|me)\b",
     re.IGNORECASE,
 )
 _TRACEABLE_BUDGET_RE = re.compile(r"(?:預算|價格|價位|NT\$?|TWD|USD|\$)\s*\d|\d\s*(?:元|塊|TWD|USD)", re.IGNORECASE)
@@ -73,6 +91,8 @@ class ProductIntentPayload(BaseModel):
     decision: Literal["knowledge_only", "knowledge_with_product_bridge", "erp_immediate"]
     confidence: float = Field(ge=0.0, le=1.0)
     need_profile_patch: ProductNeedProfilePatch = Field(default_factory=ProductNeedProfilePatch)
+    lookup_operation: Optional[Literal["inventory_lookup", "brand_catalog", "product_lookup"]] = None
+    lookup_query: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -82,6 +102,8 @@ class ProductIntentDecision:
     confidence: float
     source: str
     need_profile_patch: Dict[str, Any]
+    lookup_operation: Optional[str] = None
+    lookup_query: Optional[str] = None
 
     @property
     def immediate(self) -> bool:
@@ -106,11 +128,28 @@ class ProductIntentAnalysisService:
         text = str(message or "").strip()
         has_prior_product = self._has_prior_product_context(history, context_state)
         explicit_operational_request = bool(
-            _DIRECT_ERP_RE.search(text) and (_PRODUCT_NOUN_RE.search(text) or has_prior_product)
-            and not _OPERATIONAL_KNOWLEDGE_RE.search(text)
+            _DIRECT_ERP_RE.search(text) and not _OPERATIONAL_KNOWLEDGE_RE.search(text)
         )
         if _SKU_RE.search(text) or explicit_operational_request or (has_prior_product and _FOLLOWUP_RE.search(text)):
             task_type = "erp_lookup" if _SKU_RE.search(text) or explicit_operational_request else "product_recommendation"
+            if task_type == "erp_lookup":
+                operation = self._lookup_operation_from_text(text)
+                lookup_query = self._extract_rule_lookup_query(text) or self._latest_erp_lookup_query(
+                    history,
+                    context_state,
+                )
+                if not lookup_query:
+                    decision = "knowledge_with_product_bridge" if bridge_eligible else "knowledge_only"
+                    return ProductIntentDecision("knowledge", decision, 0.0, "fallback", {})
+                return ProductIntentDecision(
+                    task_type,
+                    "erp_immediate",
+                    1.0,
+                    "rule",
+                    {},
+                    operation,
+                    lookup_query,
+                )
             return ProductIntentDecision(task_type, "erp_immediate", 1.0, "rule", {})
 
         destination_query = TripPlanService.is_destination_query(text)
@@ -118,7 +157,8 @@ class ProductIntentAnalysisService:
             TripPlanService.has_trip_context(TripPlanService.from_context(context_state))
             and TripPlanService.is_destination_filter(text)
         )
-        if not (_AMBIGUOUS_RECOMMENDATION_RE.search(text) or destination_query or destination_followup):
+        catalog_query = bool(_CATALOG_QUERY_RE.search(text))
+        if not (_AMBIGUOUS_RECOMMENDATION_RE.search(text) or catalog_query or destination_query or destination_followup):
             decision = "knowledge_with_product_bridge" if bridge_eligible else "knowledge_only"
             return ProductIntentDecision("knowledge", decision, 1.0, "rule", {})
 
@@ -130,11 +170,29 @@ class ProductIntentAnalysisService:
             patch = self._sanitize_patch(payload.need_profile_patch.model_dump(), text)
             decision = payload.decision
             task_type = payload.task_type
+            lookup_operation: Optional[str] = None
+            lookup_query: Optional[str] = None
             if task_type in {"destination_recommendation", "destination_filter"}:
                 decision = "knowledge_only"
             elif decision == "erp_immediate" and task_type not in {"product_recommendation", "erp_lookup"}:
                 decision = "knowledge_with_product_bridge" if bridge_eligible else "knowledge_only"
-            return ProductIntentDecision(task_type, decision, payload.confidence, "llm", patch)
+            elif task_type == "erp_lookup":
+                lookup_operation = payload.lookup_operation
+                lookup_query = self._sanitize_lookup_query(payload.lookup_query, text)
+                if decision != "erp_immediate" or not lookup_operation or not lookup_query:
+                    task_type = "knowledge"
+                    decision = "knowledge_with_product_bridge" if bridge_eligible else "knowledge_only"
+                    lookup_operation = None
+                    lookup_query = None
+            return ProductIntentDecision(
+                task_type,
+                decision,
+                payload.confidence,
+                "llm",
+                patch,
+                lookup_operation,
+                lookup_query,
+            )
         except Exception as exc:
             logger.info("Product intent LLM classification fell back safely: %s", exc)
             decision = "knowledge_with_product_bridge" if bridge_eligible else "knowledge_only"
@@ -170,6 +228,10 @@ class ProductIntentAnalysisService:
             "Use destination_recommendation for campsite/place suggestions and destination_filter for refining those places. "
             "Destination tasks are knowledge_only and must never use ERP. "
             "Use erp_immediate only when the user asks for actual products/equipment, inventory, price, quote, or purchase. "
+            "Use erp_lookup for factual ERP catalog questions. Set lookup_operation to inventory_lookup for stock, "
+            "brand_catalog for brands in a requested category, or product_lookup for product/model/price lists. "
+            "For erp_lookup, lookup_query must be an exact contiguous subject copied from the current message; "
+            "never translate, expand, or invent it. For example, '目前釣竿品牌有哪些？' uses brand_catalog and query '釣竿'. "
             "An explicit request for products or equipment is an ERP request even without price or inventory wording: "
             "'推薦玉山雨季裝備' and '直接推薦玉山雨季裝備' are product_recommendation with erp_immediate. "
             "When saved_trip_plan is present and the user asks for suitable supplies, gear, or equipment recommendations, "
@@ -231,6 +293,75 @@ class ProductIntentAnalysisService:
                 if not cleaned[key]:
                     cleaned.pop(key, None)
         return cleaned
+
+    @staticmethod
+    def _lookup_operation_from_text(message: str) -> str:
+        return "inventory_lookup" if _INVENTORY_RE.search(str(message or "")) else "product_lookup"
+
+    @staticmethod
+    def _extract_rule_lookup_query(message: str) -> Optional[str]:
+        text = str(message or "").strip()
+        sku = _SKU_RE.search(text)
+        if sku:
+            return sku.group(0)
+        candidate = _LOOKUP_QUERY_CLEANUP_RE.sub(" ", text)
+        candidate = _ENGLISH_LOOKUP_STOP_RE.sub(" ", candidate)
+        candidate = re.sub(r"(?:還有多少|還有|還|是多少|為多少|目前|現在|即時|的|嗎|呢|？|\?)", " ", candidate)
+        candidate = re.sub(r"[\s,;:，。！!]+", " ", candidate).strip()
+        if not candidate or candidate.casefold() == text.casefold():
+            return None
+        return ProductIntentAnalysisService._sanitize_lookup_query(candidate, text)
+
+    @staticmethod
+    def _sanitize_lookup_query(value: Any, message: str) -> Optional[str]:
+        query = re.sub(r"[\s,;:，。！？!?]+", " ", str(value or "")).strip()
+        source = str(message or "")
+        if not query or query.casefold() not in source.casefold():
+            return None
+        if query.casefold() in {
+            "品牌",
+            "型號",
+            "商品",
+            "產品",
+            "brand",
+            "brands",
+            "model",
+            "models",
+            "product",
+            "products",
+        }:
+            return None
+        return query
+
+    @staticmethod
+    def _latest_erp_lookup_query(
+        history: Optional[Sequence[Dict[str, Any]]],
+        context_state: Optional[Dict[str, Any]],
+    ) -> Optional[str]:
+        if isinstance(context_state, dict):
+            saved_lookup = context_state.get("erp_lookup")
+            if isinstance(saved_lookup, dict):
+                query = str(saved_lookup.get("query") or "").strip()
+                if query:
+                    return query
+        for item in reversed(list(history or [])):
+            metadata = item.get("metadata") if isinstance(item, dict) else None
+            if not isinstance(metadata, dict):
+                continue
+            lookup = metadata.get("erp_lookup")
+            if isinstance(lookup, dict):
+                query = str(lookup.get("query") or "").strip()
+                if query:
+                    return query
+            results = metadata.get("product_results")
+            if isinstance(results, list):
+                for product in results:
+                    if not isinstance(product, dict):
+                        continue
+                    sku = str(product.get("sku") or product.get("no") or "").strip()
+                    if sku:
+                        return sku
+        return None
 
     @staticmethod
     def _has_prior_product_context(

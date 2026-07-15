@@ -50,7 +50,13 @@ function isBlank(value) {
 }
 
 function enrichFishingProduct(name) {
-  const rule = CATEGORY_RULES.find(({ pattern }) => pattern.test(String(name || "")));
+  const productName = String(name || "");
+  // "Rod" in these accessory/apparel names does not mean the product is a
+  // fishing rod. Keep the seed deterministic and route them to accessories.
+  if (/\brod[\s_-]*(?:stand|holder|wax)\b|\bt[\s-]*shirt\b/i.test(productName)) {
+    return CATEGORY_RULES[CATEGORY_RULES.length - 1];
+  }
+  const rule = CATEGORY_RULES.find(({ pattern }) => pattern.test(productName));
   return rule || {
     category: "綜合釣具",
     supplier: "YS 綜合釣具供應",

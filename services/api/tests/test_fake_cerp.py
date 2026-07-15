@@ -170,6 +170,40 @@ def test_fake_cerp_client_filters_paramchar_by_code_name_and_spec():
     assert FakeCERPClient._filter_products([product], paramchar1={"invn006": ["missing"]}) == []
 
 
+def test_fake_cerp_does_not_use_supplier_as_brand():
+    product = SimpleNamespace(
+        code="P1",
+        name="Unbranded Fishing Rod",
+        spec1="7 ft",
+        amount=Decimal("1200"),
+        stock=3,
+        raw_row={"supplier": "YS 釣竿供應", "category": "釣竿"},
+    )
+
+    row = FakeCERPClient._row(product, include_warehouses=False)
+
+    assert row["brand"] == ""
+    assert row["invn006"] == ""
+    assert row["supplier"] == "YS 釣竿供應"
+
+
+def test_fake_cerp_reclassifies_false_rod_accessories():
+    for name in ("Rod Stand", "Rod Holder", "Rod Wax", "Rod T-Shirt"):
+        product = SimpleNamespace(
+            code=f"P-{name}",
+            name=name,
+            spec1="",
+            amount=Decimal("100"),
+            stock=1,
+            raw_row={"supplier": "YS 釣竿供應", "category": "釣竿"},
+        )
+
+        row = FakeCERPClient._row(product, include_warehouses=False)
+
+        assert row["category"] == "配件"
+        assert FakeCERPClient._filter_products([product], paramchar1={"invn030": ["釣竿"]}) == []
+
+
 def test_fake_camping_fixture_has_900_unique_products_with_complete_metadata():
     products = json.loads(CAMPING_FIXTURE_PATH.read_text(encoding="utf-8"))
     codes = [product["code"] for product in products]

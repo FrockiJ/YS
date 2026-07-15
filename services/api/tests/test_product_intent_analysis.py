@@ -47,6 +47,88 @@ class ProductIntentAnalysisTests(unittest.IsolatedAsyncioTestCase):
         result = await ProductIntentAnalysisService().analyze("CAMP0001 有庫存嗎？")
         self.assertTrue(result.immediate)
         self.assertEqual(result.source, "rule")
+        self.assertEqual(result.task_type, "erp_lookup")
+        self.assertEqual(result.lookup_operation, "inventory_lookup")
+        self.assertEqual(result.lookup_query, "CAMP0001")
+
+    async def test_unknown_brand_stock_query_does_not_require_known_product_noun(self):
+        result = await ProductIntentAnalysisService().analyze("bombada還有多少庫存")
+
+        self.assertEqual(result.task_type, "erp_lookup")
+        self.assertEqual(result.decision, "erp_immediate")
+        self.assertEqual(result.lookup_operation, "inventory_lookup")
+        self.assertEqual(result.lookup_query, "bombada")
+
+    async def test_unknown_product_price_query_uses_traceable_subject(self):
+        result = await ProductIntentAnalysisService().analyze("bombada價格是多少？")
+
+        self.assertEqual(result.task_type, "erp_lookup")
+        self.assertEqual(result.lookup_operation, "product_lookup")
+        self.assertEqual(result.lookup_query, "bombada")
+
+    async def test_english_inventory_question_extracts_only_traceable_subject(self):
+        result = await ProductIntentAnalysisService().analyze("how much inventory does bombada have?")
+
+        self.assertEqual(result.task_type, "erp_lookup")
+        self.assertEqual(result.lookup_operation, "inventory_lookup")
+        self.assertEqual(result.lookup_query, "bombada")
+
+    async def test_subjectless_inventory_followup_uses_saved_erp_query(self):
+        result = await ProductIntentAnalysisService().analyze(
+            "還有庫存嗎？",
+            history=[
+                {
+                    "role": "assistant",
+                    "metadata": {
+                        "erp_lookup": {"operation": "product_lookup", "query": "bombada"},
+                        "product_results": [{"sku": "P355302935"}],
+                    },
+                }
+            ],
+        )
+
+        self.assertEqual(result.task_type, "erp_lookup")
+        self.assertEqual(result.lookup_operation, "inventory_lookup")
+        self.assertEqual(result.lookup_query, "bombada")
+
+    async def test_brand_catalog_is_llm_classified_and_keeps_traceable_query(self):
+        service = StubIntentService(
+            {
+                "task_type": "erp_lookup",
+                "decision": "erp_immediate",
+                "confidence": 0.97,
+                "need_profile_patch": {},
+                "lookup_operation": "brand_catalog",
+                "lookup_query": "釣竿",
+            }
+        )
+
+        result = await service.analyze("目前釣竿品牌有哪些？")
+
+        self.assertEqual(result.task_type, "erp_lookup")
+        self.assertTrue(result.immediate)
+        self.assertEqual(result.source, "llm")
+        self.assertEqual(result.lookup_operation, "brand_catalog")
+        self.assertEqual(result.lookup_query, "釣竿")
+
+    async def test_llm_catalog_query_cannot_invent_erp_lookup_subject(self):
+        service = StubIntentService(
+            {
+                "task_type": "erp_lookup",
+                "decision": "erp_immediate",
+                "confidence": 0.97,
+                "need_profile_patch": {},
+                "lookup_operation": "brand_catalog",
+                "lookup_query": "露營用品",
+            }
+        )
+
+        result = await service.analyze("目前釣竿品牌有哪些？")
+
+        self.assertEqual(result.task_type, "knowledge")
+        self.assertFalse(result.immediate)
+        self.assertIsNone(result.lookup_operation)
+        self.assertIsNone(result.lookup_query)
 
     async def test_generic_inventory_management_question_does_not_use_erp(self):
         result = await ProductIntentAnalysisService().analyze("庫存管理方法有哪些？")

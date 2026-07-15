@@ -23,6 +23,8 @@ from ..utils.webphoto import lookup_product_photo
 
 logger = logging.getLogger(__name__)
 
+_PRODUCT_SEARCH_FIELDS = ("invn005", "invn006", "invn030", "invn051", "invn807")
+
 _STORE_WAREHOUSE_KEYWORDS = ("精品", "門市", "門店", "店面", "retail", "boutique", "shop", "store")
 
 
@@ -148,6 +150,10 @@ class CerpService:
                 raise_on_error=raise_on_error,
             )
             for row in fallback_rows:
+                # Treat local export rows as candidates only. A returned row must
+                # still contain the exact query subject in a searchable field.
+                if self._score_keyword(row, query) <= 0:
+                    continue
                 code = self._normalize_code(row.get("invn002"))
                 if not code:
                     continue
@@ -176,53 +182,35 @@ class CerpService:
         page = 1
         rows_by_code: Dict[str, Dict[str, Any]] = {}
         while len(rows_by_code) < max_results and page <= max(1, max_pages):
-            brand_paramchar = {"invn006": [keyword]}
-            name_paramchar = {"invn005": [keyword]}
-            (
-                prod_products_response,
-                prod_info_response,
-                name_products_response,
-                name_info_response,
-            ) = await asyncio.gather(
-                self._client.export_products(
-                    custid=None,
-                    supplier=None,
-                    compid=None,
-                    exprange=0,
-                    paramchar1=brand_paramchar,
-                    perpage=perpage,
-                    page=page,
-                ),
-                self._client.export_products_info(
-                    custid=None,
-                    supplier=None,
-                    compid=None,
-                    exprange=0,
-                    paramchar1=brand_paramchar,
-                    perpage=perpage,
-                    page=page,
-                ),
-                self._client.export_products(
-                    custid=None,
-                    supplier=None,
-                    compid=None,
-                    exprange=0,
-                    paramchar1=name_paramchar,
-                    perpage=perpage,
-                    page=page,
-                ),
-                self._client.export_products_info(
-                    custid=None,
-                    supplier=None,
-                    compid=None,
-                    exprange=0,
-                    paramchar1=name_paramchar,
-                    perpage=perpage,
-                    page=page,
-                ),
-            )
-            merged_rows = self._merge_rows(prod_products_response, prod_info_response)
-            merged_rows += self._merge_rows(name_products_response, name_info_response)
+            calls = []
+            for field in _PRODUCT_SEARCH_FIELDS:
+                paramchar = {field: [keyword]}
+                calls.extend(
+                    (
+                        self._client.export_products(
+                            custid=None,
+                            supplier=None,
+                            compid=None,
+                            exprange=0,
+                            paramchar1=paramchar,
+                            perpage=perpage,
+                            page=page,
+                        ),
+                        self._client.export_products_info(
+                            custid=None,
+                            supplier=None,
+                            compid=None,
+                            exprange=0,
+                            paramchar1=paramchar,
+                            perpage=perpage,
+                            page=page,
+                        ),
+                    )
+                )
+            responses = await asyncio.gather(*calls)
+            merged_rows: List[Dict[str, Any]] = []
+            for index in range(0, len(responses), 2):
+                merged_rows += self._merge_rows(responses[index], responses[index + 1])
             merged_rows = await self.enrich_product_rows(merged_rows, include_product_fields=False)
             if not merged_rows:
                 break

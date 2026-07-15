@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from decimal import Decimal
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Union
 
@@ -42,13 +43,37 @@ class FakeCERPClient:
     @staticmethod
     def _brand_value(product: FakeCerpProduct) -> str:
         raw_row = product.raw_row or {}
-        return str(raw_row.get("brand") or raw_row.get("supplier") or "").strip()
+        # Supplier is not a trustworthy brand. Keep the values separate so
+        # catalog answers cannot present a generic importer as a manufacturer.
+        return str(raw_row.get("brand") or "").strip()
+
+    @staticmethod
+    def _supplier_value(product: FakeCerpProduct) -> str:
+        raw_row = product.raw_row or {}
+        return str(raw_row.get("supplier") or "").strip()
+
+    @staticmethod
+    def _category_value(product: FakeCerpProduct) -> str:
+        raw_row = product.raw_row or {}
+        category = str(raw_row.get("category") or "").strip()
+        name = str(product.name or "").strip()
+        normalized_category = category.casefold()
+        false_rod_accessory = re.search(
+            r"\brod[\s_-]*(?:stand|holder|wax)\b|\bt[\s-]*shirt\b",
+            name,
+            re.IGNORECASE,
+        )
+        if false_rod_accessory and normalized_category in {"rod", "fishing rod", "釣竿"}:
+            return "配件"
+        return category
 
     @classmethod
     def _row(cls, product: FakeCerpProduct, *, include_warehouses: bool) -> Dict[str, Any]:
         amount = Decimal(product.amount or 0)
         vip_amount = resolve_fake_vip_price(amount)
         brand = cls._brand_value(product)
+        supplier = cls._supplier_value(product)
+        category = cls._category_value(product)
         raw_row = product.raw_row or {}
         photo_url = (
             raw_row.get("photo_url")
@@ -64,22 +89,22 @@ class FakeCERPClient:
             "invn013": float(amount),
             "invn015": float(vip_amount),
             "invn017": float(vip_amount),
-            "invn030": raw_row.get("category") or "",
+            "invn030": category,
             "invn045": int(product.stock or 0),
             "invn051": product.spec1 or "",
             "invn077": product.name,
             "invn801": raw_row.get("color") or "",
-            "invn802": raw_row.get("class") or raw_row.get("category") or "",
+            "invn802": raw_row.get("class") or category,
             "invn803": raw_row.get("material") or "",
             "invn804": raw_row.get("feature") or "",
             "invn805": raw_row.get("type") or "",
             "invn806": raw_row.get("size") or "",
             "invn807": raw_row.get("model_year") or product.spec1 or "",
             "brand": brand,
-            "supplier": brand,
+            "supplier": supplier,
             "product_name": product.name,
             "model_year": raw_row.get("model_year") or product.spec1 or "",
-            "category": raw_row.get("category") or "",
+            "category": category,
             "type": raw_row.get("type") or "",
             "material": raw_row.get("material") or "",
             "size": raw_row.get("size") or "",
@@ -107,16 +132,15 @@ class FakeCERPClient:
         if not paramchar:
             return True
         raw_row = product.raw_row or {}
+        category = cls._category_value(product)
         haystacks = {
             "invn002": [product.code],
             "invn005": [product.name],
-            "invn006": [
-                str(raw_row.get("brand") or ""),
-                str(raw_row.get("supplier") or ""),
-            ],
+            "invn006": [str(raw_row.get("brand") or "")],
             "invn008": [str(raw_row.get("barcode") or "")],
-            "invn030": [str(raw_row.get("category") or "")],
+            "invn030": [category],
             "invn051": [str(product.spec1 or "")],
+            "invn807": [str(raw_row.get("model_year") or product.spec1 or "")],
         }
         for key, needles in paramchar.items():
             values = haystacks.get(key)
