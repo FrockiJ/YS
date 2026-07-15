@@ -19,10 +19,11 @@ curl -fsS "${base_url}/api/debug/health" | jq -e '.ok == true' >/dev/null
 curl -fsSI "${base_url}/" | head -n 1 | grep -Eq ' 200 | 304 '
 "${compose[@]}" port web 80 | grep -Eq '(^|:)80$'
 
-for endpoint in 'api 8000' 'postgres 5432' 'redis 6379' 'extract-worker 8000'; do
-  read -r service port <<< "$endpoint"
-  if "${compose[@]}" port "$service" "$port" 2>/dev/null | grep -q .; then
-    echo "Unexpected published port for ${service}:${port}" >&2
+for service in api postgres redis extract-worker; do
+  container_id="$("${compose[@]}" ps -q "$service")"
+  [[ -n "$container_id" ]] || { echo "Expected container is missing: ${service}" >&2; exit 1; }
+  if docker inspect -f '{{range $port, $bindings := .NetworkSettings.Ports}}{{if $bindings}}{{range $bindings}}{{printf "%s -> %s:%s\\n" $port .HostIp .HostPort}}{{end}}{{end}}{{end}}' "$container_id" | grep -q .; then
+    echo "Unexpected published port for ${service}" >&2
     exit 1
   fi
 done
