@@ -1,4 +1,7 @@
+import json
+import os
 import unittest
+from unittest.mock import AsyncMock, patch
 
 from src.services.ai.product_intent_analysis import (
     ProductIntentAnalysisService,
@@ -18,6 +21,28 @@ class StubIntentService(ProductIntentAnalysisService):
 
 
 class ProductIntentAnalysisTests(unittest.IsolatedAsyncioTestCase):
+    async def test_classifier_prompt_marks_direct_equipment_request_as_immediate_erp(self):
+        response = {
+            "task_type": "product_recommendation",
+            "decision": "erp_immediate",
+            "confidence": 0.95,
+            "need_profile_patch": {"activity": "hiking", "weather": ["rain"]},
+        }
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}):
+            with patch(
+                "src.services.ai.product_intent_analysis.openai_client.chat_complete",
+                new=AsyncMock(return_value=json.dumps(response)),
+            ) as chat_complete:
+                payload = await ProductIntentAnalysisService()._classify_with_llm(
+                    "\u63a8\u85a6\u7389\u5c71\u96e8\u5b63\u88dd\u5099",
+                    history=[],
+                    context_state={},
+                )
+
+        self.assertEqual(payload.task_type, "product_recommendation")
+        self.assertEqual(payload.decision, "erp_immediate")
+        self.assertIn("推薦玉山雨季裝備", chat_complete.await_args.kwargs["system"])
+
     async def test_explicit_sku_stock_query_uses_rule(self):
         result = await ProductIntentAnalysisService().analyze("CAMP0001 有庫存嗎？")
         self.assertTrue(result.immediate)
